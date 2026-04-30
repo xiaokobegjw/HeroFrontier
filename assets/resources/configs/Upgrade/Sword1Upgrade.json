@@ -1,0 +1,15 @@
+{
+    "id": "Sword1Upgrade",
+    "levels": [
+        { "level": 1, "fields": { "WeaponComponent": { "damage": 18, "attackInterval": 0.9, "meleeRadius": 20 } } },
+        { "level": 2, "fields": { "WeaponComponent": { "damage": 20, "attackInterval": 0.882, "meleeRadius": 21.5 } } },
+        { "level": 3, "fields": { "WeaponComponent": { "damage": 22, "attackInterval": 0.864, "meleeRadius": 23 } } },
+        { "level": 4, "fields": { "WeaponComponent": { "damage": 23, "attackInterval": 0.846, "meleeRadius": 24.5 } } },
+        { "level": 5, "fields": { "WeaponComponent": { "damage": 25, "attackInterval": 0.828, "meleeRadius": 26 } } },
+        { "level": 6, "fields": { "WeaponComponent": { "damage": 27, "attackInterval": 0.81, "meleeRadius": 27.5 } } },
+        { "level": 7, "fields": { "WeaponComponent": { "damage": 29, "attackInterval": 0.792, "meleeRadius": 29 } } },
+        { "level": 8, "fields": { "WeaponComponent": { "damage": 31, "attackInterval": 0.774, "meleeRadius": 30.5 } } },
+        { "level": 9, "fields": { "WeaponComponent": { "damage": 32, "attackInterval": 0.756, "meleeRadius": 32 } } },
+        { "level": 10, "fields": { "WeaponComponent": { "damage": 34, "attackInterval": 0.738, "meleeRadius": 33.5 } } }
+    ]
+}

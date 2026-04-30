@@ -15,15 +15,22 @@ import enemyConfig from '../../resources/configs/Entitys/Enemy1.json';
 import bowConfig from '../../resources/configs/Weapons/Bow1.json';
 import swordConfig from '../../resources/configs/Weapons/Sword1.json';
 import arrowConfig from '../../resources/configs/Projectiles/Arrow1.json';
+import hero1Upgrade from '../../resources/configs/Upgrade/Hero1Upgrade.json';
+import bow1Upgrade from '../../resources/configs/Upgrade/Bow1Upgrade.json';
+import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
+import defaultSave from '../../resources/configs/Save/DefaultSave.json';
 import { QuadTree } from '../Shared/Spatial/QuadTree';
 import { HealthComponent } from './ECS/Components/HealthComponent';
 import { PerceptionSystem } from './ECS/Systems/PerceptionSystem';
 import { TargetingSystem } from './ECS/Systems/TargetingSystem';
 import { EquipmentSystem } from './ECS/Systems/EquipmentSystem';
+import { UpgradeSystem } from './ECS/Systems/UpgradeSystem';
 import { WeaponSystem } from './ECS/Systems/WeaponSystem';
 import { ProjectileSystem } from './ECS/Systems/ProjectileSystem';
 import { MeleeHitboxSystem } from './ECS/Systems/MeleeHitboxSystem';
 import { DamageSystem } from './ECS/Systems/DamageSystem';
+import { SaveManager, SaveData } from './Managers/SaveManager';
+import { Entity } from '../Shared/ECS/Core/Entity';
 
 /**
  * 游戏主入口脚本：挂载到场景节点
@@ -38,10 +45,13 @@ export class GameMain extends Component {
     private perceptionSystem: PerceptionSystem = null!;
     private targetingSystem: TargetingSystem = null!;
     private equipmentSystem: EquipmentSystem = null!;
+    private upgradeSystem: UpgradeSystem = null!;
     private weaponSystem: WeaponSystem = null!;
     private projectileSystem: ProjectileSystem = null!;
     private meleeHitboxSystem: MeleeHitboxSystem = null!;
     private damageSystem: DamageSystem = null!;
+    private playerEntity: Entity | null = null;
+    private saveData: SaveData | null = null;
 
     onLoad() {
         // 打印环境配置
@@ -77,6 +87,9 @@ export class GameMain extends Component {
         this.equipmentSystem = new EquipmentSystem(this.world, { Bow1: bowConfig, Sword1: swordConfig }, 6.5);
         this.world.registerSystem(this.equipmentSystem);
 
+        this.upgradeSystem = new UpgradeSystem(this.world, { Hero1Upgrade: hero1Upgrade as any, Bow1Upgrade: bow1Upgrade as any, Sword1Upgrade: sword1Upgrade as any }, 6.8);
+        this.world.registerSystem(this.upgradeSystem);
+
         this.weaponSystem = new WeaponSystem(this.world, { Arrow1: arrowConfig }, 7);
         this.world.registerSystem(this.weaponSystem);
 
@@ -104,6 +117,8 @@ export class GameMain extends Component {
     }
 
     start() {
+        this.saveData = SaveManager.instance.loadOrDefault(defaultSave as SaveData);
+
         // 启动 ECS 世界
         this.world.start();
 
@@ -117,6 +132,8 @@ export class GameMain extends Component {
 
         // 方式2: 从配置加载 (新方式)
         const heroFromConfig = EntityFactory.createEntityFromConfig(this.world, heroConfig, { x: 100, y: 100 });
+        SaveManager.instance.applyToPlayerEntity(heroFromConfig as any, this.saveData);
+        this.playerEntity = heroFromConfig as any;
         console.log(`[GameMain] Created entity from config: ${heroFromConfig.name}`);
 
         const health = heroFromConfig.getComponent(HealthComponent);
@@ -171,6 +188,12 @@ export class GameMain extends Component {
     }
 
     onDestroy() {
+        if (this.world && this.playerEntity && this.saveData) {
+            const out = SaveManager.instance.extractFromPlayerEntity(this.playerEntity, this.saveData);
+            out.progress.unlockedStages = this.saveData.progress.unlockedStages;
+            SaveManager.instance.save(out);
+            this.saveData = out;
+        }
         if (this.world) {
             this.world.clear();
         }

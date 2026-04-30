@@ -13,6 +13,8 @@ import { WeaponComponent, WeaponAttackType } from '../ECS/Components/WeaponCompo
 import { WeaponStateComponent } from '../ECS/Components/WeaponStateComponent';
 import { EquipmentComponent } from '../ECS/Components/EquipmentComponent';
 import { ProjectileSpecComponent } from '../ECS/Components/ProjectileSpecComponent';
+import { LevelComponent } from '../ECS/Components/LevelComponent';
+import { UpgradeableComponent } from '../ECS/Components/UpgradeableComponent';
 import { FactionType } from '../Data/Faction';
 
 export class EntityFactory {
@@ -168,6 +170,18 @@ export class EntityFactory {
                 spec.radius = config.radius ?? spec.radius;
                 spec.lifeSeconds = config.lifeSeconds ?? spec.lifeSeconds;
                 entity.addComponent(spec);
+                break;
+
+            case 'LevelComponent':
+                const level = world.acquireComponent(LevelComponent);
+                level.level = config.level ?? level.level;
+                entity.addComponent(level);
+                break;
+
+            case 'UpgradeableComponent':
+                const upgradeable = world.acquireComponent(UpgradeableComponent);
+                upgradeable.upgradeConfigId = config.upgradeConfigId ?? upgradeable.upgradeConfigId;
+                entity.addComponent(upgradeable);
                 break;
                 
             default:

@@ -4,6 +4,7 @@ import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { World } from '../../../Shared/ECS/Core/World';
 import { EquipmentComponent } from '../Components/EquipmentComponent';
 import { EntityFactory } from '../../Managers/EntityFactory';
+import { LevelComponent } from '../Components/LevelComponent';
 
 export class EquipmentSystem extends ECSSystem {
     private world: World;
@@ -33,7 +34,12 @@ export class EquipmentSystem extends ECSSystem {
             const weaponEntity = EntityFactory.createEntityFromConfig(this.world, weaponConfig);
             weaponEntity.name = weaponConfig.name || weaponConfig.id || 'Weapon';
             equip.weaponEntityId = weaponEntity.id;
+
+            const ownerLevel = entity.getComponent(LevelComponent);
+            const weaponLevel = weaponEntity.getComponent(LevelComponent);
+            if (ownerLevel && weaponLevel) {
+                weaponLevel.level = ownerLevel.level;
+            }
         }
     }
 }
-

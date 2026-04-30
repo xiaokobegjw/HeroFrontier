@@ -1,0 +1,15 @@
+{
+    "id": "Bow1Upgrade",
+    "levels": [
+        { "level": 1, "fields": { "WeaponComponent": { "damage": 15, "attackInterval": 0.7, "range": 360 } } },
+        { "level": 2, "fields": { "WeaponComponent": { "damage": 16, "attackInterval": 0.679, "range": 372 } } },
+        { "level": 3, "fields": { "WeaponComponent": { "damage": 17, "attackInterval": 0.658, "range": 384 } } },
+        { "level": 4, "fields": { "WeaponComponent": { "damage": 19, "attackInterval": 0.637, "range": 396 } } },
+        { "level": 5, "fields": { "WeaponComponent": { "damage": 20, "attackInterval": 0.616, "range": 408 } } },
+        { "level": 6, "fields": { "WeaponComponent": { "damage": 21, "attackInterval": 0.595, "range": 420 } } },
+        { "level": 7, "fields": { "WeaponComponent": { "damage": 22, "attackInterval": 0.574, "range": 432 } } },
+        { "level": 8, "fields": { "WeaponComponent": { "damage": 23, "attackInterval": 0.553, "range": 444 } } },
+        { "level": 9, "fields": { "WeaponComponent": { "damage": 25, "attackInterval": 0.532, "range": 456 } } },
+        { "level": 10, "fields": { "WeaponComponent": { "damage": 26, "attackInterval": 0.511, "range": 468 } } }
+    ]
+}

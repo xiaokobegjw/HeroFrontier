@@ -4,6 +4,14 @@
     "description": "sword_desc_basic",
     "ComponentsList": [
         {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "UpgradeableComponent",
+            "upgradeConfigId": "Sword1Upgrade"
+        },
+        {
             "id": "WeaponComponent",
             "autoFire": true,
             "attackType": "Melee",
@@ -21,4 +29,3 @@
         }
     ]
 }
-

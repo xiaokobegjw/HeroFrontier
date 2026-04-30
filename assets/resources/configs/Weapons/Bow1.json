@@ -4,6 +4,14 @@
     "description": "bow_desc_basic",
     "ComponentsList": [
         {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "UpgradeableComponent",
+            "upgradeConfigId": "Bow1Upgrade"
+        },
+        {
             "id": "WeaponComponent",
             "autoFire": true,
             "damage": 15,

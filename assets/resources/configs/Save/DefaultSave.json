@@ -1,0 +1,11 @@
+{
+    "version": 1,
+    "player": {
+        "level": 1,
+        "equippedWeaponId": "Bow1"
+    },
+    "progress": {
+        "unlockedStages": ["Stage1"]
+    }
+}
+

@@ -23,6 +23,15 @@
             "maxTargets": 5
         },
         {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.2,
+            "lockSeconds": 0.5,
+            "strategy": "MostRecent"
+        },
+        {
             "id": "HealthComponent",
             "max": 150
         },

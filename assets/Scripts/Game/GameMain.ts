@@ -15,6 +15,7 @@ import enemyConfig from '../../resources/configs/Entitys/Enemy1.json';
 import { QuadTree } from '../Shared/Spatial/QuadTree';
 import { HealthComponent } from './ECS/Components/HealthComponent';
 import { PerceptionSystem } from './ECS/Systems/PerceptionSystem';
+import { TargetingSystem } from './ECS/Systems/TargetingSystem';
 
 /**
  * 游戏主入口脚本：挂载到场景节点
@@ -27,6 +28,7 @@ export class GameMain extends Component {
     private spatialIndex: QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }> | null = null;
     private collisionSystem: CollisionSystem = null!;
     private perceptionSystem: PerceptionSystem = null!;
+    private targetingSystem: TargetingSystem = null!;
 
     onLoad() {
         // 打印环境配置
@@ -55,6 +57,9 @@ export class GameMain extends Component {
 
         this.perceptionSystem = new PerceptionSystem(this.world, 5);
         this.world.registerSystem(this.perceptionSystem);
+
+        this.targetingSystem = new TargetingSystem(6);
+        this.world.registerSystem(this.targetingSystem);
 
         // 3. 初始化并注册 RenderSystem
         this.renderSystem = new RenderSystem(100);

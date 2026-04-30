@@ -7,6 +7,8 @@ import { FactionComponent } from '../ECS/Components/FactionComponent';
 import { HealthComponent } from '../ECS/Components/HealthComponent';
 import { MemoryComponent } from '../ECS/Components/MemoryComponent';
 import { PerceptionComponent } from '../ECS/Components/PerceptionComponent';
+import { TargetComponent } from '../ECS/Components/TargetComponent';
+import { TargetingComponent, TargetingStrategy } from '../ECS/Components/TargetingComponent';
 import { FactionType } from '../Data/Faction';
 
 export class EntityFactory {
@@ -105,6 +107,22 @@ export class EntityFactory {
                 memory.memorySeconds = config.memorySeconds ?? memory.memorySeconds;
                 memory.maxTargets = config.maxTargets ?? memory.maxTargets;
                 entity.addComponent(memory);
+                break;
+
+            case 'TargetComponent':
+                const target = world.acquireComponent(TargetComponent);
+                target.targetEntityId = config.targetEntityId ?? null;
+                target.targetX = config.targetX ?? target.targetX;
+                target.targetY = config.targetY ?? target.targetY;
+                entity.addComponent(target);
+                break;
+
+            case 'TargetingComponent':
+                const targeting = world.acquireComponent(TargetingComponent);
+                targeting.retargetInterval = config.retargetInterval ?? targeting.retargetInterval;
+                targeting.lockSeconds = config.lockSeconds ?? targeting.lockSeconds;
+                targeting.strategy = (config.strategy as TargetingStrategy) ?? targeting.strategy;
+                entity.addComponent(targeting);
                 break;
                 
             default:

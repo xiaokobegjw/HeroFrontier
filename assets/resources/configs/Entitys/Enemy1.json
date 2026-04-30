@@ -32,6 +32,10 @@
             "strategy": "MostRecent"
         },
         {
+            "id": "EquipmentComponent",
+            "weaponConfigId": "Sword1"
+        },
+        {
             "id": "HealthComponent",
             "max": 150
         },

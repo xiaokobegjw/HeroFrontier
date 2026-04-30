@@ -1,0 +1,18 @@
+{
+    "id": "Bow1",
+    "name": "bow_name_basic",
+    "description": "bow_desc_basic",
+    "ComponentsList": [
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "damage": 15,
+            "attackInterval": 0.7,
+            "range": 360,
+            "projectileConfigId": "Arrow1"
+        },
+        {
+            "id": "WeaponStateComponent"
+        }
+    ]
+}

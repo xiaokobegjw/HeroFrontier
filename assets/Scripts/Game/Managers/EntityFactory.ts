@@ -9,6 +9,10 @@ import { MemoryComponent } from '../ECS/Components/MemoryComponent';
 import { PerceptionComponent } from '../ECS/Components/PerceptionComponent';
 import { TargetComponent } from '../ECS/Components/TargetComponent';
 import { TargetingComponent, TargetingStrategy } from '../ECS/Components/TargetingComponent';
+import { WeaponComponent, WeaponAttackType } from '../ECS/Components/WeaponComponent';
+import { WeaponStateComponent } from '../ECS/Components/WeaponStateComponent';
+import { EquipmentComponent } from '../ECS/Components/EquipmentComponent';
+import { ProjectileSpecComponent } from '../ECS/Components/ProjectileSpecComponent';
 import { FactionType } from '../Data/Faction';
 
 export class EntityFactory {
@@ -123,6 +127,47 @@ export class EntityFactory {
                 targeting.lockSeconds = config.lockSeconds ?? targeting.lockSeconds;
                 targeting.strategy = (config.strategy as TargetingStrategy) ?? targeting.strategy;
                 entity.addComponent(targeting);
+                break;
+
+            case 'WeaponComponent':
+                const weapon = world.acquireComponent(WeaponComponent);
+                weapon.autoFire = config.autoFire ?? weapon.autoFire;
+                weapon.attackType = (config.attackType as WeaponAttackType) ?? weapon.attackType;
+                weapon.damage = config.damage ?? weapon.damage;
+                weapon.attackInterval = config.attackInterval ?? weapon.attackInterval;
+                weapon.range = config.range ?? weapon.range;
+                weapon.projectileConfigId = config.projectileConfigId ?? weapon.projectileConfigId;
+                weapon.projectileSpeed = config.projectileSpeed ?? weapon.projectileSpeed;
+                weapon.projectileRadius = config.projectileRadius ?? weapon.projectileRadius;
+                weapon.projectileLifeSeconds = config.projectileLifeSeconds ?? weapon.projectileLifeSeconds;
+                weapon.meleeShape = config.meleeShape ?? weapon.meleeShape;
+                weapon.meleeRadius = config.meleeRadius ?? weapon.meleeRadius;
+                weapon.meleeWidth = config.meleeWidth ?? weapon.meleeWidth;
+                weapon.meleeHeight = config.meleeHeight ?? weapon.meleeHeight;
+                weapon.meleeLifeSeconds = config.meleeLifeSeconds ?? weapon.meleeLifeSeconds;
+                weapon.meleeForwardOffset = config.meleeForwardOffset ?? weapon.meleeForwardOffset;
+                weapon.meleeCanHitMultiple = config.meleeCanHitMultiple ?? weapon.meleeCanHitMultiple;
+                entity.addComponent(weapon);
+                break;
+
+            case 'WeaponStateComponent':
+                const state = world.acquireComponent(WeaponStateComponent);
+                state.cooldownRemaining = config.cooldownRemaining ?? state.cooldownRemaining;
+                entity.addComponent(state);
+                break;
+
+            case 'EquipmentComponent':
+                const equip = world.acquireComponent(EquipmentComponent);
+                equip.weaponConfigId = config.weaponConfigId ?? '';
+                entity.addComponent(equip);
+                break;
+
+            case 'ProjectileSpecComponent':
+                const spec = world.acquireComponent(ProjectileSpecComponent);
+                spec.speed = config.speed ?? spec.speed;
+                spec.radius = config.radius ?? spec.radius;
+                spec.lifeSeconds = config.lifeSeconds ?? spec.lifeSeconds;
+                entity.addComponent(spec);
                 break;
                 
             default:

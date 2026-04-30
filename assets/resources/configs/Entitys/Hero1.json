@@ -11,6 +11,31 @@
             "id": "TransformComponent"
         },
         {
+            "id": "PerceptionComponent",
+            "viewRange": 300,
+            "fovDeg": 120,
+            "facingDeg": 0,
+            "checkInterval": 0.2
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 3,
+            "maxTargets": 5
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.2,
+            "lockSeconds": 0.5,
+            "strategy": "MostRecent"
+        },
+        {
+            "id": "EquipmentComponent",
+            "weaponConfigId": "Bow1"
+        },
+        {
             "id": "HealthComponent",
             "max": 150
         },

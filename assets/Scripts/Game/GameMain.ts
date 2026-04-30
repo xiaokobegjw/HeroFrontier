@@ -12,10 +12,18 @@ import { EntityFactory } from './Managers/EntityFactory';
 import { GameConfigManager } from '../Shared/Managers/GameConfigManager';
 import heroConfig from '../../resources/configs/Entitys/Hero1.json';
 import enemyConfig from '../../resources/configs/Entitys/Enemy1.json';
+import bowConfig from '../../resources/configs/Weapons/Bow1.json';
+import swordConfig from '../../resources/configs/Weapons/Sword1.json';
+import arrowConfig from '../../resources/configs/Projectiles/Arrow1.json';
 import { QuadTree } from '../Shared/Spatial/QuadTree';
 import { HealthComponent } from './ECS/Components/HealthComponent';
 import { PerceptionSystem } from './ECS/Systems/PerceptionSystem';
 import { TargetingSystem } from './ECS/Systems/TargetingSystem';
+import { EquipmentSystem } from './ECS/Systems/EquipmentSystem';
+import { WeaponSystem } from './ECS/Systems/WeaponSystem';
+import { ProjectileSystem } from './ECS/Systems/ProjectileSystem';
+import { MeleeHitboxSystem } from './ECS/Systems/MeleeHitboxSystem';
+import { DamageSystem } from './ECS/Systems/DamageSystem';
 
 /**
  * 游戏主入口脚本：挂载到场景节点
@@ -29,6 +37,11 @@ export class GameMain extends Component {
     private collisionSystem: CollisionSystem = null!;
     private perceptionSystem: PerceptionSystem = null!;
     private targetingSystem: TargetingSystem = null!;
+    private equipmentSystem: EquipmentSystem = null!;
+    private weaponSystem: WeaponSystem = null!;
+    private projectileSystem: ProjectileSystem = null!;
+    private meleeHitboxSystem: MeleeHitboxSystem = null!;
+    private damageSystem: DamageSystem = null!;
 
     onLoad() {
         // 打印环境配置
@@ -61,6 +74,18 @@ export class GameMain extends Component {
         this.targetingSystem = new TargetingSystem(6);
         this.world.registerSystem(this.targetingSystem);
 
+        this.equipmentSystem = new EquipmentSystem(this.world, { Bow1: bowConfig, Sword1: swordConfig }, 6.5);
+        this.world.registerSystem(this.equipmentSystem);
+
+        this.weaponSystem = new WeaponSystem(this.world, { Arrow1: arrowConfig }, 7);
+        this.world.registerSystem(this.weaponSystem);
+
+        this.projectileSystem = new ProjectileSystem(this.world, 8);
+        this.world.registerSystem(this.projectileSystem);
+
+        this.meleeHitboxSystem = new MeleeHitboxSystem(this.world, 9);
+        this.world.registerSystem(this.meleeHitboxSystem);
+
         // 3. 初始化并注册 RenderSystem
         this.renderSystem = new RenderSystem(100);
         // 获取或添加 Cocos Graphics 组件
@@ -73,6 +98,9 @@ export class GameMain extends Component {
 
         this.collisionSystem = new CollisionSystem(10, { x: 0, y: 0, width: 2000, height: 2000 });
         this.world.registerSystem(this.collisionSystem);
+
+        this.damageSystem = new DamageSystem(this.world, this.collisionSystem, 11);
+        this.world.registerSystem(this.damageSystem);
     }
 
     start() {
@@ -139,14 +167,6 @@ export class GameMain extends Component {
         // 驱动 ECS 逻辑循环
         if (this.world) {
             this.world.update(deltaTime);
-        }
-
-        const events = this.collisionSystem?.drainEvents() ?? [];
-        for (const ev of events) {
-            const a = this.world.getEntity(ev.aId);
-            const b = this.world.getEntity(ev.bId);
-            if (!a || !b) continue;
-            console.log(`[GameMain] Collision: ${a.name} <-> ${b.name}`);
         }
     }
 

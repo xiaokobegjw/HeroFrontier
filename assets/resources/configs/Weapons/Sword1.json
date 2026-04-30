@@ -1,0 +1,24 @@
+{
+    "id": "Sword1",
+    "name": "sword_name_basic",
+    "description": "sword_desc_basic",
+    "ComponentsList": [
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 18,
+            "attackInterval": 0.9,
+            "range": 110,
+            "meleeShape": "Circle",
+            "meleeRadius": 20,
+            "meleeLifeSeconds": 0.12,
+            "meleeForwardOffset": 24,
+            "meleeCanHitMultiple": false
+        },
+        {
+            "id": "WeaponStateComponent"
+        }
+    ]
+}
+

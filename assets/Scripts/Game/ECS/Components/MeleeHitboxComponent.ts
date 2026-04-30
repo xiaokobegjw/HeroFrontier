@@ -1,0 +1,25 @@
+import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
+
+export class MeleeHitboxComponent extends ECSComponent {
+    public ownerId: number = 0;
+    public damage: number = 0;
+    public lifeRemaining: number = 0;
+    public followOwner: boolean = true;
+    public offsetX: number = 0;
+    public offsetY: number = 0;
+    public canHitMultiple: boolean = true;
+    public hitEntityIds: number[] = [];
+
+    reset(): void {
+        super.reset();
+        this.ownerId = 0;
+        this.damage = 0;
+        this.lifeRemaining = 0;
+        this.followOwner = true;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.canHitMultiple = true;
+        this.hitEntityIds = [];
+    }
+}
+

@@ -1,0 +1,39 @@
+{
+    "id": "Hero1",
+    "name": "hero_name_guanyu",
+    "description": "hero_desc_guanyu",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Player"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 150
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 15,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [0, 255, 0],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "radius": 15
+                }
+            ]
+        }
+    ]
+}

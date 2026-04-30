@@ -1,0 +1,55 @@
+{
+    "id": "Enemy1",
+    "name": "hero_name_guanyu",
+    "description": "hero_desc_guanyu",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 300,
+            "fovDeg": 120,
+            "facingDeg": 0,
+            "checkInterval": 0.2
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 3,
+            "maxTargets": 5
+        },
+        {
+            "id": "HealthComponent",
+            "max": 150
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 15,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Triangle",
+                    "color": [255, 0, 0],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "points": [
+                        { "x": 0, "y": 18 },
+                        { "x": -16, "y": -12 },
+                        { "x": 16, "y": -12 }
+                    ]
+                }
+            ]
+        }
+    ]
+}

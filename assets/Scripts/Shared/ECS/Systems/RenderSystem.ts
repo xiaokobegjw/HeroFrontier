@@ -110,6 +110,16 @@ export class RenderSystem extends ECSSystem {
                     ctx.stroke();
                 }
             }
+
+            const finalX = transform.x + render.offset.x;
+            const finalY = transform.y + render.offset.y;
+            const rad = (transform.rotation * Math.PI) / 180;
+            const len = 24;
+            ctx.strokeColor = new Color(255, 255, 0, 255);
+            ctx.lineWidth = 2;
+            ctx.moveTo(finalX, finalY);
+            ctx.lineTo(finalX + Math.cos(rad) * len, finalY + Math.sin(rad) * len);
+            ctx.stroke();
         }
     }
 }

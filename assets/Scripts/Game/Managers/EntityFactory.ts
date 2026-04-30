@@ -15,6 +15,7 @@ import { EquipmentComponent } from '../ECS/Components/EquipmentComponent';
 import { ProjectileSpecComponent } from '../ECS/Components/ProjectileSpecComponent';
 import { LevelComponent } from '../ECS/Components/LevelComponent';
 import { UpgradeableComponent } from '../ECS/Components/UpgradeableComponent';
+import { AIComponent } from '../ECS/Components/AIComponent';
 import { FactionType } from '../Data/Faction';
 
 export class EntityFactory {
@@ -182,6 +183,20 @@ export class EntityFactory {
                 const upgradeable = world.acquireComponent(UpgradeableComponent);
                 upgradeable.upgradeConfigId = config.upgradeConfigId ?? upgradeable.upgradeConfigId;
                 entity.addComponent(upgradeable);
+                break;
+
+            case 'AIComponent':
+                const ai = world.acquireComponent(AIComponent);
+                ai.enabled = config.enabled ?? ai.enabled;
+                ai.goals = Array.isArray(config.goals) ? config.goals.map((g: any) => ({
+                    id: String(g.id ?? ''),
+                    type: String(g.type ?? ''),
+                    weight: typeof g.weight === 'number' ? g.weight : 1,
+                    params: g.params ?? undefined,
+                    minHoldSeconds: typeof g.minHoldSeconds === 'number' ? g.minHoldSeconds : undefined,
+                    hysteresis: typeof g.hysteresis === 'number' ? g.hysteresis : undefined
+                })) : ai.goals;
+                entity.addComponent(ai);
                 break;
                 
             default:

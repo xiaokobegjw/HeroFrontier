@@ -7,11 +7,21 @@ import { TransformComponent } from '../Components/TransformComponent';
  * 移动动作
  */
 export class WalkAction extends Action {
-    private speed: number = 200; // 移动速度 (像素/秒)
-    private threshold: number = 2; // 到达目标的阈值
+    private maxSpeed: number = 200;
+    private accel: number = 800;
+    private decel: number = 1200;
+    private currentSpeed: number = 0;
+    private threshold: number = 2;
 
-    constructor(actor: Entity, pos: { x: number, y: number }) {
+    constructor(actor: Entity, pos: { x: number, y: number }, opts?: { maxSpeed?: number; accel?: number; decel?: number }) {
         super(actor, null, pos);
+        if (typeof opts?.maxSpeed === 'number') this.maxSpeed = opts.maxSpeed;
+        if (typeof opts?.accel === 'number') this.accel = opts.accel;
+        if (typeof opts?.decel === 'number') this.decel = opts.decel;
+    }
+
+    public setTarget(pos: { x: number; y: number }): void {
+        this.pos = pos;
     }
 
     public perform(deltaTime: number): ActionResult {
@@ -20,24 +30,30 @@ export class WalkAction extends Action {
             return ActionResult.FAILURE("No TransformComponent or target position");
         }
 
-        // 计算方向和距离
         const dx = this.pos.x - transform.x;
         const dy = this.pos.y - transform.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // 如果已经到达目标
         if (distance <= this.threshold) {
             transform.x = this.pos.x;
             transform.y = this.pos.y;
+            this.currentSpeed = 0;
             return ActionResult.SUCCESS("Reached target position");
         }
 
-        // 移动一步
-        const moveDist = this.speed * deltaTime;
+        const stoppingDistance = (this.currentSpeed * this.currentSpeed) / (2 * Math.max(1e-6, this.decel));
+        if (distance <= stoppingDistance) {
+            this.currentSpeed = Math.max(0, this.currentSpeed - this.decel * deltaTime);
+        } else {
+            this.currentSpeed = Math.min(this.maxSpeed, this.currentSpeed + this.accel * deltaTime);
+        }
+
+        const moveDist = this.currentSpeed * deltaTime;
         const ratio = Math.min(1, moveDist / distance);
         
         transform.x += dx * ratio;
         transform.y += dy * ratio;
+        transform.rotation = (Math.atan2(dy, dx) * 180) / Math.PI;
 
         return ActionResult.RUNNING("Moving...");
     }

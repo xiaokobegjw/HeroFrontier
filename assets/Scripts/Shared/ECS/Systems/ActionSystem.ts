@@ -28,6 +28,26 @@ export class ActionSystem extends ECSSystem {
         this.actionQueues.get(entity.id)!.push(action);
     }
 
+    public isIdle(entity: Entity): boolean {
+        const current = this.currentActions.get(entity.id) ?? null;
+        const queue = this.actionQueues.get(entity.id);
+        return !current && (!queue || queue.length === 0);
+    }
+
+    public clearActions(entity: Entity): void {
+        this.actionQueues.delete(entity.id);
+        this.currentActions.set(entity.id, null);
+    }
+
+    public setSingleAction(entity: Entity, action: Action): void {
+        this.clearActions(entity);
+        this.enqueueAction(entity, action);
+    }
+
+    public getCurrentAction(entity: Entity): Action | null {
+        return this.currentActions.get(entity.id) ?? null;
+    }
+
     private executeNextAction(entity: Entity): void {
         const queue = this.actionQueues.get(entity.id);
         if (queue && queue.length > 0) {

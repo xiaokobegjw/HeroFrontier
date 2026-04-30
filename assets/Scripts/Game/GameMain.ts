@@ -23,6 +23,7 @@ import { QuadTree } from '../Shared/Spatial/QuadTree';
 import { HealthComponent } from './ECS/Components/HealthComponent';
 import { PerceptionSystem } from './ECS/Systems/PerceptionSystem';
 import { TargetingSystem } from './ECS/Systems/TargetingSystem';
+import { AISystem } from './ECS/Systems/AISystem';
 import { EquipmentSystem } from './ECS/Systems/EquipmentSystem';
 import { UpgradeSystem } from './ECS/Systems/UpgradeSystem';
 import { WeaponSystem } from './ECS/Systems/WeaponSystem';
@@ -39,6 +40,7 @@ import { Entity } from '../Shared/ECS/Core/Entity';
 export class GameMain extends Component {
     private world: World = null!;
     private actionSystem: ActionSystem = null!;
+    private aiSystem: AISystem = null!;
     private renderSystem: RenderSystem = null!;
     private spatialIndex: QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }> | null = null;
     private collisionSystem: CollisionSystem = null!;
@@ -83,6 +85,9 @@ export class GameMain extends Component {
 
         this.targetingSystem = new TargetingSystem(6);
         this.world.registerSystem(this.targetingSystem);
+
+        this.aiSystem = new AISystem(this.world, this.actionSystem, 6.2);
+        this.world.registerSystem(this.aiSystem);
 
         this.equipmentSystem = new EquipmentSystem(this.world, { Bow1: bowConfig, Sword1: swordConfig }, 6.5);
         this.world.registerSystem(this.equipmentSystem);
@@ -131,7 +136,7 @@ export class GameMain extends Component {
         // this.createTestHero();
 
         // 方式2: 从配置加载 (新方式)
-        const heroFromConfig = EntityFactory.createEntityFromConfig(this.world, heroConfig, { x: 100, y: 100 });
+        const heroFromConfig = EntityFactory.createEntityFromConfig(this.world, heroConfig, { x: 500, y: 500 });
         SaveManager.instance.applyToPlayerEntity(heroFromConfig as any, this.saveData);
         this.playerEntity = heroFromConfig as any;
         console.log(`[GameMain] Created entity from config: ${heroFromConfig.name}`);
@@ -153,9 +158,9 @@ export class GameMain extends Component {
         }
 
         const enemyPositions = [
-            { x: 160, y: 100 },
-            { x: 200, y: 140 },
-            { x: 240, y: 100 }
+            { x: 760, y: 500 },
+            { x: 800, y: 440 },
+            { x: 640, y: 300 }
         ];
 
         const enemies = enemyPositions.map((pos, index) => {

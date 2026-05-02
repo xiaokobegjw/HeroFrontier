@@ -17,6 +17,7 @@ import { LevelComponent } from '../ECS/Components/LevelComponent';
 import { UpgradeableComponent } from '../ECS/Components/UpgradeableComponent';
 import { AIComponent } from '../ECS/Components/AIComponent';
 import { FactionType } from '../Data/Faction';
+import { ObstacleComponent } from '../ECS/Components/ObstacleComponent';
 
 export class EntityFactory {
     /**
@@ -69,6 +70,12 @@ export class EntityFactory {
                 healthComp.current = maxHealth;
                 healthComp.isDead = false;
                 entity.addComponent(healthComp);
+                break;
+
+            case 'ObstacleComponent':
+                const obstacle = world.acquireComponent(ObstacleComponent);
+                obstacle.blocksMovement = config.blocksMovement ?? obstacle.blocksMovement;
+                entity.addComponent(obstacle);
                 break;
                 
             case 'RenderComponent':

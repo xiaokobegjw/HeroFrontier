@@ -24,6 +24,7 @@ import { QuadTree } from '../Shared/Spatial/QuadTree';
 import { HealthComponent } from './ECS/Components/HealthComponent';
 import { PerceptionSystem } from './ECS/Systems/PerceptionSystem';
 import { SpatialIndexSystem } from './ECS/Systems/SpatialIndexSystem';
+import { NavigationSystem } from './ECS/Systems/NavigationSystem';
 import { TargetingSystem } from './ECS/Systems/TargetingSystem';
 import { AISystem } from './ECS/Systems/AISystem';
 import { EquipmentSystem } from './ECS/Systems/EquipmentSystem';
@@ -54,6 +55,7 @@ export class GameMain extends Component {
     private world: World = null!;
     private actionSystem: ActionSystem = null!;
     private spatialIndexSystem: SpatialIndexSystem = null!;
+    private navigationSystem: NavigationSystem = null!;
     private aiSystem: AISystem = null!;
     private renderSystem: RenderSystem = null!;
     private debugOverlaySystem: DebugOverlaySystem | null = null;
@@ -113,6 +115,9 @@ export class GameMain extends Component {
 
         this.targetingSystem = new TargetingSystem(6);
         this.world.registerSystem(this.targetingSystem);
+
+        this.navigationSystem = new NavigationSystem({ x: 0, y: 0, width: 2000, height: 2000 }, 40, 6.05);
+        this.world.registerSystem(this.navigationSystem);
 
         this.aiSystem = new AISystem(this.world, this.actionSystem, 6.2);
         this.world.registerSystem(this.aiSystem);

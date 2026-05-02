@@ -24,7 +24,7 @@ export class AISystem extends ECSSystem {
         super('AISystem', priority);
         this.world = world;
         this.registry = new GoalRegistry();
-        this.executor = new ActionExecutor(actionSystem);
+        this.executor = new ActionExecutor(actionSystem, world);
     }
 
     public getRequiredComponents(): (new (...args: any[]) => ECSComponent)[] {

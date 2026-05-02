@@ -43,12 +43,6 @@ export class AISystem extends ECSSystem {
             ai.debugRole =
                 faction?.faction === FactionType.Player ? 'Hero' : faction?.faction === FactionType.Enemy ? 'Enemy' : 'Neutral';
 
-            if (ai.debugRole) 
-            {
-                let dfaa = 1;
-                dfaa++;
-            }
-
             const health = entity.getComponent(HealthComponent);
             if (health && health.isDead) continue;
 
@@ -96,7 +90,7 @@ export class AISystem extends ECSSystem {
             const t = ent?.getComponent(TransformComponent);
             if (t) return { x: t.x, y: t.y };
         }
-        if (typeof target.targetX === 'number' && typeof target.targetY === 'number') {
+        if (Number.isFinite(target.targetX) && Number.isFinite(target.targetY)) {
             return { x: target.targetX, y: target.targetY };
         }
         return null;

@@ -119,8 +119,8 @@ export class EntityFactory {
             case 'TargetComponent':
                 const target = world.acquireComponent(TargetComponent);
                 target.targetEntityId = config.targetEntityId ?? null;
-                target.targetX = config.targetX ?? target.targetX;
-                target.targetY = config.targetY ?? target.targetY;
+                target.targetX = typeof config.targetX === 'number' ? config.targetX : Number.NaN;
+                target.targetY = typeof config.targetY === 'number' ? config.targetY : Number.NaN;
                 entity.addComponent(target);
                 break;
 

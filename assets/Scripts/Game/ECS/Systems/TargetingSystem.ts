@@ -29,19 +29,26 @@ export class TargetingSystem extends ECSSystem {
 
             targeting.timeSinceRetarget += deltaTime;
 
+            const retargetJitter = 0.85 + this.rand01(entity.id, 101) * 0.3;
+            const lockJitter = 0.85 + this.rand01(entity.id, 102) * 0.3;
+            const effectiveRetargetInterval = targeting.retargetInterval * retargetJitter;
+            const effectiveLockSeconds = targeting.lockSeconds * lockJitter;
+
             const currentId = target.targetEntityId;
             if (currentId !== null && this.timeSeconds < target.lockedUntilTime) {
                 const stillKnown = memory.records.some(r => r.entityId === currentId);
                 if (stillKnown) continue;
             }
 
-            if (targeting.timeSinceRetarget < targeting.retargetInterval) continue;
+            if (targeting.timeSinceRetarget < effectiveRetargetInterval) continue;
             targeting.timeSinceRetarget = 0;
 
             const prevId = target.targetEntityId;
 
             if (memory.records.length === 0) {
                 target.targetEntityId = null;
+                target.targetX = Number.NaN;
+                target.targetY = Number.NaN;
                 target.lockedUntilTime = 0;
                 if (prevId !== null) {
                     console.log(`[TargetingSystem] ${entity.name} cleared target`);
@@ -57,12 +64,20 @@ export class TargetingSystem extends ECSSystem {
             target.targetEntityId = chosen.entityId;
             target.targetX = chosen.lastSeenX;
             target.targetY = chosen.lastSeenY;
-            target.lockedUntilTime = this.timeSeconds + targeting.lockSeconds;
+            target.lockedUntilTime = this.timeSeconds + effectiveLockSeconds;
 
             if (prevId !== target.targetEntityId) {
                 console.log(`[TargetingSystem] ${entity.name} target -> ${target.targetEntityId}`);
             }
         }
+    }
+
+    private rand01(a: number, b: number): number {
+        let x = (a ^ b) >>> 0;
+        x ^= x << 13;
+        x ^= x >>> 17;
+        x ^= x << 5;
+        return (x >>> 0) / 4294967296;
     }
 
     private chooseMostRecent(records: { entityId: number; lastSeenX: number; lastSeenY: number; lastSeenTime: number }[]) {
@@ -93,4 +108,3 @@ export class TargetingSystem extends ECSSystem {
         return best;
     }
 }
-

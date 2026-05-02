@@ -6,6 +6,7 @@ import { TransformComponent } from '../../../Shared/ECS/Components/TransformComp
 import { FactionComponent } from '../Components/FactionComponent';
 import { MemoryComponent, MemoryRecord } from '../Components/MemoryComponent';
 import { PerceptionComponent } from '../Components/PerceptionComponent';
+import { SpatialIndexSystem } from './SpatialIndexSystem';
 
 export class PerceptionSystem extends ECSSystem {
     private world: World;
@@ -22,12 +23,7 @@ export class PerceptionSystem extends ECSSystem {
 
     public update(entities: Entity[], deltaTime: number): void {
         this.timeSeconds += deltaTime;
-
-        const candidates = this.world.getAllEntities().filter(entity =>
-            entity.active &&
-            entity.hasComponent(TransformComponent) &&
-            entity.hasComponent(FactionComponent)
-        );
+        const spatial = this.world.getSystem(SpatialIndexSystem);
 
         for (const entity of entities) {
             const transform = entity.getComponent(TransformComponent);
@@ -43,13 +39,26 @@ export class PerceptionSystem extends ECSSystem {
             perception.timeSinceCheck = 0;
 
             const viewRangeSq = perception.viewRange * perception.viewRange;
-            const halfFov = perception.fovDeg / 2;
-            const facingRad = (perception.facingDeg * Math.PI) / 180;
-            const facingX = Math.cos(facingRad);
-            const facingY = Math.sin(facingRad);
+
+            const range = perception.viewRange;
+            const rangeRect = { x: transform.x - range, y: transform.y - range, width: range * 2, height: range * 2 };
+            const enemyFactions = faction.getEnemyFactions();
+            const candidateIds = spatial ? spatial.queryFactions(enemyFactions, rangeRect) : [];
+
+            const candidates = spatial
+                ? candidateIds.map(id => this.world.getEntity(id))
+                : this.world
+                      .getAllEntities()
+                      .filter(
+                          e =>
+                              e.active &&
+                              e.hasComponent(TransformComponent) &&
+                              e.hasComponent(FactionComponent) &&
+                              enemyFactions.indexOf(e.getComponent(FactionComponent)!.faction) !== -1
+                      );
 
             for (const other of candidates) {
-                if (other.id === entity.id) continue;
+                if (!other || other.id === entity.id || !other.active) continue;
 
                 const otherFaction = other.getComponent(FactionComponent);
                 if (!otherFaction) continue;
@@ -62,17 +71,6 @@ export class PerceptionSystem extends ECSSystem {
                 const dy = otherTransform.y - transform.y;
                 const distSq = dx * dx + dy * dy;
                 if (distSq > viewRangeSq) continue;
-
-                if (halfFov < 180) {
-                    const len = Math.sqrt(distSq);
-                    if (len > 0.0001) {
-                        const dirX = dx / len;
-                        const dirY = dy / len;
-                        const dot = Math.max(-1, Math.min(1, facingX * dirX + facingY * dirY));
-                        const angleDeg = (Math.acos(dot) * 180) / Math.PI;
-                        if (angleDeg > halfFov) continue;
-                    }
-                }
 
                 this.upsert(memory, {
                     entityId: other.id,
@@ -124,4 +122,3 @@ export class PerceptionSystem extends ECSSystem {
         memory.records[oldestIndex] = record;
     }
 }
-

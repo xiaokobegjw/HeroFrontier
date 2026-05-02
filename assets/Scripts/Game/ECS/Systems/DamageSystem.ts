@@ -7,6 +7,7 @@ import { ProjectileComponent } from '../Components/ProjectileComponent';
 import { HealthComponent } from '../Components/HealthComponent';
 import { FactionComponent } from '../Components/FactionComponent';
 import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
+import { DebugState } from '../../Debug/DebugState';
 
 export class DamageSystem extends ECSSystem {
     private world: World;
@@ -60,6 +61,11 @@ export class DamageSystem extends ECSSystem {
         } else {
             console.log(`[DamageSystem] ${targetEntity.name} -${projectile.damage} => ${health.current}/${health.max}`);
         }
+        if (DebugState.enabled) DebugState.pushDamageEvent(targetEntity.id, health.current, health.max);
+
+        if (health.isDead) {
+            this.world.destroyEntity(targetEntity);
+        }
 
         this.world.destroyEntity(projectileEntity);
         return true;
@@ -91,6 +97,11 @@ export class DamageSystem extends ECSSystem {
             console.log(`[DamageSystem] ${targetEntity.name} died`);
         } else {
             console.log(`[DamageSystem] ${targetEntity.name} -${hitbox.damage} => ${health.current}/${health.max}`);
+        }
+        if (DebugState.enabled) DebugState.pushDamageEvent(targetEntity.id, health.current, health.max);
+
+        if (health.isDead) {
+            this.world.destroyEntity(targetEntity);
         }
 
         hitbox.hitEntityIds.push(targetEntity.id);

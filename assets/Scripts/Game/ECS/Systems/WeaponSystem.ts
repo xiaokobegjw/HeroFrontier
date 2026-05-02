@@ -40,15 +40,41 @@ export class WeaponSystem extends ECSSystem {
             const { weapon, state } = this.resolveWeapon(entity);
             if (!weapon || !state) continue;
 
+            if (!state.initialJitterApplied) {
+                state.initialJitterApplied = true;
+                const j = this.rand01(entity.id, 991);
+                state.cooldownRemaining = Math.max(0, state.cooldownRemaining) + weapon.attackInterval * j;
+            }
+
             state.cooldownRemaining = Math.max(0, state.cooldownRemaining - deltaTime);
             if (!weapon.autoFire) continue;
             if (state.cooldownRemaining > 0) continue;
             if (target.targetEntityId === null) continue;
 
-            const dx = target.targetX - transform.x;
-            const dy = target.targetY - transform.y;
+            const selfCollider = entity.getComponent(ColliderComponent);
+            const selfX = transform.x + (selfCollider?.offsetX ?? 0);
+            const selfY = transform.y + (selfCollider?.offsetY ?? 0);
+            const selfRadius = this.approxRadius(selfCollider);
+
+            let tx = target.targetX;
+            let ty = target.targetY;
+            let targetRadius = 0;
+            if (target.targetEntityId !== null) {
+                const targetEntity = this.world.getEntity(target.targetEntityId);
+                const tt = targetEntity?.getComponent(TransformComponent);
+                const tc = targetEntity?.getComponent(ColliderComponent);
+                if (tt) {
+                    tx = tt.x + (tc?.offsetX ?? 0);
+                    ty = tt.y + (tc?.offsetY ?? 0);
+                }
+                targetRadius = this.approxRadius(tc);
+            }
+
+            const dx = tx - selfX;
+            const dy = ty - selfY;
             const distSq = dx * dx + dy * dy;
-            if (distSq > weapon.range * weapon.range) continue;
+            const effectiveRange = weapon.range + selfRadius + targetRadius;
+            if (distSq > effectiveRange * effectiveRange) continue;
 
             const dist = Math.sqrt(distSq);
             if (dist < 0.0001) continue;
@@ -62,6 +88,22 @@ export class WeaponSystem extends ECSSystem {
 
             if (fired) state.cooldownRemaining = weapon.attackInterval;
         }
+    }
+
+    private rand01(a: number, b: number): number {
+        let x = (a ^ b) >>> 0;
+        x ^= x << 13;
+        x ^= x >>> 17;
+        x ^= x << 5;
+        return (x >>> 0) / 4294967296;
+    }
+
+    private approxRadius(collider: ColliderComponent | null | undefined): number {
+        if (!collider) return 0;
+        if (collider.shape === ColliderShapeType.Circle) return collider.radius;
+        const hw = collider.width * 0.5;
+        const hh = collider.height * 0.5;
+        return Math.sqrt(hw * hw + hh * hh);
     }
 
     private resolveWeapon(owner: Entity): { weapon: WeaponComponent | null; state: WeaponStateComponent | null } {

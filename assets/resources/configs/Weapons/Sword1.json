@@ -17,7 +17,7 @@
             "attackType": "Melee",
             "damage": 18,
             "attackInterval": 0.9,
-            "range": 110,
+            "range": 20,
             "meleeShape": "Circle",
             "meleeRadius": 20,
             "meleeLifeSeconds": 0.12,

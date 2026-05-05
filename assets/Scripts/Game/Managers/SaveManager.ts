@@ -59,6 +59,10 @@ export class SaveManager {
         if (equip) {
             equip.weaponConfigId = data.player.equippedWeaponId;
             equip.weaponEntityId = null;
+            if (!equip.weaponConfigIds || equip.weaponConfigIds.length === 0) {
+                equip.weaponConfigIds = equip.weaponConfigId ? [equip.weaponConfigId] : [];
+            }
+            equip.weaponEntityIds = [];
         }
     }
 
@@ -143,4 +147,3 @@ export class SaveManager {
         return ('00000000' + n.toString(16)).slice(-8);
     }
 }
-

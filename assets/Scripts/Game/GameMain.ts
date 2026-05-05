@@ -1,5 +1,5 @@
-import { _decorator, Component, Graphics, UITransform, Layers, Node, Label, Color, view } from 'cc';
-const { ccclass } = _decorator;
+import { _decorator, Component, Graphics, UITransform, Layers, Node, Label, Color, view, Sprite } from 'cc';
+const { ccclass, property } = _decorator;
 
 import { World } from '../Shared/ECS/Core/World';
 import { ActionSystem } from '../Shared/ECS/Systems/ActionSystem';
@@ -46,6 +46,8 @@ import { CommandBus } from './Input/CommandBus';
 import { DebugCommandAdapter } from './Input/DebugCommandAdapter';
 import { DebugCommandContext } from './Input/DebugCommands';
 import { DebugState } from './Debug/DebugState';
+import { LevelLoader, LevelPoint } from './Managers/LevelLoader';
+import { ObstacleComponent } from './ECS/Components/ObstacleComponent';
 
 /**
  * 游戏主入口脚本：挂载到场景节点
@@ -58,6 +60,8 @@ export class GameMain extends Component {
     private navigationSystem: NavigationSystem = null!;
     private aiSystem: AISystem = null!;
     private renderSystem: RenderSystem = null!;
+    @property(Node)
+    public levelBgNode: Node | null = null;
     private debugOverlaySystem: DebugOverlaySystem | null = null;
     private spatialIndex: QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }> | null = null;
     private collisionSystem: CollisionSystem = null!;
@@ -107,7 +111,7 @@ export class GameMain extends Component {
         this.actionSystem = new ActionSystem(1);
         this.world.registerSystem(this.actionSystem);
 
-        this.spatialIndexSystem = new SpatialIndexSystem({ x: 0, y: 0, width: 2000, height: 2000 }, 4.9);
+        this.spatialIndexSystem = new SpatialIndexSystem({ x: -1000, y: -1000, width: 2000, height: 2000 }, 4.9);
         this.world.registerSystem(this.spatialIndexSystem);
 
         this.perceptionSystem = new PerceptionSystem(this.world, 5);
@@ -116,7 +120,7 @@ export class GameMain extends Component {
         this.targetingSystem = new TargetingSystem(6);
         this.world.registerSystem(this.targetingSystem);
 
-        this.navigationSystem = new NavigationSystem({ x: 0, y: 0, width: 2000, height: 2000 }, 40, 6.05);
+        this.navigationSystem = new NavigationSystem({ x: -1000, y: -1000, width: 2000, height: 2000 }, 40, 6.05);
         this.world.registerSystem(this.navigationSystem);
 
         this.aiSystem = new AISystem(this.world, this.actionSystem, 6.2);
@@ -153,7 +157,7 @@ export class GameMain extends Component {
             this.world.registerSystem(this.debugOverlaySystem);
         }
 
-        this.collisionSystem = new CollisionSystem(10, { x: 0, y: 0, width: 2000, height: 2000 });
+        this.collisionSystem = new CollisionSystem(10, { x: -1000, y: -1000, width: 2000, height: 2000 });
         this.world.registerSystem(this.collisionSystem);
 
         this.damageSystem = new DamageSystem(this.world, this.collisionSystem, 11);
@@ -179,61 +183,120 @@ export class GameMain extends Component {
         this.world.start();
 
         this.spatialIndex = new QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }>(
-            { x: 0, y: 0, width: 2000, height: 2000 },
+            { x: -1000, y: -1000, width: 2000, height: 2000 },
             { capacity: 8, maxDepth: 8 }
         );
 
-        // 方式1: 硬编码创建 (旧方式)
-        // this.createTestHero();
+        this.loadLevelAndSpawn('levels/level1').catch(err => console.error('[GameMain] loadLevelAndSpawn failed', err));
+    }
 
-        // 方式2: 从配置加载 (新方式)
-        const heroFromConfig = EntityFactory.createEntityFromConfig(this.world, heroConfig, { x: 500, y: 500 });
+    private async loadLevelAndSpawn(levelResourcePathNoExt: string): Promise<void> {
+        const level = await LevelLoader.loadLevelJson(levelResourcePathNoExt);
+
+        const cellSize = Math.max(4, Math.floor(level.cellSize));
+        const gridW = Math.max(1, Math.floor(level.gridW));
+        const gridH = Math.max(1, Math.floor(level.gridH));
+        const levelW = gridW * cellSize;
+        const levelH = gridH * cellSize;
+
+        try {
+            const alpha = Math.max(0, Math.min(1, typeof level.backgroundOpacity === 'number' ? level.backgroundOpacity : 1));
+            let bgNode = this.levelBgNode;
+            if (!bgNode) {
+                bgNode = new Node('LevelBackground');
+                this.node.addChild(bgNode);
+                this.levelBgNode = bgNode;
+            }
+
+            bgNode.setPosition(0, 0, 0);
+            bgNode.setSiblingIndex(0);
+
+            const ui = bgNode.getComponent(UITransform) ?? bgNode.addComponent(UITransform);
+            ui.setContentSize(levelW, levelH);
+            ui.setAnchorPoint(0.5, 0.5);
+
+            const sprite = bgNode.getComponent(Sprite) ?? bgNode.addComponent(Sprite);
+            sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+            if (!sprite.spriteFrame) {
+                try {
+                    sprite.spriteFrame = await LevelLoader.loadLevelSpriteFrame(`${levelResourcePathNoExt}/spriteFrame`);
+                } catch {
+                    sprite.spriteFrame = await LevelLoader.loadLevelSpriteFrame(levelResourcePathNoExt);
+                }
+            }
+            sprite.color = new Color(255, 255, 255, Math.round(alpha * 255));
+        } catch (err) {
+            console.warn('[GameMain] Failed to load level background spriteFrame', err);
+        }
+
+        this.navigationSystem.configureFromWalkableGrid(
+            { x: -levelW * 0.5, y: -levelH * 0.5, width: levelW, height: levelH },
+            cellSize,
+            gridW,
+            gridH,
+            Array.isArray(level.walkable) ? level.walkable : []
+        );
+
+        const toWorldPos = (p: LevelPoint | null | undefined): { x: number; y: number } => {
+            if (!p) return { x: 0, y: 0 };
+            const x = typeof p.px === 'number' ? p.px : (p.gx + 0.5) * cellSize;
+            const yDown = typeof p.py === 'number' ? p.py : (p.gy + 0.5) * cellSize;
+            return { x: x - levelW * 0.5, y: levelH * 0.5 - yDown };
+        };
+
+        const heroPos = toWorldPos(level.heroStart);
+        const heroFromConfig = EntityFactory.createEntityFromConfig(this.world, heroConfig, heroPos);
         SaveManager.instance.applyToPlayerEntity(heroFromConfig as any, this.saveData);
         this.playerEntity = heroFromConfig as any;
-        console.log(`[GameMain] Created entity from config: ${heroFromConfig.name}`);
 
-        const health = heroFromConfig.getComponent(HealthComponent);
-        if (health) {
-            console.log(`[GameMain] Hero Health: ${health.current}/${health.max}`);
-        }
+        const castlePos = toWorldPos(level.castle);
+        const castle = this.world.createEntity('Castle');
+        const ct = this.world.acquireComponent(TransformComponent);
+        ct.x = castlePos.x;
+        ct.y = castlePos.y;
+        castle.addComponent(ct);
 
-        const transform = heroFromConfig.getComponent(TransformComponent);
-        if (transform) {
-            this.spatialIndex.insert({
-                id: heroFromConfig.id,
-                bounds: { x: transform.x - 1, y: transform.y - 1, width: 2, height: 2 }
-            });
+        const cr = this.world.acquireComponent(RenderComponent);
+        cr.offset = { x: 0, y: 0 };
+        cr.addSquare(48, '#D9A441', true);
+        castle.addComponent(cr);
 
-            const near = this.spatialIndex.query({ x: transform.x - 100, y: transform.y - 100, width: 200, height: 200 });
-            console.log(`[GameMain] QuadTree Query Count (Hero Only): ${near.length}`);
-        }
+        const cc = this.world.acquireComponent(ColliderComponent);
+        cc.shape = ColliderShapeType.AABB;
+        cc.width = 48;
+        cc.height = 48;
+        cc.isTrigger = false;
+        cc.layer = 1;
+        cc.mask = 1 | 2 | 4 | 8;
+        castle.addComponent(cc);
 
-        const enemyPositions = [
-            { x: 760, y: 500 },
-            { x: 800, y: 440 },
-            { x: 640, y: 300 }
-        ];
+        const obs = this.world.acquireComponent(ObstacleComponent);
+        obs.blocksMovement = true;
+        castle.addComponent(obs);
 
-        const enemies = enemyPositions.map((pos, index) => {
+        const spawns =
+            Array.isArray(level.enemySpawns) && level.enemySpawns.length > 0
+                ? level.enemySpawns
+                : [{ gx: 0, gy: gridH - 1, px: 8, py: levelH - 8 }];
+
+        const enemies = spawns.map((p, index) => {
+            const pos = toWorldPos(p);
             const enemy = EntityFactory.createEntityFromConfig(this.world, enemyConfig, pos);
             enemy.name = `${enemyConfig.id}_${index + 1}`;
             return enemy;
         });
-        console.log(`[GameMain] Spawned enemies from Enemy1.json: ${enemies.map(e => e.name).join(', ')}`);
 
+        const heroTransform = heroFromConfig.getComponent(TransformComponent);
+        if (heroTransform) {
+            this.spatialIndex.insert({ id: heroFromConfig.id, bounds: { x: heroTransform.x - 1, y: heroTransform.y - 1, width: 2, height: 2 } });
+        }
         for (const enemy of enemies) {
-            const enemyTransform = enemy.getComponent(TransformComponent);
-            if (!enemyTransform) continue;
-            this.spatialIndex.insert({
-                id: enemy.id,
-                bounds: { x: enemyTransform.x - 1, y: enemyTransform.y - 1, width: 2, height: 2 }
-            });
+            const et = enemy.getComponent(TransformComponent);
+            if (!et) continue;
+            this.spatialIndex.insert({ id: enemy.id, bounds: { x: et.x - 1, y: et.y - 1, width: 2, height: 2 } });
         }
 
-        if (transform) {
-            const nearAll = this.spatialIndex.query({ x: transform.x - 150, y: transform.y - 150, width: 300, height: 300 });
-            console.log(`[GameMain] QuadTree Query Count (Hero + Enemies): ${nearAll.length}`);
-        }
+        console.log(`[GameMain] Loaded level: ${levelResourcePathNoExt} grid=${gridW}x${gridH} cellSize=${cellSize}`);
     }
 
     update(deltaTime: number) {

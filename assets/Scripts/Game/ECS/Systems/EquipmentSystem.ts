@@ -25,21 +25,51 @@ export class EquipmentSystem extends ECSSystem {
             const equip = entity.getComponent(EquipmentComponent);
             if (!equip) continue;
 
-            if (!equip.weaponConfigId) continue;
-            if (equip.weaponEntityId !== null) continue;
+            const configIds =
+                equip.weaponConfigIds && equip.weaponConfigIds.length > 0 ? equip.weaponConfigIds : equip.weaponConfigId ? [equip.weaponConfigId] : [];
 
-            const weaponConfig = this.weaponConfigs[equip.weaponConfigId];
-            if (!weaponConfig) continue;
+            if (configIds.length === 0) continue;
 
-            const weaponEntity = EntityFactory.createEntityFromConfig(this.world, weaponConfig);
-            weaponEntity.name = weaponConfig.name || weaponConfig.id || 'Weapon';
-            equip.weaponEntityId = weaponEntity.id;
+            if (!equip.weaponEntityIds) equip.weaponEntityIds = [];
 
             const ownerLevel = entity.getComponent(LevelComponent);
-            const weaponLevel = weaponEntity.getComponent(LevelComponent);
-            if (ownerLevel && weaponLevel) {
-                weaponLevel.level = ownerLevel.level;
+
+            for (let i = 0; i < configIds.length; i++) {
+                const cfgId = configIds[i];
+                if (!cfgId) continue;
+
+                const existingId = equip.weaponEntityIds[i];
+                const existingEnt = typeof existingId === 'number' ? this.world.getEntity(existingId) : null;
+                if (existingEnt) continue;
+
+                const weaponConfig = this.weaponConfigs[cfgId];
+                if (!weaponConfig) continue;
+
+                const weaponEntity = EntityFactory.createEntityFromConfig(this.world, weaponConfig);
+                weaponEntity.name = weaponConfig.name || weaponConfig.id || 'Weapon';
+                equip.weaponEntityIds[i] = weaponEntity.id;
+
+                const weaponLevel = weaponEntity.getComponent(LevelComponent);
+                if (ownerLevel && weaponLevel) {
+                    weaponLevel.level = ownerLevel.level;
+                }
             }
+
+            const validConfigIds: string[] = [];
+            const validEntityIds: number[] = [];
+            for (let i = 0; i < configIds.length; i++) {
+                const cfgId = configIds[i];
+                const wid = equip.weaponEntityIds[i];
+                if (!cfgId || typeof wid !== 'number') continue;
+                if (!this.world.getEntity(wid)) continue;
+                validConfigIds.push(cfgId);
+                validEntityIds.push(wid);
+            }
+
+            equip.weaponConfigIds = validConfigIds;
+            equip.weaponEntityIds = validEntityIds;
+            equip.weaponEntityId = equip.weaponEntityIds.length > 0 ? equip.weaponEntityIds[0] : null;
+            equip.weaponConfigId = equip.weaponConfigIds.length > 0 ? equip.weaponConfigIds[0] : '';
         }
     }
 }

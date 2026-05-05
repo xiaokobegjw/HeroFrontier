@@ -1,0 +1,31 @@
+{
+    "activeFile": "Forest-Prairie Tileset.tsx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "Forest-Prairie Tileset.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "level1.tmx": {
+            "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 377.5,
+                "y": 500
+            }
+        }
+    },
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "level1.tmx",
+        "Forest-Prairie Tileset.tsx"
+    ],
+    "project": "Level1.tiled-project",
+    "recentFiles": [
+        "level1.tmx",
+        "Forest-Prairie Tileset.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx"
+}

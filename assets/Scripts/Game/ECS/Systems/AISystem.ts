@@ -62,8 +62,7 @@ export class AISystem extends ECSSystem {
     }
 
     private buildContext(entity: Entity, transform: TransformComponent, target: TargetComponent): GoalContext {
-        const weapon = this.resolveWeapon(entity);
-        const weaponRange = weapon?.range ?? 0;
+        const weaponRange = this.resolveWeaponRange(entity);
         const targetPos = this.resolveTargetPos(target);
         return {
             selfId: entity.id,
@@ -74,14 +73,24 @@ export class AISystem extends ECSSystem {
         };
     }
 
-    private resolveWeapon(owner: Entity): WeaponComponent | null {
+    private resolveWeaponRange(owner: Entity): number {
         const equip = owner.getComponent(EquipmentComponent);
+        if (equip && equip.weaponEntityIds && equip.weaponEntityIds.length > 0) {
+            let best = 0;
+            for (const id of equip.weaponEntityIds) {
+                const weaponEntity = this.world.getEntity(id);
+                const weapon = weaponEntity?.getComponent(WeaponComponent) ?? null;
+                if (!weapon) continue;
+                if (weapon.range > best) best = weapon.range;
+            }
+            return best;
+        }
         if (equip && equip.weaponEntityId !== null) {
             const weaponEntity = this.world.getEntity(equip.weaponEntityId);
             const weapon = weaponEntity?.getComponent(WeaponComponent) ?? null;
-            if (weapon) return weapon;
+            if (weapon) return weapon.range ?? 0;
         }
-        return owner.getComponent(WeaponComponent);
+        return owner.getComponent(WeaponComponent)?.range ?? 0;
     }
 
     private resolveTargetPos(target: TargetComponent): { x: number; y: number } | null {

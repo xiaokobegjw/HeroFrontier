@@ -169,6 +169,7 @@ export class EntityFactory {
             case 'EquipmentComponent':
                 const equip = world.acquireComponent(EquipmentComponent);
                 equip.weaponConfigId = config.weaponConfigId ?? '';
+                equip.weaponConfigIds = Array.isArray(config.weaponConfigIds) ? config.weaponConfigIds.filter((x: any) => typeof x === 'string' && x.length > 0) : [];
                 entity.addComponent(equip);
                 break;
 

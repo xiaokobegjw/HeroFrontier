@@ -69,6 +69,7 @@ export class NavigationSystem extends ECSSystem {
     private cols: number;
     private rows: number;
     private blocked: Uint8Array;
+    private baseBlocked: Uint8Array | null = null;
     private timeSinceRebuild: number = 0;
     private rebuildInterval: number = 0.2;
 
@@ -90,7 +91,11 @@ export class NavigationSystem extends ECSSystem {
         if (this.timeSinceRebuild < this.rebuildInterval) return;
         this.timeSinceRebuild = 0;
 
-        this.blocked.fill(0);
+        if (this.baseBlocked) {
+            this.blocked.set(this.baseBlocked);
+        } else {
+            this.blocked.fill(0);
+        }
         for (const e of entities) {
             const obs = e.getComponent(ObstacleComponent);
             if (!obs || !obs.blocksMovement) continue;
@@ -99,6 +104,33 @@ export class NavigationSystem extends ECSSystem {
             if (!t || !c) continue;
             this.rasterizeObstacle(t, c);
         }
+    }
+
+    public configureFromWalkableGrid(bounds: Rect, cellSize: number, cols: number, rows: number, walkableIndices: number[]): void {
+        this.bounds = bounds;
+        this.cellSize = Math.max(4, Math.floor(cellSize));
+        this.cols = Math.max(1, Math.floor(cols));
+        this.rows = Math.max(1, Math.floor(rows));
+        const size = this.cols * this.rows;
+
+        const base = new Uint8Array(size);
+        base.fill(1);
+        for (const idx of walkableIndices) {
+            if (typeof idx !== 'number') continue;
+            const i = Math.floor(idx);
+            if (i >= 0 && i < size) base[i] = 0;
+        }
+
+        this.baseBlocked = base;
+        this.blocked = new Uint8Array(size);
+        this.blocked.set(base);
+        this.timeSinceRebuild = this.rebuildInterval;
+    }
+
+    public clearBaseGrid(): void {
+        this.baseBlocked = null;
+        this.blocked = new Uint8Array(this.cols * this.rows);
+        this.timeSinceRebuild = this.rebuildInterval;
     }
 
     public findPath(start: Vec2, goal: Vec2): Vec2[] {
@@ -312,4 +344,3 @@ export class NavigationSystem extends ECSSystem {
         return null;
     }
 }
-

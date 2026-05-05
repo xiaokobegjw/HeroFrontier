@@ -37,18 +37,6 @@ export class WeaponSystem extends ECSSystem {
             const target = entity.getComponent(TargetComponent);
             if (!transform || !faction || !target) continue;
 
-            const { weapon, state } = this.resolveWeapon(entity);
-            if (!weapon || !state) continue;
-
-            if (!state.initialJitterApplied) {
-                state.initialJitterApplied = true;
-                const j = this.rand01(entity.id, 991);
-                state.cooldownRemaining = Math.max(0, state.cooldownRemaining) + weapon.attackInterval * j;
-            }
-
-            state.cooldownRemaining = Math.max(0, state.cooldownRemaining - deltaTime);
-            if (!weapon.autoFire) continue;
-            if (state.cooldownRemaining > 0) continue;
             if (target.targetEntityId === null) continue;
 
             const selfCollider = entity.getComponent(ColliderComponent);
@@ -73,20 +61,37 @@ export class WeaponSystem extends ECSSystem {
             const dx = tx - selfX;
             const dy = ty - selfY;
             const distSq = dx * dx + dy * dy;
-            const effectiveRange = weapon.range + selfRadius + targetRadius;
-            if (distSq > effectiveRange * effectiveRange) continue;
-
             const dist = Math.sqrt(distSq);
             if (dist < 0.0001) continue;
 
             const dirX = dx / dist;
             const dirY = dy / dist;
 
-            const fired = weapon.attackType === 'Melee'
-                ? this.spawnMeleeHitbox(entity, faction.faction, transform.x, transform.y, weapon, dirX, dirY)
-                : this.spawnProjectile(entity, faction.faction, transform.x, transform.y, weapon, dirX, dirY);
+            const weapons = this.resolveWeapons(entity);
+            if (weapons.length === 0) continue;
 
-            if (fired) state.cooldownRemaining = weapon.attackInterval;
+            for (const w of weapons) {
+                if (!w.weapon.autoFire) continue;
+
+                if (!w.state.initialJitterApplied) {
+                    w.state.initialJitterApplied = true;
+                    const j = this.rand01(entity.id ^ w.weaponEntity.id, 991);
+                    w.state.cooldownRemaining = Math.max(0, w.state.cooldownRemaining) + w.weapon.attackInterval * j;
+                }
+
+                w.state.cooldownRemaining = Math.max(0, w.state.cooldownRemaining - deltaTime);
+                if (w.state.cooldownRemaining > 0) continue;
+
+                const effectiveRange = w.weapon.range + selfRadius + targetRadius;
+                if (distSq > effectiveRange * effectiveRange) continue;
+
+                const fired =
+                    w.weapon.attackType === 'Melee'
+                        ? this.spawnMeleeHitbox(entity, faction.faction, transform.x, transform.y, w.weapon, dirX, dirY)
+                        : this.spawnProjectile(entity, faction.faction, transform.x, transform.y, w.weapon, dirX, dirY);
+
+                if (fired) w.state.cooldownRemaining = w.weapon.attackInterval;
+            }
         }
     }
 
@@ -120,6 +125,33 @@ export class WeaponSystem extends ECSSystem {
         const weapon = owner.getComponent(WeaponComponent);
         const state = owner.getComponent(WeaponStateComponent);
         return { weapon, state };
+    }
+
+    private resolveWeapons(owner: Entity): { weaponEntity: Entity; weapon: WeaponComponent; state: WeaponStateComponent }[] {
+        const out: { weaponEntity: Entity; weapon: WeaponComponent; state: WeaponStateComponent }[] = [];
+        const equip = owner.getComponent(EquipmentComponent);
+        const ids =
+            equip && equip.weaponEntityIds && equip.weaponEntityIds.length > 0
+                ? equip.weaponEntityIds
+                : equip && typeof equip.weaponEntityId === 'number'
+                  ? [equip.weaponEntityId]
+                  : [];
+
+        for (const id of ids) {
+            const ent = this.world.getEntity(id);
+            if (!ent) continue;
+            const weapon = ent.getComponent(WeaponComponent);
+            const state = ent.getComponent(WeaponStateComponent);
+            if (!weapon || !state) continue;
+            out.push({ weaponEntity: ent, weapon, state });
+        }
+
+        if (out.length > 0) return out;
+
+        const weapon = owner.getComponent(WeaponComponent);
+        const state = owner.getComponent(WeaponStateComponent);
+        if (weapon && state) out.push({ weaponEntity: owner, weapon, state });
+        return out;
     }
 
     private spawnProjectile(

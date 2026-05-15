@@ -1,0 +1,54 @@
+{
+    "id": "Castle1",
+    "name": "castle_name_basic",
+    "description": "castle_desc_basic",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Player"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "UpgradeableComponent",
+            "upgradeConfigId": "Castle1Upgrade"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 500
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "AABB",
+            "width": 48,
+            "height": 48,
+            "layer": 1,
+            "mask": 15,
+            "isTrigger": false
+        },
+        {
+            "id": "ObstacleComponent",
+            "blocksMovement": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Square",
+                    "color": [217, 164, 65],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "width": 48,
+                    "height": 48
+                }
+            ]
+        }
+    ]
+}
+

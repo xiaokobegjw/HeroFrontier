@@ -12,13 +12,14 @@ export class PathWalkAction extends Action {
     private points: { x: number; y: number }[] = [];
     private index: number = 0;
 
-    constructor(actor: Entity, points: { x: number; y: number }[], opts?: { maxSpeed?: number; accel?: number; decel?: number }) {
+    constructor(actor: Entity, points: { x: number; y: number }[], opts?: { maxSpeed?: number; accel?: number; decel?: number; threshold?: number }) {
         super(actor, null, points.length > 0 ? points[0] : null);
         this.points = points;
         this.index = 0;
         if (typeof opts?.maxSpeed === 'number') this.maxSpeed = opts.maxSpeed;
         if (typeof opts?.accel === 'number') this.accel = opts.accel;
         if (typeof opts?.decel === 'number') this.decel = opts.decel;
+        if (typeof opts?.threshold === 'number') this.threshold = opts.threshold;
     }
 
     public setPath(points: { x: number; y: number }[]): void {
@@ -68,4 +69,3 @@ export class PathWalkAction extends Action {
         return ActionResult.RUNNING('Moving...');
     }
 }
-

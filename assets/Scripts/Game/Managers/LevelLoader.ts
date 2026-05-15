@@ -1,12 +1,37 @@
 import { JsonAsset, resources, SpriteFrame } from 'cc';
 
-export type LevelBackground = { type: 'none' | 'url' | 'dataURL'; src: string };
+export type LevelBackground =
+    | { type: 'none'; src?: string }
+    | { type: 'url' | 'dataURL'; src: string }
+    | { type: 'ccres'; path: string };
 
 export type LevelPoint = {
     gx: number;
     gy: number;
     px: number;
     py: number;
+};
+
+export type LevelPath = {
+    id: string;
+    start?: LevelPoint | null;
+    end?: LevelPoint | null;
+    waypoints?: LevelPoint[];
+};
+
+export type LevelWaveGroup = {
+    enemyId: string;
+    count: number;
+    interval: number;
+    pathId: string;
+    spawnOffset?: number;
+};
+
+export type LevelWave = {
+    id: string;
+    delay?: number;
+    startAt?: number;
+    groups?: LevelWaveGroup[];
 };
 
 export type LevelData = {
@@ -16,10 +41,12 @@ export type LevelData = {
     cellSize: number;
     gridW: number;
     gridH: number;
-    walkable: number[];
-    heroStart?: LevelPoint | null;
-    castle?: LevelPoint | null;
+    walkable?: number[];
+    hero?: LevelPoint | null;
+    base?: LevelPoint | null;
     enemySpawns?: LevelPoint[];
+    paths?: LevelPath[];
+    waves?: LevelWave[];
 };
 
 export class LevelLoader {
@@ -47,4 +74,3 @@ export class LevelLoader {
         });
     }
 }
-

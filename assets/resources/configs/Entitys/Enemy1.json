@@ -11,15 +11,22 @@
             "id": "TransformComponent"
         },
         {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 50,
+            "accel": 200,
+            "decel": 300,
+            "threshold": 2
+        },
+        {
             "id": "PerceptionComponent",
-            "viewRange": 300,
+            "viewRange": 90,
             "fovDeg": 120,
             "facingDeg": 0,
             "checkInterval": 0.2
         },
         {
             "id": "MemoryComponent",
-            "memorySeconds": 3,
+            "memorySeconds": 1,
             "maxTargets": 5
         },
         {
@@ -27,17 +34,15 @@
         },
         {
             "id": "TargetingComponent",
-            "retargetInterval": 0.2,
-            "lockSeconds": 0.5,
-            "strategy": "MostRecent"
+            "retargetInterval": 0.12,
+            "lockSeconds": 0.2,
+            "strategy": "Nearest"
         },
         {
             "id": "AIComponent",
             "enabled": true,
             "goals": [
                 { "id": "attack", "type": "AttackTarget", "weight": 3, "params": { "stopRangeScale": 0.9 }, "minHoldSeconds": 0.15, "hysteresis": 0.15 },
-                { "id": "chase", "type": "ChaseTarget", "weight": 2, "params": { "stopRangeScale": 0.9, "repathInterval": 0.25 }, "minHoldSeconds": 0.15, "hysteresis": 0.15 },
-                { "id": "patrol", "type": "Patrol", "weight": 1, "params": { "useLocalPatrolPoints": true, "patrolPoints": [ { "x": -60, "y": 0 }, { "x": 60, "y": 0 }, { "x": 60, "y": 60 }, { "x": -60, "y": 60 } ] }, "minHoldSeconds": 0.2, "hysteresis": 0.15 },
                 { "id": "idle", "type": "Idle", "weight": 0.1 }
             ]
         },

@@ -18,6 +18,7 @@ import { UpgradeableComponent } from '../ECS/Components/UpgradeableComponent';
 import { AIComponent } from '../ECS/Components/AIComponent';
 import { FactionType } from '../Data/Faction';
 import { ObstacleComponent } from '../ECS/Components/ObstacleComponent';
+import { MoveStatsComponent } from '../ECS/Components/MoveStatsComponent';
 
 export class EntityFactory {
     /**
@@ -205,6 +206,15 @@ export class EntityFactory {
                     hysteresis: typeof g.hysteresis === 'number' ? g.hysteresis : undefined
                 })) : ai.goals;
                 entity.addComponent(ai);
+                break;
+
+            case 'MoveStatsComponent':
+                const move = world.acquireComponent(MoveStatsComponent);
+                move.maxSpeed = typeof config.maxSpeed === 'number' ? config.maxSpeed : move.maxSpeed;
+                move.accel = typeof config.accel === 'number' ? config.accel : move.accel;
+                move.decel = typeof config.decel === 'number' ? config.decel : move.decel;
+                move.threshold = typeof config.threshold === 'number' ? config.threshold : move.threshold;
+                entity.addComponent(move);
                 break;
                 
             default:

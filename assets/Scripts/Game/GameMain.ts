@@ -20,11 +20,12 @@ import hero1Upgrade from '../../resources/configs/Upgrade/Hero1Upgrade.json';
 import bow1Upgrade from '../../resources/configs/Upgrade/Bow1Upgrade.json';
 import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
 import defaultSave from '../../resources/configs/Save/DefaultSave.json';
+import castleConfig from '../../resources/configs/Entitys/Castle1.json';
+import castle1Upgrade from '../../resources/configs/Upgrade/Castle1Upgrade.json';
 import { QuadTree } from '../Shared/Spatial/QuadTree';
 import { HealthComponent } from './ECS/Components/HealthComponent';
 import { PerceptionSystem } from './ECS/Systems/PerceptionSystem';
 import { SpatialIndexSystem } from './ECS/Systems/SpatialIndexSystem';
-import { NavigationSystem } from './ECS/Systems/NavigationSystem';
 import { TargetingSystem } from './ECS/Systems/TargetingSystem';
 import { AISystem } from './ECS/Systems/AISystem';
 import { EquipmentSystem } from './ECS/Systems/EquipmentSystem';
@@ -48,6 +49,11 @@ import { DebugCommandContext } from './Input/DebugCommands';
 import { DebugState } from './Debug/DebugState';
 import { LevelLoader, LevelPoint } from './Managers/LevelLoader';
 import { ObstacleComponent } from './ECS/Components/ObstacleComponent';
+import { EntityConfigCache } from './Managers/EntityConfigCache';
+import { PathFollowSystem } from './ECS/Systems/PathFollowSystem';
+import { PathFollowComponent } from './ECS/Components/PathFollowComponent';
+
+type SpawnEvent = { time: number; enemyId: string; pathId: string };
 
 /**
  * 游戏主入口脚本：挂载到场景节点
@@ -57,11 +63,12 @@ export class GameMain extends Component {
     private world: World = null!;
     private actionSystem: ActionSystem = null!;
     private spatialIndexSystem: SpatialIndexSystem = null!;
-    private navigationSystem: NavigationSystem = null!;
     private aiSystem: AISystem = null!;
     private renderSystem: RenderSystem = null!;
     @property(Node)
     public levelBgNode: Node | null = null;
+    @property(Node)
+    public entityRootNode: Node | null = null;
     private debugOverlaySystem: DebugOverlaySystem | null = null;
     private spatialIndex: QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }> | null = null;
     private collisionSystem: CollisionSystem = null!;
@@ -85,6 +92,10 @@ export class GameMain extends Component {
     private debugDamageLabels: Map<number, { node: Node; label: Label; ttl: number }> = new Map();
     private debugCommandBus: CommandBus | null = null;
     private debugInput: DebugCommandAdapter | null = null;
+    private levelTimeSeconds: number = 0;
+    private spawnQueue: SpawnEvent[] = [];
+    private levelPaths: Map<string, { x: number; y: number }[]> = new Map();
+    private baseEntityId: number | null = null;
 
     onLoad() {
         // 打印环境配置
@@ -104,6 +115,16 @@ export class GameMain extends Component {
         // 确保节点的 Layer 设置为 UI_2D (与 Canvas 一致)
         this.node.layer = Layers.Enum.UI_2D;
 
+        let entityRoot = this.entityRootNode ?? this.node.getChildByName('EntityNode');
+        if (!entityRoot) {
+            entityRoot = new Node('EntityNode');
+            this.node.addChild(entityRoot);
+        }
+        this.entityRootNode = entityRoot;
+        entityRoot.layer = Layers.Enum.UI_2D;
+        entityRoot.setPosition(0, 0, 0);
+        entityRoot.getComponent(UITransform) ?? entityRoot.addComponent(UITransform);
+
         // 1. 初始化 ECS 世界
         this.world = new World();
 
@@ -120,8 +141,7 @@ export class GameMain extends Component {
         this.targetingSystem = new TargetingSystem(6);
         this.world.registerSystem(this.targetingSystem);
 
-        this.navigationSystem = new NavigationSystem({ x: -1000, y: -1000, width: 2000, height: 2000 }, 40, 6.05);
-        this.world.registerSystem(this.navigationSystem);
+        this.world.registerSystem(new PathFollowSystem(this.world, this.actionSystem, () => this.baseEntityId, 6.1));
 
         this.aiSystem = new AISystem(this.world, this.actionSystem, 6.2);
         this.world.registerSystem(this.aiSystem);
@@ -129,7 +149,11 @@ export class GameMain extends Component {
         this.equipmentSystem = new EquipmentSystem(this.world, { Bow1: bowConfig, Sword1: swordConfig }, 6.5);
         this.world.registerSystem(this.equipmentSystem);
 
-        this.upgradeSystem = new UpgradeSystem(this.world, { Hero1Upgrade: hero1Upgrade as any, Bow1Upgrade: bow1Upgrade as any, Sword1Upgrade: sword1Upgrade as any }, 6.8);
+        this.upgradeSystem = new UpgradeSystem(
+            this.world,
+            { Hero1Upgrade: hero1Upgrade as any, Bow1Upgrade: bow1Upgrade as any, Sword1Upgrade: sword1Upgrade as any, Castle1Upgrade: castle1Upgrade as any },
+            6.8
+        );
         this.world.registerSystem(this.upgradeSystem);
 
         this.weaponSystem = new WeaponSystem(this.world, { Arrow1: arrowConfig }, 7);
@@ -143,10 +167,10 @@ export class GameMain extends Component {
 
         // 3. 初始化并注册 RenderSystem
         this.renderSystem = new RenderSystem(100);
-        // 获取或添加 Cocos Graphics 组件
-        let graphics = this.getComponent(Graphics);
+        const entityRootNode = this.entityRootNode ?? this.node;
+        let graphics = entityRootNode.getComponent(Graphics);
         if (!graphics) {
-            graphics = this.addComponent(Graphics);
+            graphics = entityRootNode.addComponent(Graphics);
         }
         this.renderSystem.setContext(graphics as any);
         this.world.registerSystem(this.renderSystem);
@@ -211,6 +235,14 @@ export class GameMain extends Component {
             bgNode.setPosition(0, 0, 0);
             bgNode.setSiblingIndex(0);
 
+            const entityRootNode = this.entityRootNode;
+            if (entityRootNode) {
+                entityRootNode.setSiblingIndex(1);
+                const entityUi = entityRootNode.getComponent(UITransform) ?? entityRootNode.addComponent(UITransform);
+                entityUi.setContentSize(levelW, levelH);
+                entityUi.setAnchorPoint(0.5, 0.5);
+            }
+
             const ui = bgNode.getComponent(UITransform) ?? bgNode.addComponent(UITransform);
             ui.setContentSize(levelW, levelH);
             ui.setAnchorPoint(0.5, 0.5);
@@ -218,10 +250,15 @@ export class GameMain extends Component {
             const sprite = bgNode.getComponent(Sprite) ?? bgNode.addComponent(Sprite);
             sprite.sizeMode = Sprite.SizeMode.CUSTOM;
             if (!sprite.spriteFrame) {
-                try {
-                    sprite.spriteFrame = await LevelLoader.loadLevelSpriteFrame(`${levelResourcePathNoExt}/spriteFrame`);
-                } catch {
-                    sprite.spriteFrame = await LevelLoader.loadLevelSpriteFrame(levelResourcePathNoExt);
+                const bg: any = (level as any).background;
+                if (bg && bg.type === 'ccres' && typeof bg.path === 'string' && bg.path.trim()) {
+                    sprite.spriteFrame = await LevelLoader.loadLevelSpriteFrame(bg.path.trim());
+                } else {
+                    try {
+                        sprite.spriteFrame = await LevelLoader.loadLevelSpriteFrame(`${levelResourcePathNoExt}/spriteFrame`);
+                    } catch {
+                        sprite.spriteFrame = await LevelLoader.loadLevelSpriteFrame(levelResourcePathNoExt);
+                    }
                 }
             }
             sprite.color = new Color(255, 255, 255, Math.round(alpha * 255));
@@ -229,71 +266,129 @@ export class GameMain extends Component {
             console.warn('[GameMain] Failed to load level background spriteFrame', err);
         }
 
-        this.navigationSystem.configureFromWalkableGrid(
-            { x: -levelW * 0.5, y: -levelH * 0.5, width: levelW, height: levelH },
-            cellSize,
-            gridW,
-            gridH,
-            Array.isArray(level.walkable) ? level.walkable : []
-        );
+        const legacyTopLeft = Math.floor((level as any).version ?? 1) < 4;
 
         const toWorldPos = (p: LevelPoint | null | undefined): { x: number; y: number } => {
             if (!p) return { x: 0, y: 0 };
             const x = typeof p.px === 'number' ? p.px : (p.gx + 0.5) * cellSize;
-            const yDown = typeof p.py === 'number' ? p.py : (p.gy + 0.5) * cellSize;
-            return { x: x - levelW * 0.5, y: levelH * 0.5 - yDown };
+            const yRaw = typeof p.py === 'number' ? p.py : (p.gy + 0.5) * cellSize;
+            const y = legacyTopLeft ? levelH * 0.5 - yRaw : yRaw - levelH * 0.5;
+            return { x: x - levelW * 0.5, y };
         };
 
-        const heroPos = toWorldPos(level.heroStart);
+        const heroPos = toWorldPos((level as any).hero);
         const heroFromConfig = EntityFactory.createEntityFromConfig(this.world, heroConfig, heroPos);
         SaveManager.instance.applyToPlayerEntity(heroFromConfig as any, this.saveData);
         this.playerEntity = heroFromConfig as any;
 
-        const castlePos = toWorldPos(level.castle);
-        const castle = this.world.createEntity('Castle');
-        const ct = this.world.acquireComponent(TransformComponent);
-        ct.x = castlePos.x;
-        ct.y = castlePos.y;
-        castle.addComponent(ct);
+        const basePos = toWorldPos((level as any).base);
+        const baseEntity = EntityFactory.createEntityFromConfig(this.world, castleConfig as any, basePos);
+        baseEntity.name = 'Base';
+        this.baseEntityId = baseEntity.id;
 
-        const cr = this.world.acquireComponent(RenderComponent);
-        cr.offset = { x: 0, y: 0 };
-        cr.addSquare(48, '#D9A441', true);
-        castle.addComponent(cr);
+        this.levelTimeSeconds = 0;
+        this.spawnQueue = [];
+        this.levelPaths = new Map();
 
-        const cc = this.world.acquireComponent(ColliderComponent);
-        cc.shape = ColliderShapeType.AABB;
-        cc.width = 48;
-        cc.height = 48;
-        cc.isTrigger = false;
-        cc.layer = 1;
-        cc.mask = 1 | 2 | 4 | 8;
-        castle.addComponent(cc);
+        const rawPaths: any[] | null = Array.isArray((level as any).paths) ? (level as any).paths : null;
+        if (rawPaths) {
+            for (const rp of rawPaths) {
+                if (!rp || typeof rp !== 'object') continue;
+                const id = typeof rp.id === 'string' && rp.id.trim() ? rp.id.trim() : '';
+                if (!id) continue;
+                const pts: { x: number; y: number }[] = [];
+                const addPt = (p: any) => {
+                    if (!p) return;
+                    pts.push(toWorldPos(p as LevelPoint));
+                };
+                addPt(rp.start);
+                if (Array.isArray(rp.waypoints)) for (const p of rp.waypoints) addPt(p);
+                addPt(rp.end ?? (level as any).base);
+                if (pts.length > 0) this.levelPaths.set(id, pts);
+            }
+        }
 
-        const obs = this.world.acquireComponent(ObstacleComponent);
-        obs.blocksMovement = true;
-        castle.addComponent(obs);
+        const rawWaves: any[] | null = Array.isArray((level as any).waves) ? (level as any).waves : null;
+        if (rawWaves && rawWaves.length > 0) {
+            const waveSpawnDuration = (w: any): number => {
+                const groups: any[] = Array.isArray(w?.groups) ? w.groups : [];
+                let end = 0;
+                for (const g of groups) {
+                    if (!g) continue;
+                    const spawnOffset = typeof g.spawnOffset === 'number' && Number.isFinite(g.spawnOffset) ? Math.max(0, g.spawnOffset) : 0;
+                    const count = typeof g.count === 'number' && Number.isFinite(g.count) ? Math.max(1, Math.floor(g.count)) : 1;
+                    const interval = typeof g.interval === 'number' && Number.isFinite(g.interval) ? Math.max(0.01, g.interval) : 1;
+                    const dur = spawnOffset + Math.max(0, count - 1) * interval;
+                    if (dur > end) end = dur;
+                }
+                return end;
+            };
 
-        const spawns =
-            Array.isArray(level.enemySpawns) && level.enemySpawns.length > 0
-                ? level.enemySpawns
-                : [{ gx: 0, gy: gridH - 1, px: 8, py: levelH - 8 }];
+            const enemyIds = new Set<string>();
+            const absStartByIndex: number[] = [];
+            let abs = 0;
+            let prevDur = 0;
+            for (let i = 0; i < rawWaves.length; i++) {
+                const wv = rawWaves[i];
+                const delay =
+                    typeof wv?.delay === 'number' && Number.isFinite(wv.delay)
+                        ? Math.max(0, wv.delay)
+                        : typeof wv?.startAt === 'number' && Number.isFinite(wv.startAt)
+                          ? Math.max(0, wv.startAt)
+                          : 0;
+                abs = i === 0 ? delay : abs + prevDur + delay;
+                absStartByIndex[i] = abs;
+                prevDur = waveSpawnDuration(wv);
+            }
 
-        const enemies = spawns.map((p, index) => {
-            const pos = toWorldPos(p);
-            const enemy = EntityFactory.createEntityFromConfig(this.world, enemyConfig, pos);
-            enemy.name = `${enemyConfig.id}_${index + 1}`;
-            return enemy;
-        });
+            for (let wi = 0; wi < rawWaves.length; wi++) {
+                const wv = rawWaves[wi];
+                const groups: any[] = Array.isArray(wv?.groups) ? wv.groups : [];
+                const waveStart = absStartByIndex[wi] ?? 0;
+                for (const g of groups) {
+                    if (!g) continue;
+                    const enemyId = typeof g.enemyId === 'string' ? g.enemyId.trim() : '';
+                    const pathId = typeof g.pathId === 'string' ? g.pathId.trim() : '';
+                    if (!enemyId || !pathId) continue;
+                    const count = typeof g.count === 'number' && Number.isFinite(g.count) ? Math.max(1, Math.floor(g.count)) : 1;
+                    const interval = typeof g.interval === 'number' && Number.isFinite(g.interval) ? Math.max(0.01, g.interval) : 1;
+                    const spawnOffset = typeof g.spawnOffset === 'number' && Number.isFinite(g.spawnOffset) ? Math.max(0, g.spawnOffset) : 0;
+                    enemyIds.add(enemyId);
+                    for (let i = 0; i < count; i++) {
+                        const t = waveStart + spawnOffset + i * interval;
+                        this.spawnQueue.push({ time: t, enemyId, pathId });
+                    }
+                }
+            }
+            this.spawnQueue.sort((a, b) => a.time - b.time);
+
+            const ids = Array.from(enemyIds);
+            await Promise.all(
+                ids.map(async (id) => {
+                    try {
+                        await EntityConfigCache.loadEntityConfig(id);
+                    } catch (e) {
+                        console.warn(`[GameMain] Failed to preload enemy config: ${id}`, e);
+                    }
+                })
+            );
+        } else {
+            const spawns =
+                Array.isArray((level as any).enemySpawns) && (level as any).enemySpawns.length > 0
+                    ? (level as any).enemySpawns
+                    : [{ gx: 0, gy: legacyTopLeft ? gridH - 1 : 0 }];
+
+            for (let index = 0; index < spawns.length; index++) {
+                const p = spawns[index];
+                const pos = toWorldPos(p);
+                const enemy = EntityFactory.createEntityFromConfig(this.world, enemyConfig, pos);
+                enemy.name = `${enemyConfig.id}_${index + 1}`;
+            }
+        }
 
         const heroTransform = heroFromConfig.getComponent(TransformComponent);
         if (heroTransform) {
             this.spatialIndex.insert({ id: heroFromConfig.id, bounds: { x: heroTransform.x - 1, y: heroTransform.y - 1, width: 2, height: 2 } });
-        }
-        for (const enemy of enemies) {
-            const et = enemy.getComponent(TransformComponent);
-            if (!et) continue;
-            this.spatialIndex.insert({ id: enemy.id, bounds: { x: et.x - 1, y: et.y - 1, width: 2, height: 2 } });
         }
 
         console.log(`[GameMain] Loaded level: ${levelResourcePathNoExt} grid=${gridW}x${gridH} cellSize=${cellSize}`);
@@ -309,7 +404,32 @@ export class GameMain extends Component {
             return;
         }
 
+        this.updateWaveSpawns(deltaTime);
         if (this.world) this.world.update(deltaTime);
+    }
+
+    private updateWaveSpawns(deltaTime: number): void {
+        if (!this.world) return;
+        if (!this.actionSystem) return;
+        if (!this.spawnQueue || this.spawnQueue.length === 0) return;
+        this.levelTimeSeconds += deltaTime;
+
+        while (this.spawnQueue.length > 0 && this.spawnQueue[0].time <= this.levelTimeSeconds) {
+            const ev = this.spawnQueue.shift()!;
+            const cfg = EntityConfigCache.get(ev.enemyId);
+            if (!cfg) continue;
+            const pts = this.levelPaths.get(ev.pathId) ?? null;
+            if (!pts || pts.length === 0) continue;
+            const spawnPos = pts[0];
+            const enemy = EntityFactory.createEntityFromConfig(this.world, cfg, spawnPos);
+            enemy.name = `${ev.enemyId}_${enemy.id}`;
+            const follow = this.world.acquireComponent(PathFollowComponent);
+            follow.points = pts;
+            follow.nextIndex = 0;
+            follow.threshold = 6;
+            follow.attackBaseAtEnd = true;
+            enemy.addComponent(follow);
+        }
     }
 
     onDestroy() {

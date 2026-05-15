@@ -13,11 +13,12 @@ export class WalkAction extends Action {
     private currentSpeed: number = 0;
     private threshold: number = 2;
 
-    constructor(actor: Entity, pos: { x: number, y: number }, opts?: { maxSpeed?: number; accel?: number; decel?: number }) {
+    constructor(actor: Entity, pos: { x: number, y: number }, opts?: { maxSpeed?: number; accel?: number; decel?: number; threshold?: number }) {
         super(actor, null, pos);
         if (typeof opts?.maxSpeed === 'number') this.maxSpeed = opts.maxSpeed;
         if (typeof opts?.accel === 'number') this.accel = opts.accel;
         if (typeof opts?.decel === 'number') this.decel = opts.decel;
+        if (typeof opts?.threshold === 'number') this.threshold = opts.threshold;
     }
 
     public setTarget(pos: { x: number; y: number }): void {

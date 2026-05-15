@@ -1,0 +1,9 @@
+{
+    "id": "Castle1Upgrade",
+    "fields": {
+        "HealthComponent": {
+            "max": { "addPerLevel": 80 }
+        }
+    }
+}
+

@@ -155,3 +155,120 @@ canvas {
   pointer-events: none;
 }
 
+.waypointList {
+  width: 100%;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px;
+  background: rgba(0,0,0,0.18);
+}
+
+.groupList {
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px;
+  background: rgba(0,0,0,0.18);
+}
+
+.groupRow {
+  display: grid;
+  min-width: 640px;
+  grid-template-columns: 28px minmax(240px, 1fr) 64px 76px 72px 76px 78px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+
+.groupRow:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.groupRow.active {
+  outline: 1px solid rgba(102, 204, 255, 0.55);
+  background: rgba(102, 204, 255, 0.06);
+}
+
+.groupNum {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.groupRow input[type="text"],
+.groupRow input[type="number"],
+.groupRow select {
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.groupBtns {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.groupBtns button.small {
+  padding: 6px 8px;
+}
+
+.waypointRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.waypointRow:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.waypointInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.waypointIndex {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: var(--muted);
+  width: 28px;
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.waypointCoord {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.waypointActions {
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+button.small {
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+button.danger {
+  background: linear-gradient(180deg, #612020, #3a1414);
+  border-color: rgba(255, 93, 93, 0.35);
+}

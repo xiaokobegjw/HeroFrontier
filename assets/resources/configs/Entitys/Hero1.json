@@ -11,6 +11,13 @@
             "id": "TransformComponent"
         },
         {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 50,
+            "accel": 200,
+            "decel": 300,
+            "threshold": 2
+        },
+        {
             "id": "PerceptionComponent",
             "viewRange": 300,
             "fovDeg": 120,

@@ -8,6 +8,9 @@ import { HealthComponent } from '../Components/HealthComponent';
 import { FactionComponent } from '../Components/FactionComponent';
 import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
 import { DebugState } from '../../Debug/DebugState';
+import { DefenseComponent } from '../Components/DefenseComponent';
+import { LootComponent } from '../Components/LootComponent';
+import { emitKillEvent } from '../GameEvents';
 
 export class DamageSystem extends ECSSystem {
     private world: World;
@@ -53,17 +56,19 @@ export class DamageSystem extends ECSSystem {
         if (!targetEntity.active) return false;
         if (health.isDead) return true;
 
-        health.current -= projectile.damage;
+        const appliedDamage = this.computeDamage(projectile.damage, projectile.armorPenPct, targetEntity);
+        health.current -= appliedDamage;
         if (health.current <= 0) {
             health.current = 0;
             health.isDead = true;
             console.log(`[DamageSystem] ${targetEntity.name} died`);
         } else {
-            console.log(`[DamageSystem] ${targetEntity.name} -${projectile.damage} => ${health.current}/${health.max}`);
+            console.log(`[DamageSystem] ${targetEntity.name} -${appliedDamage.toFixed(1)} => ${health.current.toFixed(1)}/${health.max}`);
         }
         if (DebugState.enabled) DebugState.pushDamageEvent(targetEntity.id, health.current, health.max);
 
         if (health.isDead) {
+            this.emitKill(projectile.ownerId || null, targetEntity);
             this.world.destroyEntity(targetEntity);
         }
 
@@ -90,17 +95,19 @@ export class DamageSystem extends ECSSystem {
         if (!targetEntity.active) return false;
         if (health.isDead) return true;
 
-        health.current -= hitbox.damage;
+        const appliedDamage = this.computeDamage(hitbox.damage, hitbox.armorPenPct, targetEntity);
+        health.current -= appliedDamage;
         if (health.current <= 0) {
             health.current = 0;
             health.isDead = true;
             console.log(`[DamageSystem] ${targetEntity.name} died`);
         } else {
-            console.log(`[DamageSystem] ${targetEntity.name} -${hitbox.damage} => ${health.current}/${health.max}`);
+            console.log(`[DamageSystem] ${targetEntity.name} -${appliedDamage.toFixed(1)} => ${health.current.toFixed(1)}/${health.max}`);
         }
         if (DebugState.enabled) DebugState.pushDamageEvent(targetEntity.id, health.current, health.max);
 
         if (health.isDead) {
+            this.emitKill(hitbox.ownerId || null, targetEntity);
             this.world.destroyEntity(targetEntity);
         }
 
@@ -110,5 +117,20 @@ export class DamageSystem extends ECSSystem {
         }
 
         return true;
+    }
+
+    private computeDamage(baseDamage: number, armorPenPct: number, targetEntity: Entity): number {
+        const defense = targetEntity.getComponent(DefenseComponent)?.defense ?? 0;
+        const pen = Math.max(0, Math.min(1, armorPenPct));
+        const effectiveDefense = Math.max(0, defense * (1 - pen));
+        const mult = 1 - effectiveDefense / (effectiveDefense + 50);
+        const dmg = Math.max(0, baseDamage * mult);
+        return dmg;
+    }
+
+    private emitKill(killerId: number | null, victim: Entity): void {
+        const faction = victim.getComponent(FactionComponent)?.faction ?? -1;
+        const gold = victim.getComponent(LootComponent)?.gold ?? 0;
+        emitKillEvent({ killerId, victimId: victim.id, victimFaction: faction, gold });
     }
 }

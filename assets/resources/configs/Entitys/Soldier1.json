@@ -1,0 +1,80 @@
+{
+    "id": "Soldier1",
+    "name": "soldier_name_basic",
+    "description": "soldier_desc_basic",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Player"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "SoldierComponent",
+            "mode": "Garrison"
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 40,
+            "accel": 160,
+            "decel": 240,
+            "threshold": 2
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 140,
+            "fovDeg": 180,
+            "facingDeg": 0,
+            "checkInterval": 0.25
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 0.6,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.2,
+            "lockSeconds": 0.2,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "EquipmentComponent",
+            "weaponConfigId": "Sword1"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 60
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 0
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 10,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [0, 170, 255],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "radius": 10
+                }
+            ]
+        }
+    ]
+}
+

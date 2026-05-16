@@ -22,6 +22,7 @@ import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
 import defaultSave from '../../resources/configs/Save/DefaultSave.json';
 import castleConfig from '../../resources/configs/Entitys/Castle1.json';
 import castle1Upgrade from '../../resources/configs/Upgrade/Castle1Upgrade.json';
+import soldierConfig from '../../resources/configs/Entitys/Soldier1.json';
 import { QuadTree } from '../Shared/Spatial/QuadTree';
 import { HealthComponent } from './ECS/Components/HealthComponent';
 import { PerceptionSystem } from './ECS/Systems/PerceptionSystem';
@@ -34,6 +35,7 @@ import { WeaponSystem } from './ECS/Systems/WeaponSystem';
 import { ProjectileSystem } from './ECS/Systems/ProjectileSystem';
 import { MeleeHitboxSystem } from './ECS/Systems/MeleeHitboxSystem';
 import { DamageSystem } from './ECS/Systems/DamageSystem';
+import { CurrencySystem } from './ECS/Systems/CurrencySystem';
 import { SaveManager, SaveData } from './Managers/SaveManager';
 import { Entity } from '../Shared/ECS/Core/Entity';
 import { DebugOverlaySystem } from './ECS/Systems/DebugOverlaySystem';
@@ -52,6 +54,8 @@ import { ObstacleComponent } from './ECS/Components/ObstacleComponent';
 import { EntityConfigCache } from './Managers/EntityConfigCache';
 import { PathFollowSystem } from './ECS/Systems/PathFollowSystem';
 import { PathFollowComponent } from './ECS/Components/PathFollowComponent';
+import { BaseProductionSystem } from './ECS/Systems/BaseProductionSystem';
+import { SoldierFormationSystem } from './ECS/Systems/SoldierFormationSystem';
 
 type SpawnEvent = { time: number; enemyId: string; pathId: string };
 
@@ -80,6 +84,7 @@ export class GameMain extends Component {
     private projectileSystem: ProjectileSystem = null!;
     private meleeHitboxSystem: MeleeHitboxSystem = null!;
     private damageSystem: DamageSystem = null!;
+    private currencySystem: CurrencySystem = null!;
     private playerEntity: Entity | null = null;
     private saveData: SaveData | null = null;
     private isPaused: boolean = false;
@@ -141,6 +146,9 @@ export class GameMain extends Component {
         this.targetingSystem = new TargetingSystem(6);
         this.world.registerSystem(this.targetingSystem);
 
+        this.world.registerSystem(new BaseProductionSystem(this.world, soldierConfig as any, 5.95));
+        this.world.registerSystem(new SoldierFormationSystem(this.world, this.actionSystem, () => this.playerEntity?.id ?? null, 6.05));
+
         this.world.registerSystem(new PathFollowSystem(this.world, this.actionSystem, () => this.baseEntityId, 6.1));
 
         this.aiSystem = new AISystem(this.world, this.actionSystem, 6.2);
@@ -186,6 +194,9 @@ export class GameMain extends Component {
 
         this.damageSystem = new DamageSystem(this.world, this.collisionSystem, 11);
         this.world.registerSystem(this.damageSystem);
+
+        this.currencySystem = new CurrencySystem(11.5);
+        this.world.registerSystem(this.currencySystem);
 
         if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
             DebugState.enabled = true;
@@ -626,7 +637,8 @@ export class GameMain extends Component {
                   : '-';
 
         const paused = this.isPaused ? 'Paused' : 'Running';
-        this.debugLabel.string = `Selected: ${ent.name} #${ent.id} [${factionName}]\nSelfId: ${ent.id}\nHP: ${hp}\nEnemyIds: ${enemyIds || '-'}\nFOV: ${fov}\nGoal: ${goalId}${goalType ? ` (${goalType})` : ''}\nTarget: ${targetId === null ? 'None' : `#${targetId}`} ${targetPos}\n${paused}`;
+        const gold = this.currencySystem ? Math.floor(this.currencySystem.getGold()) : 0;
+        this.debugLabel.string = `Gold: ${gold}\nSelected: ${ent.name} #${ent.id} [${factionName}]\nSelfId: ${ent.id}\nHP: ${hp}\nEnemyIds: ${enemyIds || '-'}\nFOV: ${fov}\nGoal: ${goalId}${goalType ? ` (${goalType})` : ''}\nTarget: ${targetId === null ? 'None' : `#${targetId}`} ${targetPos}\n${paused}`;
 
         const transform = ent.getComponent(TransformComponent);
         if (!transform) {

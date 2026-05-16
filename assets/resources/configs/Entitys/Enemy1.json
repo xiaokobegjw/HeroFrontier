@@ -59,6 +59,14 @@
             "max": 150
         },
         {
+            "id": "DefenseComponent",
+            "defense": 0
+        },
+        {
+            "id": "LootComponent",
+            "gold": 5
+        },
+        {
             "id": "ColliderComponent",
             "shape": "Circle",
             "radius": 15,

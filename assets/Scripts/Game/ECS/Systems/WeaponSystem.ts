@@ -180,6 +180,7 @@ export class WeaponSystem extends ECSSystem {
         const projectile = this.world.acquireComponent(ProjectileComponent);
         projectile.ownerId = owner.id;
         projectile.damage = weapon.damage;
+        projectile.armorPenPct = weapon.armorPenPct;
         projectile.vx = dirX * speed;
         projectile.vy = dirY * speed;
         projectile.lifeRemaining = lifeSeconds;
@@ -228,6 +229,7 @@ export class WeaponSystem extends ECSSystem {
         const hitbox = this.world.acquireComponent(MeleeHitboxComponent);
         hitbox.ownerId = owner.id;
         hitbox.damage = weapon.damage;
+        hitbox.armorPenPct = weapon.armorPenPct;
         hitbox.lifeRemaining = weapon.meleeLifeSeconds;
         hitbox.followOwner = true;
         hitbox.canHitMultiple = weapon.meleeCanHitMultiple;

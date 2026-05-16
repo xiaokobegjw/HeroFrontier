@@ -7,6 +7,7 @@ export class WeaponComponent extends ECSComponent {
     public attackType: WeaponAttackType = 'Ranged';
 
     public damage: number = 10;
+    public armorPenPct: number = 0;
     public attackInterval: number = 0.5;
     public range: number = 260;
 
@@ -28,6 +29,7 @@ export class WeaponComponent extends ECSComponent {
         this.autoFire = true;
         this.attackType = 'Ranged';
         this.damage = 10;
+        this.armorPenPct = 0;
         this.attackInterval = 0.5;
         this.range = 260;
         this.projectileConfigId = '';

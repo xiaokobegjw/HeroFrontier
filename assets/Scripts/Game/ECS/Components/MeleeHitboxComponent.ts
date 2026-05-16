@@ -3,6 +3,7 @@ import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 export class MeleeHitboxComponent extends ECSComponent {
     public ownerId: number = 0;
     public damage: number = 0;
+    public armorPenPct: number = 0;
     public lifeRemaining: number = 0;
     public followOwner: boolean = true;
     public offsetX: number = 0;
@@ -14,6 +15,7 @@ export class MeleeHitboxComponent extends ECSComponent {
         super.reset();
         this.ownerId = 0;
         this.damage = 0;
+        this.armorPenPct = 0;
         this.lifeRemaining = 0;
         this.followOwner = true;
         this.offsetX = 0;
@@ -22,4 +24,3 @@ export class MeleeHitboxComponent extends ECSComponent {
         this.hitEntityIds = [];
     }
 }
-

@@ -19,6 +19,10 @@ import { AIComponent } from '../ECS/Components/AIComponent';
 import { FactionType } from '../Data/Faction';
 import { ObstacleComponent } from '../ECS/Components/ObstacleComponent';
 import { MoveStatsComponent } from '../ECS/Components/MoveStatsComponent';
+import { DefenseComponent } from '../ECS/Components/DefenseComponent';
+import { LootComponent } from '../ECS/Components/LootComponent';
+import { SoldierComponent } from '../ECS/Components/SoldierComponent';
+import { BaseProductionComponent } from '../ECS/Components/BaseProductionComponent';
 
 export class EntityFactory {
     /**
@@ -145,6 +149,7 @@ export class EntityFactory {
                 weapon.autoFire = config.autoFire ?? weapon.autoFire;
                 weapon.attackType = (config.attackType as WeaponAttackType) ?? weapon.attackType;
                 weapon.damage = config.damage ?? weapon.damage;
+                weapon.armorPenPct = typeof config.armorPenPct === 'number' ? config.armorPenPct : weapon.armorPenPct;
                 weapon.attackInterval = config.attackInterval ?? weapon.attackInterval;
                 weapon.range = config.range ?? weapon.range;
                 weapon.projectileConfigId = config.projectileConfigId ?? weapon.projectileConfigId;
@@ -215,6 +220,42 @@ export class EntityFactory {
                 move.decel = typeof config.decel === 'number' ? config.decel : move.decel;
                 move.threshold = typeof config.threshold === 'number' ? config.threshold : move.threshold;
                 entity.addComponent(move);
+                break;
+
+            case 'DefenseComponent':
+                const defense = world.acquireComponent(DefenseComponent);
+                defense.defense = typeof config.defense === 'number' ? config.defense : defense.defense;
+                entity.addComponent(defense);
+                break;
+
+            case 'LootComponent':
+                const loot = world.acquireComponent(LootComponent);
+                loot.gold = typeof config.gold === 'number' ? config.gold : loot.gold;
+                entity.addComponent(loot);
+                break;
+
+            case 'SoldierComponent':
+                const soldier = world.acquireComponent(SoldierComponent);
+                soldier.mode = config.mode === 'Follower' ? 'Follower' : 'Garrison';
+                soldier.baseEntityId = typeof config.baseEntityId === 'number' ? config.baseEntityId : soldier.baseEntityId;
+                soldier.slotIndex = typeof config.slotIndex === 'number' ? config.slotIndex : soldier.slotIndex;
+                entity.addComponent(soldier);
+                break;
+
+            case 'BaseProductionComponent':
+                const prod = world.acquireComponent(BaseProductionComponent);
+                prod.initialPopulation = typeof config.initialPopulation === 'number' ? config.initialPopulation : prod.initialPopulation;
+                prod.populationCap = typeof config.populationCap === 'number' ? config.populationCap : prod.populationCap;
+                prod.followerCap = typeof config.followerCap === 'number' ? config.followerCap : prod.followerCap;
+                prod.followerDesired = typeof config.followerDesired === 'number' ? config.followerDesired : prod.followerDesired;
+                prod.productionIntervalSeconds =
+                    typeof config.productionIntervalSeconds === 'number' ? config.productionIntervalSeconds : prod.productionIntervalSeconds;
+                prod.garrisonOffsetX = typeof config.garrisonOffsetX === 'number' ? config.garrisonOffsetX : prod.garrisonOffsetX;
+                prod.garrisonRows = typeof config.garrisonRows === 'number' ? config.garrisonRows : prod.garrisonRows;
+                prod.garrisonRowSpacing = typeof config.garrisonRowSpacing === 'number' ? config.garrisonRowSpacing : prod.garrisonRowSpacing;
+                prod.garrisonColSpacing = typeof config.garrisonColSpacing === 'number' ? config.garrisonColSpacing : prod.garrisonColSpacing;
+                prod.followerRadius = typeof config.followerRadius === 'number' ? config.followerRadius : prod.followerRadius;
+                entity.addComponent(prod);
                 break;
                 
             default:

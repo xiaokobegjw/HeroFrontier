@@ -23,6 +23,23 @@
             "max": 500
         },
         {
+            "id": "DefenseComponent",
+            "defense": 10
+        },
+        {
+            "id": "BaseProductionComponent",
+            "initialPopulation": 20,
+            "populationCap": 20,
+            "followerCap": 0,
+            "followerDesired": 0,
+            "productionIntervalSeconds": 3,
+            "garrisonOffsetX": 80,
+            "garrisonRows": 10,
+            "garrisonRowSpacing": 18,
+            "garrisonColSpacing": 18,
+            "followerRadius": 56
+        },
+        {
             "id": "ColliderComponent",
             "shape": "AABB",
             "width": 48,
@@ -51,4 +68,3 @@
         }
     ]
 }
-

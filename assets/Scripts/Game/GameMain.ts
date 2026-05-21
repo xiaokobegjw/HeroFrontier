@@ -56,6 +56,7 @@ import { PathFollowSystem } from './ECS/Systems/PathFollowSystem';
 import { PathFollowComponent } from './ECS/Components/PathFollowComponent';
 import { BaseProductionSystem } from './ECS/Systems/BaseProductionSystem';
 import { SoldierFormationSystem } from './ECS/Systems/SoldierFormationSystem';
+import { MovementBlockSystem } from './ECS/Systems/MovementBlockSystem';
 
 type SpawnEvent = { time: number; enemyId: string; pathId: string };
 
@@ -136,6 +137,8 @@ export class GameMain extends Component {
         // 2. 初始化并注册 ActionSystem
         this.actionSystem = new ActionSystem(1);
         this.world.registerSystem(this.actionSystem);
+
+        this.world.registerSystem(new MovementBlockSystem(this.world, 4.85));
 
         this.spatialIndexSystem = new SpatialIndexSystem({ x: -1000, y: -1000, width: 2000, height: 2000 }, 4.9);
         this.world.registerSystem(this.spatialIndexSystem);
@@ -286,6 +289,40 @@ export class GameMain extends Component {
             const y = legacyTopLeft ? levelH * 0.5 - yRaw : yRaw - levelH * 0.5;
             return { x: x - levelW * 0.5, y };
         };
+
+        const rawObstacles: any[] | null = Array.isArray((level as any).obstacles) ? (level as any).obstacles : null;
+        if (rawObstacles && rawObstacles.length > 0) {
+            for (let i = 0; i < rawObstacles.length; i++) {
+                const p = rawObstacles[i] as any;
+                if (!p) continue;
+                const pos = toWorldPos(p as any);
+                const ent = this.world.createEntity('Obstacle');
+                ent.name = `Obstacle_${i + 1}`;
+
+                const tr = this.world.acquireComponent(TransformComponent);
+                tr.x = pos.x;
+                tr.y = pos.y;
+                ent.addComponent(tr);
+
+                const col = this.world.acquireComponent(ColliderComponent);
+                col.shape = ColliderShapeType.AABB;
+                col.isTrigger = false;
+                col.width = cellSize;
+                col.height = cellSize;
+                col.layer = 16;
+                col.mask = 0;
+                ent.addComponent(col);
+
+                const obs = this.world.acquireComponent(ObstacleComponent);
+                obs.blocksMovement = true;
+                ent.addComponent(obs);
+
+                const render = this.world.acquireComponent(RenderComponent);
+                render.offset = { x: 0, y: 0 };
+                render.addSquare(cellSize, [120, 120, 120, 120], true);
+                ent.addComponent(render);
+            }
+        }
 
         const heroPos = toWorldPos((level as any).hero);
         const heroFromConfig = EntityFactory.createEntityFromConfig(this.world, heroConfig, heroPos);

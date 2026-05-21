@@ -45,6 +45,10 @@ const waveTotalCount = $("waveTotalCount");
 const waveSpawnDuration = $("waveSpawnDuration");
 const addGroupBtn = $("addGroupBtn");
 const groupList = $("groupList");
+const clearTowersBtn = $("clearTowersBtn");
+const towerList = $("towerList");
+const clearObstaclesBtn = $("clearObstaclesBtn");
+const obstacleList = $("obstacleList");
 
 const Tool = {
   PathStart: "path_start",
@@ -53,6 +57,10 @@ const Tool = {
   WaypointRemove: "waypoint_remove",
   Hero: "hero",
   Base: "base",
+  TowerAdd: "tower_add",
+  TowerRemove: "tower_remove",
+  ObstacleAdd: "obstacle_add",
+  ObstacleRemove: "obstacle_remove",
 };
 
 function clamp(v, min, max) {
@@ -151,6 +159,8 @@ class MapState {
     this.gridH = 0;
     this.hero = null;
     this.base = null;
+    this.towerSlots = [];
+    this.obstacles = [];
     this.paths = [{ id: "A", start: null, end: null, waypoints: [] }];
     this.waves = [{ id: "W1", delay: 0, groups: [] }];
   }
@@ -172,6 +182,8 @@ class MapState {
     this.gridH = 0;
     this.hero = null;
     this.base = null;
+    this.towerSlots = [];
+    this.obstacles = [];
     this.paths = [{ id: "A", start: null, end: null, waypoints: [] }];
     this.waves = [{ id: "W1", delay: 0, groups: [] }];
   }
@@ -209,8 +221,8 @@ class MapState {
         ? {
             gx: p.gx,
             gy: p.gy,
-            px: (p.gx + 0.5) * this.cellSize,
-            py: (p.gy + 0.5) * this.cellSize,
+            px: typeof p.px === "number" ? p.px : (p.gx + 0.5) * this.cellSize,
+            py: typeof p.py === "number" ? p.py : (p.gy + 0.5) * this.cellSize,
           }
         : null;
 
@@ -223,6 +235,8 @@ class MapState {
       gridH: this.gridH,
       hero: toPoint(this.hero),
       base: toPoint(this.base),
+      towerSlots: (this.towerSlots || []).map(toPoint),
+      obstacles: (this.obstacles || []).map(toPoint),
       paths: (this.paths || []).map((path) => ({
         id: String(path.id || ""),
         start: toPoint(path.start),
@@ -270,11 +284,27 @@ class MapState {
       const gyRaw = Math.floor(p.gy);
       const gy = legacyTopLeft ? this.gridH - 1 - gyRaw : gyRaw;
       if (!this.inBounds(gx, gy)) return null;
-      return { gx, gy };
+      const px = typeof p.px === "number" && Number.isFinite(p.px) ? p.px : null;
+      const pyRaw = typeof p.py === "number" && Number.isFinite(p.py) ? p.py : null;
+      const py = pyRaw === null ? null : legacyTopLeft ? this.gridH * this.cellSize - pyRaw : pyRaw;
+      return { gx, gy, ...(px === null ? {} : { px }), ...(py === null ? {} : { py }) };
     };
 
     this.hero = readPoint(obj.hero);
     this.base = readPoint(obj.base);
+    this.towerSlots = Array.isArray(obj.towerSlots)
+      ? Array.from(
+          new Map(
+            obj.towerSlots
+              .map(readPoint)
+              .filter(Boolean)
+              .map((p) => [`${typeof p.px === "number" ? Math.round(p.px) : p.gx},${typeof p.py === "number" ? Math.round(p.py) : p.gy}`, p])
+          ).values()
+        )
+      : [];
+    this.obstacles = Array.isArray(obj.obstacles)
+      ? Array.from(new Map(obj.obstacles.map(readPoint).filter(Boolean).map((p) => [`${p.gx},${p.gy}`, p])).values())
+      : [];
 
     const waveSpawnDuration = (groups) => {
       if (!Array.isArray(groups) || groups.length === 0) return 0;
@@ -460,6 +490,7 @@ class Editor {
     this.offDirty = true;
 
     this.fitOnNextFrame = false;
+    this.paintLastKey = "";
   }
 
   setStatus(lines) {
@@ -472,6 +503,8 @@ class Editor {
     bgOpacityText.textContent = String(Math.round(this.state.backgroundOpacity * 100));
     this.syncPathSelect();
     this.renderWaypointList();
+    this.renderTowerList();
+    this.renderObstacleList();
     this.syncWaveSelect();
     this.renderWaveEditor();
   }
@@ -618,6 +651,24 @@ class Editor {
     return { gx, gy };
   }
 
+  worldToLevelPxPy(worldX, worldY) {
+    const ox = -this.bgW / 2;
+    const oy = -this.bgH / 2;
+    const localX = worldX - ox;
+    const localY = worldY - oy;
+    const px = clamp(localX, 0, this.bgW);
+    const py = clamp(this.bgH - localY, 0, this.bgH);
+    return { px, py };
+  }
+
+  levelPxPyToWorld(px, py) {
+    const ox = -this.bgW / 2;
+    const oy = -this.bgH / 2;
+    const localX = px;
+    const localY = this.bgH - py;
+    return { x: ox + localX, y: oy + localY };
+  }
+
   gridToWorldCenter(gx, gy) {
     const ox = -this.bgW / 2;
     const oy = -this.bgH / 2;
@@ -628,11 +679,16 @@ class Editor {
 
   pointToString(p) {
     if (!p) return "-";
+    if (typeof p.px === "number" && typeof p.py === "number") return `${p.gx},${p.gy} (${Math.round(p.px)},${Math.round(p.py)})`;
     return `${p.gx},${p.gy}`;
   }
 
   clonePoint(p) {
-    return p ? { gx: p.gx, gy: p.gy } : null;
+    if (!p) return null;
+    const out = { gx: p.gx, gy: p.gy };
+    if (typeof p.px === "number") out.px = p.px;
+    if (typeof p.py === "number") out.py = p.py;
+    return out;
   }
 
   clonePath(p) {
@@ -988,6 +1044,122 @@ class Editor {
     });
   }
 
+  renderTowerList() {
+    const towers = Array.isArray(this.state.towerSlots) ? this.state.towerSlots : [];
+    towerList.textContent = "";
+
+    const addRow = (label, pt, opts) => {
+      const row = document.createElement("div");
+      row.className = "waypointRow";
+      const info = document.createElement("div");
+      info.className = "waypointInfo";
+
+      const idxEl = document.createElement("div");
+      idxEl.className = "waypointIndex";
+      idxEl.textContent = label;
+      info.appendChild(idxEl);
+
+      const coord = document.createElement("div");
+      coord.className = "waypointCoord";
+      coord.textContent = this.pointToString(pt);
+      info.appendChild(coord);
+
+      row.appendChild(info);
+
+      const actions = document.createElement("div");
+      actions.className = "waypointActions";
+
+      const jumpBtn = document.createElement("button");
+      jumpBtn.type = "button";
+      jumpBtn.className = "small";
+      jumpBtn.textContent = "跳";
+      jumpBtn.disabled = !pt;
+      jumpBtn.addEventListener("click", () => {
+        if (!pt) return;
+        this.centerOnCell(pt.gx, pt.gy);
+      });
+      actions.appendChild(jumpBtn);
+
+      if (opts && opts.onRemove) {
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "small danger";
+        delBtn.textContent = "删";
+        delBtn.disabled = !pt;
+        delBtn.addEventListener("click", () => {
+          opts.onRemove();
+        });
+        actions.appendChild(delBtn);
+      }
+
+      row.appendChild(actions);
+      towerList.appendChild(row);
+    };
+
+    for (let i = 0; i < towers.length; i++) {
+      const pt = towers[i];
+      addRow(`T${i + 1}`, pt, { onRemove: () => this.removeTowerSlotAt(i) });
+    }
+  }
+
+  renderObstacleList() {
+    const obstacles = Array.isArray(this.state.obstacles) ? this.state.obstacles : [];
+    obstacleList.textContent = "";
+
+    const addRow = (label, pt, opts) => {
+      const row = document.createElement("div");
+      row.className = "waypointRow";
+      const info = document.createElement("div");
+      info.className = "waypointInfo";
+
+      const idxEl = document.createElement("div");
+      idxEl.className = "waypointIndex";
+      idxEl.textContent = label;
+      info.appendChild(idxEl);
+
+      const coord = document.createElement("div");
+      coord.className = "waypointCoord";
+      coord.textContent = this.pointToString(pt);
+      info.appendChild(coord);
+
+      row.appendChild(info);
+
+      const actions = document.createElement("div");
+      actions.className = "waypointActions";
+
+      const jumpBtn = document.createElement("button");
+      jumpBtn.type = "button";
+      jumpBtn.className = "small";
+      jumpBtn.textContent = "跳";
+      jumpBtn.disabled = !pt;
+      jumpBtn.addEventListener("click", () => {
+        if (!pt) return;
+        this.centerOnCell(pt.gx, pt.gy);
+      });
+      actions.appendChild(jumpBtn);
+
+      if (opts && opts.onRemove) {
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "small danger";
+        delBtn.textContent = "删";
+        delBtn.disabled = !pt;
+        delBtn.addEventListener("click", () => {
+          opts.onRemove();
+        });
+        actions.appendChild(delBtn);
+      }
+
+      row.appendChild(actions);
+      obstacleList.appendChild(row);
+    };
+
+    for (let i = 0; i < obstacles.length; i++) {
+      const pt = obstacles[i];
+      addRow(`X${i + 1}`, pt, { onRemove: () => this.removeObstacleAt(i) });
+    }
+  }
+
   setPathPoint(pathId, key, pt) {
     const path = this.state.getPathById(pathId);
     if (!path) return;
@@ -1043,6 +1215,123 @@ class Editor {
     if (bestIdx < 0) return;
     if (bestD > 4) return;
     this.removeWaypointAt(pathId, bestIdx);
+  }
+
+  addTowerSlot(pt) {
+    const towers = this.state.towerSlots || (this.state.towerSlots = []);
+    const cs = this.state.cellSize;
+    const px = typeof pt.px === "number" ? pt.px : (pt.gx + 0.5) * cs;
+    const py = typeof pt.py === "number" ? pt.py : (pt.gy + 0.5) * cs;
+
+    for (const t of towers) {
+      const tpx = typeof t.px === "number" ? t.px : (t.gx + 0.5) * cs;
+      const tpy = typeof t.py === "number" ? t.py : (t.gy + 0.5) * cs;
+      if (distSq(px, py, tpx, tpy) <= 12 * 12) return;
+    }
+
+    const point = { gx: pt.gx, gy: pt.gy, px, py };
+    const index = towers.length;
+    towers.push(point);
+    this.undo.push({ type: "tower_add", index, point });
+    this.offDirty = true;
+    this.updateJsonText();
+    this.updateUiState();
+  }
+
+  removeTowerSlotAt(index) {
+    const towers = this.state.towerSlots || (this.state.towerSlots = []);
+    if (index < 0 || index >= towers.length) return;
+    const point = towers[index];
+    towers.splice(index, 1);
+    this.undo.push({ type: "tower_remove", index, point });
+    this.offDirty = true;
+    this.updateJsonText();
+    this.updateUiState();
+  }
+
+  removeTowerSlotNearPxPy(px, py) {
+    const towers = this.state.towerSlots || (this.state.towerSlots = []);
+    if (towers.length === 0) return;
+    let bestIdx = -1;
+    let bestD = Infinity;
+    const cs = this.state.cellSize;
+    for (let i = 0; i < towers.length; i++) {
+      const p = towers[i];
+      const ppx = typeof p.px === "number" ? p.px : (p.gx + 0.5) * cs;
+      const ppy = typeof p.py === "number" ? p.py : (p.gy + 0.5) * cs;
+      const d = distSq(ppx, ppy, px, py);
+      if (d < bestD) {
+        bestD = d;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx < 0) return;
+    if (bestD > 16 * 16) return;
+    this.removeTowerSlotAt(bestIdx);
+  }
+
+  setTowerSlots(nextTowers) {
+    const before = (this.state.towerSlots || []).map((p) => this.clonePoint(p)).filter(Boolean);
+    const after = (nextTowers || []).map((p) => this.clonePoint(p)).filter(Boolean);
+    this.state.towerSlots = after;
+    this.undo.push({ type: "set_towerSlots", before, after });
+    this.offDirty = true;
+    this.updateJsonText();
+    this.updateUiState();
+  }
+
+  addObstacle(gx, gy) {
+    const obstacles = this.state.obstacles || (this.state.obstacles = []);
+    const key = `${gx},${gy}`;
+    for (const t of obstacles) {
+      if (`${t.gx},${t.gy}` === key) return;
+    }
+    const point = { gx, gy };
+    const index = obstacles.length;
+    obstacles.push(point);
+    this.undo.push({ type: "obstacle_add", index, point });
+    this.offDirty = true;
+    this.updateJsonText();
+    this.updateUiState();
+  }
+
+  removeObstacleAt(index) {
+    const obstacles = this.state.obstacles || (this.state.obstacles = []);
+    if (index < 0 || index >= obstacles.length) return;
+    const point = obstacles[index];
+    obstacles.splice(index, 1);
+    this.undo.push({ type: "obstacle_remove", index, point });
+    this.offDirty = true;
+    this.updateJsonText();
+    this.updateUiState();
+  }
+
+  removeObstacleNear(gx, gy) {
+    const obstacles = this.state.obstacles || (this.state.obstacles = []);
+    if (obstacles.length === 0) return;
+    let bestIdx = -1;
+    let bestD = Infinity;
+    for (let i = 0; i < obstacles.length; i++) {
+      const p = obstacles[i];
+      const d = distSq(p.gx, p.gy, gx, gy);
+      if (d < bestD) {
+        bestD = d;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx < 0) return;
+    if (bestD > 4) return;
+    this.removeObstacleAt(bestIdx);
+  }
+
+  setObstacles(nextObstacles) {
+    const before = (this.state.obstacles || []).map((p) => ({ gx: p.gx, gy: p.gy }));
+    const after = (nextObstacles || []).map((p) => ({ gx: p.gx, gy: p.gy }));
+    this.state.obstacles = after;
+    this.undo.push({ type: "set_obstacles", before, after });
+    this.offDirty = true;
+    this.updateJsonText();
+    this.updateUiState();
   }
 
   setWaypoints(pathId, nextWaypoints) {
@@ -1201,6 +1490,62 @@ class Editor {
       this.updateJsonText();
       return;
     }
+    if (op.type === "tower_add") {
+      const towers = this.state.towerSlots || (this.state.towerSlots = []);
+      if (dir === "undo") {
+        towers.splice(op.index, 1);
+      } else {
+        towers.splice(op.index, 0, this.clonePoint(op.point));
+      }
+      this.offDirty = true;
+      this.updateJsonText();
+      return;
+    }
+    if (op.type === "tower_remove") {
+      const towers = this.state.towerSlots || (this.state.towerSlots = []);
+      if (dir === "undo") {
+        towers.splice(op.index, 0, this.clonePoint(op.point));
+      } else {
+        towers.splice(op.index, 1);
+      }
+      this.offDirty = true;
+      this.updateJsonText();
+      return;
+    }
+    if (op.type === "set_towerSlots") {
+      this.state.towerSlots = (dir === "undo" ? op.before : op.after).map((p) => this.clonePoint(p)).filter(Boolean);
+      this.offDirty = true;
+      this.updateJsonText();
+      return;
+    }
+    if (op.type === "obstacle_add") {
+      const obstacles = this.state.obstacles || (this.state.obstacles = []);
+      if (dir === "undo") {
+        obstacles.splice(op.index, 1);
+      } else {
+        obstacles.splice(op.index, 0, { gx: op.point.gx, gy: op.point.gy });
+      }
+      this.offDirty = true;
+      this.updateJsonText();
+      return;
+    }
+    if (op.type === "obstacle_remove") {
+      const obstacles = this.state.obstacles || (this.state.obstacles = []);
+      if (dir === "undo") {
+        obstacles.splice(op.index, 0, { gx: op.point.gx, gy: op.point.gy });
+      } else {
+        obstacles.splice(op.index, 1);
+      }
+      this.offDirty = true;
+      this.updateJsonText();
+      return;
+    }
+    if (op.type === "set_obstacles") {
+      this.state.obstacles = (dir === "undo" ? op.before : op.after).map((p) => ({ gx: p.gx, gy: p.gy }));
+      this.offDirty = true;
+      this.updateJsonText();
+      return;
+    }
     if (op.type === "set_waypoints") {
       const path = this.state.getPathById(op.pathId);
       if (!path) return;
@@ -1261,6 +1606,7 @@ class Editor {
   handlePointerDown(ev) {
     if (ev.button !== 0) return;
     this.isPointerDown = true;
+    this.paintLastKey = "";
 
     if (this.isPanning || ev.getModifierState("Space")) {
       this.isPanning = true;
@@ -1288,6 +1634,33 @@ class Editor {
       }
       return;
     }
+    if (this.tool === Tool.TowerAdd) {
+      const snap = ev.getModifierState("Shift");
+      const pxpy = snap ? { px: (cell.gx + 0.5) * this.state.cellSize, py: (cell.gy + 0.5) * this.state.cellSize } : this.worldToLevelPxPy(p.x, p.y);
+      this.addTowerSlot({ gx: cell.gx, gy: cell.gy, px: pxpy.px, py: pxpy.py });
+      return;
+    }
+    if (this.tool === Tool.TowerRemove) {
+      const pxpy = this.worldToLevelPxPy(p.x, p.y);
+      this.removeTowerSlotNearPxPy(pxpy.px, pxpy.py);
+      return;
+    }
+    if (this.tool === Tool.ObstacleAdd) {
+      const key = `${cell.gx},${cell.gy}`;
+      if (this.paintLastKey !== key) {
+        this.paintLastKey = key;
+        this.addObstacle(cell.gx, cell.gy);
+      }
+      return;
+    }
+    if (this.tool === Tool.ObstacleRemove) {
+      const key = `${cell.gx},${cell.gy}`;
+      if (this.paintLastKey !== key) {
+        this.paintLastKey = key;
+        this.removeObstacleNear(cell.gx, cell.gy);
+      }
+      return;
+    }
     this.ensureActivePath();
     if (this.tool === Tool.PathStart) this.setPathPoint(this.activePathId, "start", { gx: cell.gx, gy: cell.gy });
     if (this.tool === Tool.PathEnd) this.setPathPoint(this.activePathId, "end", { gx: cell.gx, gy: cell.gy });
@@ -1311,6 +1684,23 @@ class Editor {
     }
 
     if (!this.isPointerDown) return;
+    if (!cell) return;
+    if (this.tool === Tool.ObstacleAdd) {
+      const key = `${cell.gx},${cell.gy}`;
+      if (this.paintLastKey !== key) {
+        this.paintLastKey = key;
+        this.addObstacle(cell.gx, cell.gy);
+      }
+      return;
+    }
+    if (this.tool === Tool.ObstacleRemove) {
+      const key = `${cell.gx},${cell.gy}`;
+      if (this.paintLastKey !== key) {
+        this.paintLastKey = key;
+        this.removeObstacleNear(cell.gx, cell.gy);
+      }
+      return;
+    }
   }
 
   handlePointerUp(ev) {
@@ -1320,6 +1710,7 @@ class Editor {
       this.isPanning = false;
       return;
     }
+    this.paintLastKey = "";
   }
 
   handleWheel(ev) {
@@ -1371,6 +1762,23 @@ class Editor {
       }
       this.offctx.stroke();
     }
+
+    if (this.state.gridW > 0 && this.state.gridH > 0 && Array.isArray(this.state.obstacles) && this.state.obstacles.length > 0) {
+      this.offctx.save();
+      this.offctx.fillStyle = "rgba(255, 80, 80, 0.18)";
+      this.offctx.strokeStyle = "rgba(255, 80, 80, 0.55)";
+      this.offctx.lineWidth = 1;
+      for (const p of this.state.obstacles) {
+        const gx = p.gx | 0;
+        const gy = p.gy | 0;
+        const gyTop = this.state.gridH - 1 - gy;
+        const x = gx * cs;
+        const y = gyTop * cs;
+        this.offctx.fillRect(x, y, cs, cs);
+        this.offctx.strokeRect(x + 0.5, y + 0.5, cs - 1, cs - 1);
+      }
+      this.offctx.restore();
+    }
   }
 
   drawPaths(ctx2) {
@@ -1397,6 +1805,33 @@ class Editor {
 
     drawPoint(this.state.hero, "rgba(120, 220, 255, 0.95)", "H");
     drawPoint(this.state.base, "rgba(255, 200, 80, 0.95)", "B");
+
+    const towers = Array.isArray(this.state.towerSlots) ? this.state.towerSlots : [];
+    if (towers.length > 0) {
+      const size = Math.max(10, cs * 0.42);
+      ctx2.save();
+      ctx2.lineWidth = 2 / this.viewport.scale;
+      for (let i = 0; i < towers.length; i++) {
+        const pt = towers[i];
+        const w =
+          typeof pt.px === "number" && typeof pt.py === "number"
+            ? this.levelPxPyToWorld(pt.px, pt.py)
+            : this.gridToWorldCenter(pt.gx, pt.gy);
+        ctx2.strokeStyle = "rgba(140, 255, 160, 0.95)";
+        ctx2.fillStyle = "rgba(140, 255, 160, 0.18)";
+        ctx2.beginPath();
+        ctx2.rect(w.x - size * 0.5, w.y - size * 0.5, size, size);
+        ctx2.fill();
+        ctx2.stroke();
+        ctx2.fillStyle = "rgba(0,0,0,0.75)";
+        ctx2.font =
+          `bold ${Math.max(10, Math.round(12 / this.viewport.scale))}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace`;
+        ctx2.textAlign = "center";
+        ctx2.textBaseline = "middle";
+        ctx2.fillText("T", w.x, w.y);
+      }
+      ctx2.restore();
+    }
 
     for (const path of paths) {
       const pts = [];
@@ -1490,6 +1925,8 @@ class Editor {
     const path = this.getActivePath();
     info.push(`paths: ${(this.state.paths || []).length}  current=${this.activePathId}`);
     info.push(`hero: ${this.pointToString(this.state.hero)}  base: ${this.pointToString(this.state.base)}`);
+    info.push(`towers: ${(this.state.towerSlots || []).length}`);
+    info.push(`obstacles: ${(this.state.obstacles || []).length}`);
     info.push(`start: ${this.pointToString(path.start)}  end: ${this.pointToString(path.end)}  waypoints: ${(path.waypoints || []).length}`);
     this.ensureActiveWave();
     const wave = this.getWaveById(this.activeWaveId);
@@ -1769,6 +2206,14 @@ redoBtn.addEventListener("click", () => {
   if (!op) return;
   editor.applyUndo(op, "redo");
   editor.updateUiState();
+});
+
+clearTowersBtn.addEventListener("click", () => {
+  editor.setTowerSlots([]);
+});
+
+clearObstaclesBtn.addEventListener("click", () => {
+  editor.setObstacles([]);
 });
 
 saveBtn.addEventListener("click", () => {

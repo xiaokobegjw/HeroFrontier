@@ -44,6 +44,8 @@ export type LevelData = {
     walkable?: number[];
     hero?: LevelPoint | null;
     base?: LevelPoint | null;
+    towerSlots?: LevelPoint[];
+    obstacles?: LevelPoint[];
     enemySpawns?: LevelPoint[];
     paths?: LevelPath[];
     waves?: LevelWave[];

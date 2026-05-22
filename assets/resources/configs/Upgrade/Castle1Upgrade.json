@@ -1,9 +1,70 @@
 {
     "id": "Castle1Upgrade",
-    "fields": {
-        "HealthComponent": {
-            "max": { "addPerLevel": 80 }
+    "levels": [
+        {
+            "level": 1,
+            "fields": {
+                "HealthComponent": { "max": 3000 },
+                "DefenseComponent": { "defense": 5 },
+                "BaseProductionComponent": {
+                    "populationCap": 20,
+                    "followerCap": 0,
+                    "followerDesired": 0,
+                    "productionIntervalSeconds": 3
+                }
+            }
+        },
+        {
+            "level": 2,
+            "fields": {
+                "HealthComponent": { "max": 5000 },
+                "DefenseComponent": { "defense": 8 },
+                "BaseProductionComponent": {
+                    "populationCap": 40,
+                    "followerCap": 12,
+                    "followerDesired": 12,
+                    "productionIntervalSeconds": 2.5
+                }
+            }
+        },
+        {
+            "level": 3,
+            "fields": {
+                "HealthComponent": { "max": 8000 },
+                "DefenseComponent": { "defense": 12 },
+                "BaseProductionComponent": {
+                    "populationCap": 65,
+                    "followerCap": 25,
+                    "followerDesired": 25,
+                    "productionIntervalSeconds": 2
+                }
+            }
+        },
+        {
+            "level": 4,
+            "fields": {
+                "HealthComponent": { "max": 12000 },
+                "DefenseComponent": { "defense": 18 },
+                "BaseProductionComponent": {
+                    "populationCap": 95,
+                    "followerCap": 40,
+                    "followerDesired": 40,
+                    "productionIntervalSeconds": 1.5
+                }
+            }
+        },
+        {
+            "level": 5,
+            "fields": {
+                "HealthComponent": { "max": 20000 },
+                "DefenseComponent": { "defense": 30 },
+                "BaseProductionComponent": {
+                    "populationCap": 130,
+                    "followerCap": 60,
+                    "followerDesired": 60,
+                    "productionIntervalSeconds": 1
+                }
+            }
         }
-    }
+    ]
 }
-

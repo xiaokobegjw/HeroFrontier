@@ -67,6 +67,10 @@
             "gold": 5
         },
         {
+            "id": "ExperienceRewardComponent",
+            "exp": 15
+        },
+        {
             "id": "ColliderComponent",
             "shape": "Circle",
             "radius": 15,

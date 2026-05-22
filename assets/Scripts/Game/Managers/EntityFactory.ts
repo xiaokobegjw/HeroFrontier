@@ -23,6 +23,9 @@ import { DefenseComponent } from '../ECS/Components/DefenseComponent';
 import { LootComponent } from '../ECS/Components/LootComponent';
 import { SoldierComponent } from '../ECS/Components/SoldierComponent';
 import { BaseProductionComponent } from '../ECS/Components/BaseProductionComponent';
+import { ViewComponent } from '../ECS/Components/ViewComponent';
+import { ExperienceComponent } from '../ECS/Components/ExperienceComponent';
+import { ExperienceRewardComponent } from '../ECS/Components/ExperienceRewardComponent';
 
 export class EntityFactory {
     /**
@@ -193,6 +196,16 @@ export class EntityFactory {
                 entity.addComponent(level);
                 break;
 
+            case 'ExperienceComponent':
+                const exp = world.acquireComponent(ExperienceComponent);
+                exp.currentExp = typeof config.currentExp === 'number' ? config.currentExp : exp.currentExp;
+                exp.expRequirements = Array.isArray(config.expRequirements)
+                    ? config.expRequirements.map((x: any) => (typeof x === 'number' ? x : 0))
+                    : exp.expRequirements;
+                exp.maxLevel = typeof config.maxLevel === 'number' ? config.maxLevel : exp.maxLevel;
+                entity.addComponent(exp);
+                break;
+
             case 'UpgradeableComponent':
                 const upgradeable = world.acquireComponent(UpgradeableComponent);
                 upgradeable.upgradeConfigId = config.upgradeConfigId ?? upgradeable.upgradeConfigId;
@@ -234,6 +247,12 @@ export class EntityFactory {
                 entity.addComponent(loot);
                 break;
 
+            case 'ExperienceRewardComponent':
+                const expReward = world.acquireComponent(ExperienceRewardComponent);
+                expReward.exp = typeof config.exp === 'number' ? config.exp : expReward.exp;
+                entity.addComponent(expReward);
+                break;
+
             case 'SoldierComponent':
                 const soldier = world.acquireComponent(SoldierComponent);
                 soldier.mode = config.mode === 'Follower' ? 'Follower' : 'Garrison';
@@ -256,6 +275,30 @@ export class EntityFactory {
                 prod.garrisonColSpacing = typeof config.garrisonColSpacing === 'number' ? config.garrisonColSpacing : prod.garrisonColSpacing;
                 prod.followerRadius = typeof config.followerRadius === 'number' ? config.followerRadius : prod.followerRadius;
                 entity.addComponent(prod);
+                break;
+
+            case 'ViewComponent':
+                const view = world.acquireComponent(ViewComponent);
+                view.prefabPath = typeof config.prefabPath === 'string' ? config.prefabPath : view.prefabPath;
+                view.useLevelDamageView = typeof config.useLevelDamageView === 'boolean' ? config.useLevelDamageView : view.useLevelDamageView;
+                view.levelNodeNames = Array.isArray(config.levelNodeNames)
+                    ? config.levelNodeNames.filter((x: any) => typeof x === 'string' && x.length > 0)
+                    : view.levelNodeNames;
+                view.normalNodeName = typeof config.normalNodeName === 'string' ? config.normalNodeName : view.normalNodeName;
+                view.damageNodeName = typeof config.damageNodeName === 'string' ? config.damageNodeName : view.damageNodeName;
+                view.damageThresholdPct = typeof config.damageThresholdPct === 'number' ? config.damageThresholdPct : view.damageThresholdPct;
+                view.idleClipPath = typeof config.idleClipPath === 'string' ? config.idleClipPath : view.idleClipPath;
+                view.walkClipPath = typeof config.walkClipPath === 'string' ? config.walkClipPath : view.walkClipPath;
+                view.attackClipPath = typeof config.attackClipPath === 'string' ? config.attackClipPath : view.attackClipPath;
+                view.dieClipPath = typeof config.dieClipPath === 'string' ? config.dieClipPath : view.dieClipPath;
+                view.idleStateName = typeof config.idleStateName === 'string' ? config.idleStateName : view.idleStateName;
+                view.walkStateName = typeof config.walkStateName === 'string' ? config.walkStateName : view.walkStateName;
+                view.attackStateName = typeof config.attackStateName === 'string' ? config.attackStateName : view.attackStateName;
+                view.dieStateName = typeof config.dieStateName === 'string' ? config.dieStateName : view.dieStateName;
+                view.offsetX = typeof config.offsetX === 'number' ? config.offsetX : view.offsetX;
+                view.offsetY = typeof config.offsetY === 'number' ? config.offsetY : view.offsetY;
+                view.scale = typeof config.scale === 'number' ? config.scale : view.scale;
+                entity.addComponent(view);
                 break;
                 
             default:

@@ -10,7 +10,10 @@ import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
 import { DebugState } from '../../Debug/DebugState';
 import { DefenseComponent } from '../Components/DefenseComponent';
 import { LootComponent } from '../Components/LootComponent';
-import { emitKillEvent } from '../GameEvents';
+import { emitDeathViewEvent, emitExpEvent, emitKillEvent } from '../GameEvents';
+import { ExperienceRewardComponent } from '../Components/ExperienceRewardComponent';
+import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
+import { ViewComponent } from '../Components/ViewComponent';
 
 export class DamageSystem extends ECSSystem {
     private world: World;
@@ -131,6 +134,27 @@ export class DamageSystem extends ECSSystem {
     private emitKill(killerId: number | null, victim: Entity): void {
         const faction = victim.getComponent(FactionComponent)?.faction ?? -1;
         const gold = victim.getComponent(LootComponent)?.gold ?? 0;
+        const exp = victim.getComponent(ExperienceRewardComponent)?.exp ?? 0;
+        this.emitDeathView(victim);
         emitKillEvent({ killerId, victimId: victim.id, victimFaction: faction, gold });
+        emitExpEvent({ killerId, victimId: victim.id, victimFaction: faction, exp });
+    }
+
+    private emitDeathView(victim: Entity): void {
+        const transform = victim.getComponent(TransformComponent);
+        const view = victim.getComponent(ViewComponent);
+        if (!transform || !view || !view.dieClipPath) return;
+
+        emitDeathViewEvent({
+            prefabPath: view.prefabPath,
+            dieClipPath: view.dieClipPath,
+            dieStateName: view.dieStateName,
+            x: transform.x,
+            y: transform.y,
+            offsetX: view.offsetX,
+            offsetY: view.offsetY,
+            scaleX: transform.scaleX * view.scale,
+            scaleY: transform.scaleY * view.scale
+        });
     }
 }

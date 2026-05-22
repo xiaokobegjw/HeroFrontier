@@ -8,6 +8,10 @@ import { HealthComponent } from '../Components/HealthComponent';
 import { BaseHealthStatsComponent } from '../Components/BaseHealthStatsComponent';
 import { WeaponComponent } from '../Components/WeaponComponent';
 import { BaseWeaponStatsComponent } from '../Components/BaseWeaponStatsComponent';
+import { DefenseComponent } from '../Components/DefenseComponent';
+import { BaseDefenseStatsComponent } from '../Components/BaseDefenseStatsComponent';
+import { BaseProductionComponent } from '../Components/BaseProductionComponent';
+import { BaseProductionStatsComponent } from '../Components/BaseProductionStatsComponent';
 
 type NumberRule = {
     addPerLevel?: number;
@@ -19,6 +23,15 @@ type NumberValue = number | NumberRule;
 type UpgradeFields = {
     HealthComponent?: {
         max?: NumberValue;
+    };
+    DefenseComponent?: {
+        defense?: NumberValue;
+    };
+    BaseProductionComponent?: {
+        populationCap?: NumberValue;
+        followerCap?: NumberValue;
+        followerDesired?: NumberValue;
+        productionIntervalSeconds?: NumberValue;
     };
     WeaponComponent?: {
         damage?: NumberValue;
@@ -78,6 +91,8 @@ export class UpgradeSystem extends ECSSystem {
             if (!fields) continue;
 
             this.applyHealth(entity, fields, level);
+            this.applyDefense(entity, fields, level);
+            this.applyProduction(entity, fields, level);
             this.applyWeapon(entity, fields, level);
         }
     }
@@ -155,6 +170,55 @@ export class UpgradeSystem extends ECSSystem {
         if (rules.meleeHeight) weapon.meleeHeight = this.evalNumberValue(base.meleeHeight, rules.meleeHeight, level);
         if (rules.meleeLifeSeconds) weapon.meleeLifeSeconds = this.evalNumberValue(base.meleeLifeSeconds, rules.meleeLifeSeconds, level);
         if (rules.meleeForwardOffset) weapon.meleeForwardOffset = this.evalNumberValue(base.meleeForwardOffset, rules.meleeForwardOffset, level);
+    }
+
+    private applyDefense(entity: Entity, fields: UpgradeFields, level: number): void {
+        const rules = fields.DefenseComponent;
+        if (!rules) return;
+
+        const defense = entity.getComponent(DefenseComponent);
+        if (!defense) return;
+
+        let base = entity.getComponent(BaseDefenseStatsComponent);
+        if (!base) {
+            base = this.world.acquireComponent(BaseDefenseStatsComponent);
+            base.defense = defense.defense;
+            entity.addComponent(base);
+        }
+
+        if (rules.defense) {
+            defense.defense = this.evalNumberValue(base.defense, rules.defense, level);
+        }
+    }
+
+    private applyProduction(entity: Entity, fields: UpgradeFields, level: number): void {
+        const rules = fields.BaseProductionComponent;
+        if (!rules) return;
+
+        const prod = entity.getComponent(BaseProductionComponent);
+        if (!prod) return;
+
+        let base = entity.getComponent(BaseProductionStatsComponent);
+        if (!base) {
+            base = this.world.acquireComponent(BaseProductionStatsComponent);
+            base.populationCap = prod.populationCap;
+            base.followerCap = prod.followerCap;
+            base.followerDesired = prod.followerDesired;
+            base.productionIntervalSeconds = prod.productionIntervalSeconds;
+            entity.addComponent(base);
+        }
+
+        if (rules.populationCap) prod.populationCap = this.evalNumberValue(base.populationCap, rules.populationCap, level);
+        if (rules.followerCap) prod.followerCap = this.evalNumberValue(base.followerCap, rules.followerCap, level);
+        if (rules.followerDesired) prod.followerDesired = this.evalNumberValue(base.followerDesired, rules.followerDesired, level);
+        if (rules.productionIntervalSeconds) {
+            prod.productionIntervalSeconds = this.evalNumberValue(base.productionIntervalSeconds, rules.productionIntervalSeconds, level);
+        }
+
+        prod.populationCap = Math.max(0, Math.floor(prod.populationCap));
+        prod.followerCap = Math.max(0, Math.floor(prod.followerCap));
+        prod.followerDesired = Math.max(0, Math.min(prod.followerCap, Math.floor(prod.followerDesired)));
+        prod.productionIntervalSeconds = Math.max(0.05, prod.productionIntervalSeconds);
     }
 
     private evalNumberRule(base: number, rule: NumberRule, level: number): number {

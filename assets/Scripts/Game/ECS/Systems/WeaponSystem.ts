@@ -80,6 +80,7 @@ export class WeaponSystem extends ECSSystem {
                 }
 
                 w.state.cooldownRemaining = Math.max(0, w.state.cooldownRemaining - deltaTime);
+                w.state.attackAnimRemaining = Math.max(0, w.state.attackAnimRemaining - deltaTime);
                 if (w.state.cooldownRemaining > 0) continue;
 
                 const effectiveRange = w.weapon.range + selfRadius + targetRadius;
@@ -90,7 +91,10 @@ export class WeaponSystem extends ECSSystem {
                         ? this.spawnMeleeHitbox(entity, faction.faction, transform.x, transform.y, w.weapon, dirX, dirY)
                         : this.spawnProjectile(entity, faction.faction, transform.x, transform.y, w.weapon, dirX, dirY);
 
-                if (fired) w.state.cooldownRemaining = w.weapon.attackInterval;
+                if (fired) {
+                    w.state.cooldownRemaining = w.weapon.attackInterval;
+                    w.state.attackAnimRemaining = Math.max(0.35, Math.min(0.75, w.weapon.attackInterval * 0.9));
+                }
             }
         }
     }

@@ -11,6 +11,20 @@
             "id": "TransformComponent"
         },
         {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/Hero1Prefab",
+            "idleClipPath": "clips/hero1/hero1Idle",
+            "walkClipPath": "clips/hero1/hero1Walk",
+            "attackClipPath": "clips/hero1/hero1Attack",
+            "dieClipPath": "clips/hero1/hero1Die",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "attackStateName": "attack",
+            "dieStateName": "die",
+            "offsetY": 0,
+            "scale": 1
+        },
+        {
             "id": "MoveStatsComponent",
             "maxSpeed": 50,
             "accel": 200,
@@ -52,20 +66,38 @@
             "level": 1
         },
         {
+            "id": "ExperienceComponent",
+            "currentExp": 0,
+            "maxLevel": 50,
+            "expRequirements": [0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 170, 205, 240, 275, 310, 345, 380, 415, 450, 485, 535, 585, 635, 685, 735, 785, 835, 885, 935, 985, 1085, 1185, 1285, 1385, 1485, 1585, 1685, 1785, 1885, 1985, 2135, 2285, 2435, 2585, 2735, 2885, 3035, 3185, 3335, 3500]
+        },
+        {
             "id": "UpgradeableComponent",
             "upgradeConfigId": "Hero1Upgrade"
         },
         {
-            "id": "EquipmentComponent",
-            "weaponConfigId": "Bow1"
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 25,
+            "attackInterval": 0.9,
+            "range": 28,
+            "meleeShape": "Circle",
+            "meleeRadius": 24,
+            "meleeLifeSeconds": 0.12,
+            "meleeForwardOffset": 22,
+            "meleeCanHitMultiple": false
+        },
+        {
+            "id": "WeaponStateComponent"
         },
         {
             "id": "HealthComponent",
-            "max": 150
+            "max": 500
         },
         {
             "id": "DefenseComponent",
-            "defense": 0
+            "defense": 8
         },
         {
             "id": "ColliderComponent",
@@ -81,9 +113,9 @@
             "shapes": [
                 {
                     "type": "Circle",
-                    "color": [0, 255, 0],
-                    "lineWidth": 2,
-                    "fill": true,
+                    "color": [0, 255, 0, 0],
+                    "lineWidth": 0,
+                    "fill": false,
                     "radius": 15
                 }
             ]

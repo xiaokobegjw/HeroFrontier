@@ -15,16 +15,26 @@
             "level": 1
         },
         {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/CastlePrefab",
+            "useLevelDamageView": true,
+            "levelNodeNames": ["Level1Node", "Level2Node", "Level3Node"],
+            "normalNodeName": "normal",
+            "damageNodeName": "damage",
+            "damageThresholdPct": 0.3,
+            "scale": 1
+        },
+        {
             "id": "UpgradeableComponent",
             "upgradeConfigId": "Castle1Upgrade"
         },
         {
             "id": "HealthComponent",
-            "max": 500
+            "max": 3000
         },
         {
             "id": "DefenseComponent",
-            "defense": 10
+            "defense": 5
         },
         {
             "id": "BaseProductionComponent",
@@ -55,16 +65,7 @@
         {
             "id": "RenderComponent",
             "offset": { "x": 0, "y": 0 },
-            "shapes": [
-                {
-                    "type": "Square",
-                    "color": [217, 164, 65],
-                    "lineWidth": 2,
-                    "fill": true,
-                    "width": 48,
-                    "height": 48
-                }
-            ]
+            "shapes": []
         }
     ]
 }

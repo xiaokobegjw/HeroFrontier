@@ -4,11 +4,20 @@ import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { World } from '../../../Shared/ECS/Core/World';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
+import { QuadTree, QuadTreeRect } from '../../../Shared/Spatial/QuadTree';
 import { MoveStatsComponent } from '../Components/MoveStatsComponent';
 import { ObstacleComponent } from '../Components/ObstacleComponent';
 
+type ObstacleItem = {
+    id: number;
+    entity: Entity;
+    bounds: QuadTreeRect;
+};
+
 export class MovementBlockSystem extends ECSSystem {
     private world: World;
+    private obstacleIndex: QuadTree<ObstacleItem> | null = null;
+    private obstacleSignature: string = '';
 
     constructor(world: World, priority: number = 4.85) {
         super('MovementBlockSystem', priority);
@@ -26,6 +35,8 @@ export class MovementBlockSystem extends ECSSystem {
             .filter(e => e.getComponent(ObstacleComponent)!.blocksMovement);
 
         if (obstacles.length === 0) return;
+        this.refreshObstacleIndex(obstacles);
+        if (!this.obstacleIndex) return;
 
         for (const entity of entities) {
             if (!entity.active) continue;
@@ -36,13 +47,83 @@ export class MovementBlockSystem extends ECSSystem {
             if (col.shape !== ColliderShapeType.Circle) continue;
 
             for (let iter = 0; iter < 4; iter++) {
+                const queryRange = this.getAABB(tr, col);
+                const candidates = this.obstacleIndex.query(queryRange, []);
+                if (candidates.length === 0) break;
+
                 let moved = false;
-                for (const obs of obstacles) {
-                    moved = this.resolveAgainstObstacle(entity, obs) || moved;
+                for (const candidate of candidates) {
+                    moved = this.resolveAgainstObstacle(entity, candidate.entity) || moved;
                 }
                 if (!moved) break;
             }
         }
+    }
+
+    private refreshObstacleIndex(obstacles: Entity[]): void {
+        const items = obstacles.map(entity => {
+            const tr = entity.getComponent(TransformComponent)!;
+            const col = entity.getComponent(ColliderComponent)!;
+            return {
+                id: entity.id,
+                entity,
+                bounds: this.getAABB(tr, col)
+            };
+        });
+
+        const signature = items
+            .map(item => {
+                const b = item.bounds;
+                return `${item.id}:${b.x.toFixed(1)},${b.y.toFixed(1)},${b.width.toFixed(1)},${b.height.toFixed(1)}`;
+            })
+            .join('|');
+
+        if (this.obstacleIndex && signature === this.obstacleSignature) return;
+
+        const bounds = this.computeTreeBounds(items);
+        this.obstacleIndex = new QuadTree<ObstacleItem>(bounds, { capacity: 8, maxDepth: 8 });
+        for (const item of items) {
+            this.obstacleIndex.insert(item);
+        }
+        this.obstacleSignature = signature;
+    }
+
+    private computeTreeBounds(items: ObstacleItem[]): QuadTreeRect {
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        for (const item of items) {
+            minX = Math.min(minX, item.bounds.x);
+            minY = Math.min(minY, item.bounds.y);
+            maxX = Math.max(maxX, item.bounds.x + item.bounds.width);
+            maxY = Math.max(maxY, item.bounds.y + item.bounds.height);
+        }
+
+        if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+            return { x: -1000, y: -1000, width: 2000, height: 2000 };
+        }
+
+        const pad = 32;
+        return {
+            x: minX - pad,
+            y: minY - pad,
+            width: Math.max(64, maxX - minX + pad * 2),
+            height: Math.max(64, maxY - minY + pad * 2)
+        };
+    }
+
+    private getAABB(transform: TransformComponent, collider: ColliderComponent): QuadTreeRect {
+        const x = transform.x + collider.offsetX;
+        const y = transform.y + collider.offsetY;
+
+        if (collider.shape === ColliderShapeType.Circle) {
+            const r = collider.radius;
+            return { x: x - r, y: y - r, width: r * 2, height: r * 2 };
+        }
+
+        return { x: x - collider.width / 2, y: y - collider.height / 2, width: collider.width, height: collider.height };
     }
 
     private resolveAgainstObstacle(entity: Entity, obstacle: Entity): boolean {

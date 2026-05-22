@@ -1,0 +1,28 @@
+TexturePacker \
+--sheet Units.png \
+--data Units.plist \
+--format cocos2d \
+--max-size 2048 \
+--no-trim \
+--padding 2 \
+--enable-rotation \
+--algorithm MaxRects \
+--border-padding 0 \
+--shape-padding 1 \
+--pack-mode Best \
+*.png \
+Enemy/Mob1/*.png \
+Enemy/Mob2/*.png \
+Enemy/Mob3/*.png \
+Enemy/HeavyGuard1/*.png \
+Enemy/HeavyGuard2/*.png \
+Enemy/jingyinBianYi1/*.png \
+Enemy/jingyinBianYi2/*.png \
+Enemy/Undead1/*.png \
+Enemy/Undead2/*.png \
+Hero1/*.png \
+Our/OurInfantrySoldiers/*.png \
+Our/Elementalist/*.png \
+Our/IronWarden/*.png \
+Our/OurArcher/*.png \
+Our/Paladin/*.png

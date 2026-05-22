@@ -48,6 +48,7 @@ import { MemoryComponent } from './ECS/Components/MemoryComponent';
 import { CommandBus } from './Input/CommandBus';
 import { DebugCommandAdapter } from './Input/DebugCommandAdapter';
 import { DebugCommandContext } from './Input/DebugCommands';
+import { PlayerMoveInputAdapter } from './Input/PlayerMoveInputAdapter';
 import { DebugState } from './Debug/DebugState';
 import { LevelLoader, LevelPoint } from './Managers/LevelLoader';
 import { ObstacleComponent } from './ECS/Components/ObstacleComponent';
@@ -57,6 +58,9 @@ import { PathFollowComponent } from './ECS/Components/PathFollowComponent';
 import { BaseProductionSystem } from './ECS/Systems/BaseProductionSystem';
 import { SoldierFormationSystem } from './ECS/Systems/SoldierFormationSystem';
 import { MovementBlockSystem } from './ECS/Systems/MovementBlockSystem';
+import { ActorViewSystem } from './ECS/Systems/ActorViewSystem';
+import { ExperienceSystem } from './ECS/Systems/ExperienceSystem';
+import { PlayerControlSystem } from './ECS/Systems/PlayerControlSystem';
 
 type SpawnEvent = { time: number; enemyId: string; pathId: string };
 
@@ -85,7 +89,9 @@ export class GameMain extends Component {
     private projectileSystem: ProjectileSystem = null!;
     private meleeHitboxSystem: MeleeHitboxSystem = null!;
     private damageSystem: DamageSystem = null!;
+    private experienceSystem: ExperienceSystem | null = null;
     private currencySystem: CurrencySystem = null!;
+    private actorViewSystem: ActorViewSystem | null = null;
     private playerEntity: Entity | null = null;
     private saveData: SaveData | null = null;
     private isPaused: boolean = false;
@@ -98,6 +104,8 @@ export class GameMain extends Component {
     private debugDamageLabels: Map<number, { node: Node; label: Label; ttl: number }> = new Map();
     private debugCommandBus: CommandBus | null = null;
     private debugInput: DebugCommandAdapter | null = null;
+    private playerMoveInput: PlayerMoveInputAdapter | null = null;
+    private playerControlSystem: PlayerControlSystem | null = null;
     private levelTimeSeconds: number = 0;
     private spawnQueue: SpawnEvent[] = [];
     private levelPaths: Map<string, { x: number; y: number }[]> = new Map();
@@ -157,6 +165,11 @@ export class GameMain extends Component {
         this.aiSystem = new AISystem(this.world, this.actionSystem, 6.2);
         this.world.registerSystem(this.aiSystem);
 
+        this.playerMoveInput = new PlayerMoveInputAdapter();
+        this.playerMoveInput.enable();
+        this.playerControlSystem = new PlayerControlSystem(this.world, this.actionSystem, this.playerMoveInput, () => this.playerEntity?.id ?? null, 6.3);
+        this.world.registerSystem(this.playerControlSystem);
+
         this.equipmentSystem = new EquipmentSystem(this.world, { Bow1: bowConfig, Sword1: swordConfig }, 6.5);
         this.world.registerSystem(this.equipmentSystem);
 
@@ -186,6 +199,11 @@ export class GameMain extends Component {
         this.renderSystem.setContext(graphics as any);
         this.world.registerSystem(this.renderSystem);
 
+        if (entityRootNode) {
+            this.actorViewSystem = new ActorViewSystem(this.world, entityRootNode, 99);
+            this.world.registerSystem(this.actorViewSystem);
+        }
+
         if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
             this.debugOverlaySystem = new DebugOverlaySystem(this.world, () => this.debugSelectedEntityId, 101);
             this.debugOverlaySystem.setContext(graphics as any);
@@ -197,6 +215,9 @@ export class GameMain extends Component {
 
         this.damageSystem = new DamageSystem(this.world, this.collisionSystem, 11);
         this.world.registerSystem(this.damageSystem);
+
+        this.experienceSystem = new ExperienceSystem(this.world, () => this.playerEntity?.id ?? null, 11.25);
+        this.world.registerSystem(this.experienceSystem);
 
         this.currencySystem = new CurrencySystem(11.5);
         this.world.registerSystem(this.currencySystem);
@@ -481,10 +502,13 @@ export class GameMain extends Component {
     }
 
     onDestroy() {
+        this.playerMoveInput?.disable();
         this.debugInput?.disable();
         this.debugCommandBus?.clear();
         this.debugInput = null;
         this.debugCommandBus = null;
+        this.playerMoveInput = null;
+        this.playerControlSystem = null;
         DebugState.enabled = false;
         DebugState.selectedEntityId = null;
         for (const v of this.debugDamageLabels.values()) v.node.destroy();

@@ -1,0 +1,67 @@
+{
+    "id": "EnemyHeavy1",
+    "name": "enemy_name_heavy",
+    "description": "enemy_desc_heavy",
+    "ComponentsList": [
+        { "id": "FactionComponent", "faction": "Enemy" },
+        { "id": "TransformComponent" },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/IronWardenPrefab",
+            "idleClipPath": "clips/IronWarden/IronWardenIdle",
+            "walkClipPath": "clips/IronWarden/IronWardenWalk",
+            "attackClipPath": "clips/IronWarden/IronWardenAttack",
+            "dieClipPath": "clips/IronWarden/IronWardenDie",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "attackStateName": "attack",
+            "dieStateName": "die",
+            "scale": 1
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 32,
+            "accel": 120,
+            "decel": 200,
+            "threshold": 2
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 90,
+            "fovDeg": 120,
+            "facingDeg": 0,
+            "checkInterval": 0.2
+        },
+        { "id": "MemoryComponent", "memorySeconds": 1, "maxTargets": 5 },
+        { "id": "TargetComponent" },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.12,
+            "lockSeconds": 0.2,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                { "id": "attack", "type": "AttackTarget", "weight": 3, "params": { "stopRangeScale": 0.9 } },
+                { "id": "idle", "type": "Idle", "weight": 0.1 }
+            ]
+        },
+        { "id": "LevelComponent", "level": 1 },
+        { "id": "EquipmentComponent", "weaponConfigId": "Sword1" },
+        { "id": "HealthComponent", "max": 420 },
+        { "id": "DefenseComponent", "defense": 35 },
+        { "id": "LootComponent", "gold": 12 },
+        { "id": "ExperienceRewardComponent", "exp": 28 },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 16,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        { "id": "RenderComponent", "offset": { "x": 0, "y": 0 }, "shapes": [] }
+    ]
+}

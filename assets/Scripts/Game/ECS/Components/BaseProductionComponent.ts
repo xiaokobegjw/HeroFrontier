@@ -11,9 +11,11 @@ export class BaseProductionComponent extends ECSComponent {
     public nextSoldierIndex: number = 0;
     public garrisonOffsetX: number = 80;
     public garrisonRows: number = 10;
-    public garrisonRowSpacing: number = 18;
-    public garrisonColSpacing: number = 18;
+    public garrisonRowSpacing: number = 24;
+    public garrisonColSpacing: number = 24;
     public followerRadius: number = 56;
+    /** 当前主塔等级可生产的兵种配置 id 列表 */
+    public soldierConfigIds: string[] = ['Soldier1'];
 
     reset(): void {
         super.reset();
@@ -30,5 +32,6 @@ export class BaseProductionComponent extends ECSComponent {
         this.garrisonRowSpacing = 18;
         this.garrisonColSpacing = 18;
         this.followerRadius = 56;
+        this.soldierConfigIds = ['Soldier1'];
     }
 }

@@ -14,6 +14,17 @@ import { emitDeathViewEvent, emitExpEvent, emitKillEvent } from '../GameEvents';
 import { ExperienceRewardComponent } from '../Components/ExperienceRewardComponent';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { ViewComponent } from '../Components/ViewComponent';
+import { BurningComponent } from '../Components/BurningComponent';
+import { SpatialIndexSystem } from './SpatialIndexSystem';
+import { FactionType } from '../../Data/Faction';
+
+type DamageSource = {
+    armorPenPct: number;
+    skillMultiplier: number;
+    critChance: number;
+    critMultiplier: number;
+    finalDamageBonusPct: number;
+};
 
 export class DamageSystem extends ECSSystem {
     private world: World;
@@ -56,27 +67,116 @@ export class DamageSystem extends ECSSystem {
             return false;
         }
 
-        if (!targetEntity.active) return false;
-        if (health.isDead) return true;
+        if (!targetEntity.active || health.isDead) return true;
+        if (projectile.hitEntityIds.indexOf(targetEntity.id) !== -1) return true;
 
-        const appliedDamage = this.computeDamage(projectile.damage, projectile.armorPenPct, targetEntity);
-        health.current -= appliedDamage;
-        if (health.current <= 0) {
-            health.current = 0;
-            health.isDead = true;
-            console.log(`[DamageSystem] ${targetEntity.name} died`);
-        } else {
-            console.log(`[DamageSystem] ${targetEntity.name} -${appliedDamage.toFixed(1)} => ${health.current.toFixed(1)}/${health.max}`);
+        const pt = targetEntity.getComponent(TransformComponent);
+        const splashRadius = projectile.splashRadius;
+        const source = this.getProjectileDamageSource(projectile);
+        const primaryDamage = this.computeDamage(projectile.damage, source, targetEntity);
+
+        this.applyDamageToTarget(projectile.ownerId || null, targetEntity, primaryDamage);
+
+        if (splashRadius > 0 && pt) {
+            this.applySplashDamage(
+                projectile.ownerId || null,
+                projFaction?.faction ?? FactionType.Player,
+                pt.x,
+                pt.y,
+                splashRadius,
+                projectile.damage * 0.55,
+                source,
+                [targetEntity.id, ...projectile.hitEntityIds]
+            );
         }
-        if (DebugState.enabled) DebugState.pushDamageEvent(targetEntity.id, health.current, health.max);
 
-        if (health.isDead) {
-            this.emitKill(projectile.ownerId || null, targetEntity);
-            this.world.destroyEntity(targetEntity);
+        if (projectile.burnDamagePerSecond > 0 && projectile.burnDuration > 0) {
+            this.applyBurn(
+                targetEntity,
+                projectile.burnDamagePerSecond,
+                projectile.burnDuration,
+                projectile.burnMaxStacks,
+                projectile.ownerId
+            );
+        }
+
+        projectile.hitEntityIds.push(targetEntity.id);
+
+        if (projectile.pierceRemaining > 0) {
+            projectile.pierceRemaining--;
+            return true;
         }
 
         this.world.destroyEntity(projectileEntity);
         return true;
+    }
+
+    private applySplashDamage(
+        ownerId: number | null,
+        ownerFaction: FactionType,
+        cx: number,
+        cy: number,
+        radius: number,
+        damage: number,
+        source: DamageSource,
+        excludeIds: number[]
+    ): void {
+        const spatial = this.world.getSystem(SpatialIndexSystem);
+        if (!spatial || damage <= 0) return;
+
+        const ids = spatial.queryOpponents(ownerFaction, {
+            x: cx - radius,
+            y: cy - radius,
+            width: radius * 2,
+            height: radius * 2
+        });
+
+        for (const id of ids) {
+            if (excludeIds.indexOf(id) !== -1) continue;
+            const ent = this.world.getEntity(id);
+            const hp = ent?.getComponent(HealthComponent);
+            if (!ent || !hp || hp.isDead) continue;
+            const tr = ent.getComponent(TransformComponent);
+            if (!tr) continue;
+            const dx = tr.x - cx;
+            const dy = tr.y - cy;
+            if (dx * dx + dy * dy > radius * radius) continue;
+            this.applyDamageToTarget(ownerId, ent, this.computeDamage(damage, source, ent));
+        }
+    }
+
+    private applyBurn(target: Entity, dps: number, duration: number, maxStacks: number, sourceId: number): void {
+        let burn = target.getComponent(BurningComponent);
+        if (!burn) {
+            burn = this.world.acquireComponent(BurningComponent);
+            target.addComponent(burn);
+        }
+        burn.damagePerSecond = dps;
+        burn.stackDuration = duration;
+        burn.maxStacks = maxStacks > 0 ? maxStacks : 3;
+        burn.sourceEntityId = sourceId;
+        const expire = performance.now() / 1000 + duration;
+        burn.stackExpireTimes.push(expire);
+        while (burn.maxStacks > 0 && burn.stackExpireTimes.length > burn.maxStacks) {
+            burn.stackExpireTimes.shift();
+        }
+    }
+
+    private applyDamageToTarget(killerId: number | null, targetEntity: Entity, appliedDamage: number): void {
+        const health = targetEntity.getComponent(HealthComponent);
+        if (!health || health.isDead) return;
+
+        health.current -= appliedDamage;
+        if (health.current <= 0) {
+            health.current = 0;
+            health.isDead = true;
+        }
+        if (DebugState.enabled) DebugState.pushDamageEvent(targetEntity.id, health.current, health.max);
+
+        if (health.isDead) {
+            this.emitKill(killerId, targetEntity);
+            this.world.destroyEntity(targetEntity);
+        }
     }
 
     private tryApplyMeleeHit(hitboxEntity: Entity, targetEntity: Entity): boolean {
@@ -85,7 +185,6 @@ export class DamageSystem extends ECSSystem {
         if (!hitbox || !health) return false;
 
         if (hitbox.ownerId === targetEntity.id) return true;
-
         if (hitbox.hitEntityIds.indexOf(targetEntity.id) !== -1) return true;
 
         const hitboxFaction = hitboxEntity.getComponent(FactionComponent);
@@ -95,24 +194,11 @@ export class DamageSystem extends ECSSystem {
             return true;
         }
 
-        if (!targetEntity.active) return false;
-        if (health.isDead) return true;
+        if (!targetEntity.active || health.isDead) return true;
 
-        const appliedDamage = this.computeDamage(hitbox.damage, hitbox.armorPenPct, targetEntity);
-        health.current -= appliedDamage;
-        if (health.current <= 0) {
-            health.current = 0;
-            health.isDead = true;
-            console.log(`[DamageSystem] ${targetEntity.name} died`);
-        } else {
-            console.log(`[DamageSystem] ${targetEntity.name} -${appliedDamage.toFixed(1)} => ${health.current.toFixed(1)}/${health.max}`);
-        }
-        if (DebugState.enabled) DebugState.pushDamageEvent(targetEntity.id, health.current, health.max);
-
-        if (health.isDead) {
-            this.emitKill(hitbox.ownerId || null, targetEntity);
-            this.world.destroyEntity(targetEntity);
-        }
+        const source = this.getMeleeDamageSource(hitbox);
+        const appliedDamage = this.computeDamage(hitbox.damage, source, targetEntity);
+        this.applyDamageToTarget(hitbox.ownerId || null, targetEntity, appliedDamage);
 
         hitbox.hitEntityIds.push(targetEntity.id);
         if (!hitbox.canHitMultiple) {
@@ -122,13 +208,43 @@ export class DamageSystem extends ECSSystem {
         return true;
     }
 
-    private computeDamage(baseDamage: number, armorPenPct: number, targetEntity: Entity): number {
+    private getProjectileDamageSource(projectile: ProjectileComponent): DamageSource {
+        return {
+            armorPenPct: projectile.armorPenPct,
+            skillMultiplier: projectile.skillMultiplier,
+            critChance: projectile.critChance,
+            critMultiplier: projectile.critMultiplier,
+            finalDamageBonusPct: projectile.finalDamageBonusPct
+        };
+    }
+
+    private getMeleeDamageSource(hitbox: MeleeHitboxComponent): DamageSource {
+        return {
+            armorPenPct: hitbox.armorPenPct,
+            skillMultiplier: hitbox.skillMultiplier,
+            critChance: hitbox.critChance,
+            critMultiplier: hitbox.critMultiplier,
+            finalDamageBonusPct: hitbox.finalDamageBonusPct
+        };
+    }
+
+    private computeDamage(baseDamage: number, source: DamageSource, targetEntity: Entity): number {
         const defense = targetEntity.getComponent(DefenseComponent)?.defense ?? 0;
-        const pen = Math.max(0, Math.min(1, armorPenPct));
+        const pen = Math.max(0, Math.min(0.3, source.armorPenPct));
         const effectiveDefense = Math.max(0, defense * (1 - pen));
-        const mult = 1 - effectiveDefense / (effectiveDefense + 50);
-        const dmg = Math.max(0, baseDamage * mult);
-        return dmg;
+        const defenseMult = 1 - effectiveDefense / (effectiveDefense + 50);
+        const skillMultiplier = Math.max(0, source.skillMultiplier);
+        const critMultiplier = this.rollCrit(source.critChance)
+            ? Math.max(1, Math.min(3, source.critMultiplier))
+            : 1;
+        const finalBonus = 1 + Math.max(0, source.finalDamageBonusPct);
+
+        return Math.max(0, baseDamage * skillMultiplier * critMultiplier * defenseMult * finalBonus);
+    }
+
+    private rollCrit(critChance: number): boolean {
+        const chance = Math.max(0, Math.min(0.75, critChance));
+        return Math.random() < chance;
     }
 
     private emitKill(killerId: number | null, victim: Entity): void {

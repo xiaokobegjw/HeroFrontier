@@ -185,6 +185,15 @@ export class WeaponSystem extends ECSSystem {
         projectile.ownerId = owner.id;
         projectile.damage = weapon.damage;
         projectile.armorPenPct = weapon.armorPenPct;
+        projectile.skillMultiplier = weapon.skillMultiplier;
+        projectile.critChance = weapon.critChance;
+        projectile.critMultiplier = weapon.critMultiplier;
+        projectile.finalDamageBonusPct = weapon.finalDamageBonusPct;
+        projectile.splashRadius = weapon.projectileSplashRadius;
+        projectile.burnDamagePerSecond = weapon.burnDamagePerSecond;
+        projectile.burnDuration = weapon.burnDuration;
+        projectile.burnMaxStacks = weapon.burnMaxStacks;
+        projectile.pierceRemaining = Math.max(0, Math.floor(weapon.pierceCount));
         projectile.vx = dirX * speed;
         projectile.vy = dirY * speed;
         projectile.lifeRemaining = lifeSeconds;
@@ -234,6 +243,10 @@ export class WeaponSystem extends ECSSystem {
         hitbox.ownerId = owner.id;
         hitbox.damage = weapon.damage;
         hitbox.armorPenPct = weapon.armorPenPct;
+        hitbox.skillMultiplier = weapon.skillMultiplier;
+        hitbox.critChance = weapon.critChance;
+        hitbox.critMultiplier = weapon.critMultiplier;
+        hitbox.finalDamageBonusPct = weapon.finalDamageBonusPct;
         hitbox.lifeRemaining = weapon.meleeLifeSeconds;
         hitbox.followOwner = true;
         hitbox.canHitMultiple = weapon.meleeCanHitMultiple;

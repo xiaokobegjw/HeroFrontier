@@ -10,7 +10,8 @@
                     "populationCap": 20,
                     "followerCap": 0,
                     "followerDesired": 0,
-                    "productionIntervalSeconds": 3
+                    "productionIntervalSeconds": 3,
+                    "soldierConfigIds": ["Soldier1"]
                 }
             }
         },
@@ -23,7 +24,8 @@
                     "populationCap": 40,
                     "followerCap": 12,
                     "followerDesired": 12,
-                    "productionIntervalSeconds": 2.5
+                    "productionIntervalSeconds": 2.5,
+                    "soldierConfigIds": ["Soldier1", "Archer1"]
                 }
             }
         },
@@ -36,7 +38,8 @@
                     "populationCap": 65,
                     "followerCap": 25,
                     "followerDesired": 25,
-                    "productionIntervalSeconds": 2
+                    "productionIntervalSeconds": 2,
+                    "soldierConfigIds": ["Soldier1", "Archer1", "HeavyGuard1"]
                 }
             }
         },
@@ -49,7 +52,8 @@
                     "populationCap": 95,
                     "followerCap": 40,
                     "followerDesired": 40,
-                    "productionIntervalSeconds": 1.5
+                    "productionIntervalSeconds": 1.5,
+                    "soldierConfigIds": ["Soldier1", "Archer1", "HeavyGuard1", "Elementalist1"]
                 }
             }
         },
@@ -62,7 +66,8 @@
                     "populationCap": 130,
                     "followerCap": 60,
                     "followerDesired": 60,
-                    "productionIntervalSeconds": 1
+                    "productionIntervalSeconds": 1,
+                    "soldierConfigIds": ["Soldier1", "Archer1", "HeavyGuard1", "Elementalist1", "RoyalKnight1"]
                 }
             }
         }

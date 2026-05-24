@@ -1,0 +1,97 @@
+{
+    "id": "RoyalKnight1",
+    "name": "soldier_name_royal_knight",
+    "description": "soldier_desc_royal_knight",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Player"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/PaladinPrefab",
+            "idleClipPath": "clips/Paladin/PaladinIdle",
+            "walkClipPath": "clips/Paladin/PaladinWalk",
+            "attackClipPath": "clips/Paladin/PaladinAttack",
+            "dieClipPath": "clips/Paladin/PaladinDie",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "attackStateName": "attack",
+            "dieStateName": "die",
+            "scale": 1
+        },
+        {
+            "id": "SoldierComponent",
+            "mode": "Garrison"
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 46,
+            "accel": 190,
+            "decel": 280,
+            "threshold": 2
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 170,
+            "fovDeg": 180,
+            "facingDeg": 0,
+            "checkInterval": 0.25
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 0.8,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.18,
+            "lockSeconds": 0.25,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 120,
+            "attackInterval": 0.8,
+            "range": 26,
+            "meleeShape": "Circle",
+            "meleeRadius": 22,
+            "meleeLifeSeconds": 0.12,
+            "meleeForwardOffset": 22,
+            "meleeCanHitMultiple": false
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 1000
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 40
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 13,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": []
+        }
+    ]
+}
+

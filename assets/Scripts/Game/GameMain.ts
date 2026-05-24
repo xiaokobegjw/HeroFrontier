@@ -58,11 +58,26 @@ import { PathFollowComponent } from './ECS/Components/PathFollowComponent';
 import { BaseProductionSystem } from './ECS/Systems/BaseProductionSystem';
 import { SoldierFormationSystem } from './ECS/Systems/SoldierFormationSystem';
 import { MovementBlockSystem } from './ECS/Systems/MovementBlockSystem';
+import { UnitSeparationSystem } from './ECS/Systems/UnitSeparationSystem';
 import { ActorViewSystem } from './ECS/Systems/ActorViewSystem';
 import { ExperienceSystem } from './ECS/Systems/ExperienceSystem';
 import { PlayerControlSystem } from './ECS/Systems/PlayerControlSystem';
+import { BurningSystem } from './ECS/Systems/BurningSystem';
+import magicBoltConfig from '../../resources/configs/Projectiles/MagicBolt1.json';
+import arrowTower1Upgrade from '../../resources/configs/Upgrade/ArrowTower1Upgrade.json';
+import magicTower1Upgrade from '../../resources/configs/Upgrade/MagicTower1Upgrade.json';
+import { GameSession } from './Managers/GameSession';
+import { WaveSpawner, SpawnEvent } from './Managers/WaveSpawner';
+import { TowerPlacementManager } from './Managers/TowerPlacementManager';
+import { GameUIController } from './UI/GameUIController';
+import { LevelComponent } from './ECS/Components/LevelComponent';
+import { BaseProductionComponent } from './ECS/Components/BaseProductionComponent';
+import { DefenseComponent } from './ECS/Components/DefenseComponent';
+import { LootComponent } from './ECS/Components/LootComponent';
+import { director } from 'cc';
 
-type SpawnEvent = { time: number; enemyId: string; pathId: string };
+const CASTLE_UPGRADE_COSTS = [0, 120, 250, 500, 900];
+const STARTING_GOLD = 220;
 
 /**
  * 游戏主入口脚本：挂载到场景节点
@@ -110,8 +125,14 @@ export class GameMain extends Component {
     private spawnQueue: SpawnEvent[] = [];
     private levelPaths: Map<string, { x: number; y: number }[]> = new Map();
     private baseEntityId: number | null = null;
+    private waveSpawner: WaveSpawner | null = null;
+    private towerManager: TowerPlacementManager = new TowerPlacementManager();
+    private gameUI: GameUIController | null = null;
+    private currentSpawnWave: number = 1;
+    private selectedTowerSlot: number = 0;
 
     onLoad() {
+        GameSession.reset();
         // 打印环境配置
         console.log(GameConfigManager.instance.getEnvironmentInfo());
 
@@ -147,6 +168,7 @@ export class GameMain extends Component {
         this.world.registerSystem(this.actionSystem);
 
         this.world.registerSystem(new MovementBlockSystem(this.world, 4.85));
+        this.world.registerSystem(new UnitSeparationSystem(this.world, 4.86));
 
         this.spatialIndexSystem = new SpatialIndexSystem({ x: -1000, y: -1000, width: 2000, height: 2000 }, 4.9);
         this.world.registerSystem(this.spatialIndexSystem);
@@ -157,7 +179,9 @@ export class GameMain extends Component {
         this.targetingSystem = new TargetingSystem(6);
         this.world.registerSystem(this.targetingSystem);
 
-        this.world.registerSystem(new BaseProductionSystem(this.world, soldierConfig as any, 5.95));
+        this.world.registerSystem(
+            new BaseProductionSystem(this.world, soldierConfig as any, () => this.playerEntity?.id ?? null, 5.95)
+        );
         this.world.registerSystem(new SoldierFormationSystem(this.world, this.actionSystem, () => this.playerEntity?.id ?? null, 6.05));
 
         this.world.registerSystem(new PathFollowSystem(this.world, this.actionSystem, () => this.baseEntityId, 6.1));
@@ -175,12 +199,19 @@ export class GameMain extends Component {
 
         this.upgradeSystem = new UpgradeSystem(
             this.world,
-            { Hero1Upgrade: hero1Upgrade as any, Bow1Upgrade: bow1Upgrade as any, Sword1Upgrade: sword1Upgrade as any, Castle1Upgrade: castle1Upgrade as any },
+            {
+                Hero1Upgrade: hero1Upgrade as any,
+                Bow1Upgrade: bow1Upgrade as any,
+                Sword1Upgrade: sword1Upgrade as any,
+                Castle1Upgrade: castle1Upgrade as any,
+                ArrowTower1Upgrade: arrowTower1Upgrade as any,
+                MagicTower1Upgrade: magicTower1Upgrade as any
+            },
             6.8
         );
         this.world.registerSystem(this.upgradeSystem);
 
-        this.weaponSystem = new WeaponSystem(this.world, { Arrow1: arrowConfig }, 7);
+        this.weaponSystem = new WeaponSystem(this.world, { Arrow1: arrowConfig, MagicBolt1: magicBoltConfig }, 7);
         this.world.registerSystem(this.weaponSystem);
 
         this.projectileSystem = new ProjectileSystem(this.world, 8);
@@ -216,6 +247,8 @@ export class GameMain extends Component {
         this.damageSystem = new DamageSystem(this.world, this.collisionSystem, 11);
         this.world.registerSystem(this.damageSystem);
 
+        this.world.registerSystem(new BurningSystem(this.world, 11.1));
+
         this.experienceSystem = new ExperienceSystem(this.world, () => this.playerEntity?.id ?? null, 11.25);
         this.world.registerSystem(this.experienceSystem);
 
@@ -233,6 +266,30 @@ export class GameMain extends Component {
             this.debugInput.enable();
             this.createDebugLabel();
         }
+
+        const ui = this.node.getComponent(GameUIController) ?? this.node.addComponent(GameUIController);
+        this.gameUI = ui;
+        ui.init({
+            getWorld: () => this.world,
+            getCurrency: () => this.currencySystem,
+            getBaseEntityId: () => this.baseEntityId,
+            getTowerManager: () => this.towerManager,
+            upgradeCastle: () => this.tryUpgradeCastle(),
+            selectTowerSlot: (slot) => {
+                this.selectedTowerSlot = slot;
+            },
+            buildArrowTower: (slot) => {
+                this.selectedTowerSlot = slot;
+                void this.tryBuildTower(slot, 'ArrowTower1');
+            },
+            buildMagicTower: (slot) => {
+                this.selectedTowerSlot = slot;
+                void this.tryBuildTower(slot, 'MagicTower1');
+            },
+            upgradeSelectedTower: () => this.tryUpgradeSelectedTower(),
+            sellSelectedTower: () => this.trySellSelectedTower(),
+            restartGame: () => this.restartGame()
+        });
     }
 
     start() {
@@ -355,6 +412,15 @@ export class GameMain extends Component {
         baseEntity.name = 'Base';
         this.baseEntityId = baseEntity.id;
 
+        const rawTowerSlots: any[] | null = Array.isArray((level as any).towerSlots) ? (level as any).towerSlots : null;
+        if (rawTowerSlots && rawTowerSlots.length > 0) {
+            this.towerManager.setSlots(rawTowerSlots.map((p: LevelPoint) => toWorldPos(p)));
+        }
+
+        this.currencySystem.addGold(STARTING_GOLD);
+        GameSession.instance.setWave(1);
+        this.currentSpawnWave = 1;
+
         this.levelTimeSeconds = 0;
         this.spawnQueue = [];
         this.levelPaths = new Map();
@@ -423,14 +489,24 @@ export class GameMain extends Component {
                     const interval = typeof g.interval === 'number' && Number.isFinite(g.interval) ? Math.max(0.01, g.interval) : 1;
                     const spawnOffset = typeof g.spawnOffset === 'number' && Number.isFinite(g.spawnOffset) ? Math.max(0, g.spawnOffset) : 0;
                     enemyIds.add(enemyId);
+                    const waveNum = wi + 1;
                     for (let i = 0; i < count; i++) {
                         const t = waveStart + spawnOffset + i * interval;
-                        this.spawnQueue.push({ time: t, enemyId, pathId });
+                        this.spawnQueue.push({ time: t, enemyId, pathId, wave: waveNum });
                     }
                 }
             }
             this.spawnQueue.sort((a, b) => a.time - b.time);
 
+            const pathIds = Array.from(this.levelPaths.keys());
+            this.waveSpawner = new WaveSpawner({ pathIds });
+            const lastTime = this.spawnQueue.length > 0 ? this.spawnQueue[this.spawnQueue.length - 1].time : 0;
+            this.waveSpawner.setStartTime(lastTime);
+            this.waveSpawner.appendProceduralWaves(this.spawnQueue, lastTime + 6, 12);
+            this.spawnQueue.sort((a, b) => a.time - b.time);
+
+            enemyIds.add('EnemyHeavy1');
+            enemyIds.add('EnemyBoss1');
             const ids = Array.from(enemyIds);
             await Promise.all(
                 ids.map(async (id) => {
@@ -460,6 +536,19 @@ export class GameMain extends Component {
             this.spatialIndex.insert({ id: heroFromConfig.id, bounds: { x: heroTransform.x - 1, y: heroTransform.y - 1, width: 2, height: 2 } });
         }
 
+        const preloadIds = [
+            'Soldier1',
+            'Archer1',
+            'HeavyGuard1',
+            'Elementalist1',
+            'RoyalKnight1',
+            'ArrowTower1',
+            'MagicTower1',
+            'EnemyHeavy1',
+            'EnemyBoss1'
+        ];
+        await Promise.all(preloadIds.map(id => EntityConfigCache.loadEntityConfig(id).catch(() => undefined)));
+
         console.log(`[GameMain] Loaded level: ${levelResourcePathNoExt} grid=${gridW}x${gridH} cellSize=${cellSize}`);
     }
 
@@ -468,23 +557,76 @@ export class GameMain extends Component {
         this.updateDebugLabel();
         this.updateDebugDamagePopups(deltaTime);
 
-        if (this.isPaused) {
+        if (this.isPaused || GameSession.instance.isGameOver) {
             this.renderWhilePaused();
             return;
         }
 
         this.updateWaveSpawns(deltaTime);
+        this.checkGameOver();
         if (this.world) this.world.update(deltaTime);
+    }
+
+    private checkGameOver(): void {
+        if (GameSession.instance.isGameOver || this.baseEntityId === null) return;
+        const base = this.world.getEntity(this.baseEntityId);
+        const hp = base?.getComponent(HealthComponent);
+        if (hp && hp.isDead) {
+            GameSession.instance.triggerGameOver('主塔已被摧毁');
+            this.isPaused = true;
+        }
+    }
+
+    private tryUpgradeCastle(): boolean {
+        if (GameSession.instance.isGameOver || this.baseEntityId === null) return false;
+        const base = this.world.getEntity(this.baseEntityId);
+        const level = base?.getComponent(LevelComponent);
+        if (!base || !level) return false;
+        const next = Math.floor(level.level) + 1;
+        if (next > 5) return false;
+        const cost = CASTLE_UPGRADE_COSTS[next - 1] ?? 0;
+        if (!this.currencySystem.spend(cost)) return false;
+        level.level = next;
+        return true;
+    }
+
+    private async tryBuildTower(slotIndex: number, configId: string): Promise<void> {
+        if (GameSession.instance.isGameOver) return;
+        await EntityConfigCache.loadEntityConfig(configId);
+        await this.towerManager.buildTower(this.world, this.currencySystem, slotIndex, configId);
+    }
+
+    private tryUpgradeSelectedTower(): boolean {
+        const slot = this.towerManager.getSlot(this.selectedTowerSlot);
+        if (!slot?.entityId) return false;
+        return this.towerManager.upgradeTower(this.world, this.currencySystem, slot.entityId);
+    }
+
+    private trySellSelectedTower(): boolean {
+        return this.towerManager.sellTower(this.world, this.currencySystem, this.selectedTowerSlot) > 0;
+    }
+
+    private restartGame(): void {
+        director.loadScene('GameScene');
     }
 
     private updateWaveSpawns(deltaTime: number): void {
         if (!this.world) return;
         if (!this.actionSystem) return;
-        if (!this.spawnQueue || this.spawnQueue.length === 0) return;
         this.levelTimeSeconds += deltaTime;
+
+        if (this.waveSpawner && this.spawnQueue.length > 0) {
+            this.waveSpawner.ensureAhead(this.spawnQueue, this.levelTimeSeconds, 90);
+        }
 
         while (this.spawnQueue.length > 0 && this.spawnQueue[0].time <= this.levelTimeSeconds) {
             const ev = this.spawnQueue.shift()!;
+            const wave = ev.wave ?? this.currentSpawnWave;
+            if (wave !== this.currentSpawnWave) {
+                this.currentSpawnWave = wave;
+                GameSession.instance.setWave(wave);
+            }
+
             const cfg = EntityConfigCache.get(ev.enemyId);
             if (!cfg) continue;
             const pts = this.levelPaths.get(ev.pathId) ?? null;
@@ -492,12 +634,41 @@ export class GameMain extends Component {
             const spawnPos = pts[0];
             const enemy = EntityFactory.createEntityFromConfig(this.world, cfg, spawnPos);
             enemy.name = `${ev.enemyId}_${enemy.id}`;
+            this.scaleEnemyForWave(enemy, wave);
             const follow = this.world.acquireComponent(PathFollowComponent);
             follow.points = pts;
             follow.nextIndex = 0;
             follow.threshold = 6;
             follow.attackBaseAtEnd = true;
             enemy.addComponent(follow);
+        }
+    }
+
+    private scaleEnemyForWave(enemy: Entity, wave: number): void {
+        const w = Math.max(1, Math.floor(wave));
+        let hpMul = 1 + (w - 1) * 0.08;
+        let defMul = 1 + (w - 1) * 0.05;
+        if (w % 10 === 0) {
+            hpMul *= 1.35;
+            defMul *= 1.2;
+        }
+        if (w >= 25) {
+            hpMul *= 1 + (w - 24) * 0.04;
+            defMul *= 1 + (w - 24) * 0.03;
+        }
+
+        const health = enemy.getComponent(HealthComponent);
+        if (health) {
+            health.max = Math.floor(health.max * hpMul);
+            health.current = health.max;
+        }
+        const defense = enemy.getComponent(DefenseComponent);
+        if (defense) {
+            defense.defense = Math.floor(defense.defense * defMul);
+        }
+        const loot = enemy.getComponent(LootComponent);
+        if (loot) {
+            loot.gold = Math.floor(loot.gold * (1 + (w - 1) * 0.06));
         }
     }
 

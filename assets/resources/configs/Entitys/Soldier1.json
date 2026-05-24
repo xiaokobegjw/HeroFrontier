@@ -11,6 +11,19 @@
             "id": "TransformComponent"
         },
         {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/InfantryPrefab",
+            "idleClipPath": "clips/Infantry/InfantryIdle",
+            "walkClipPath": "clips/Infantry/InfantryWalk",
+            "attackClipPath": "clips/Infantry/InfantryAttack",
+            "dieClipPath": "clips/Infantry/InfantryDie",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "attackStateName": "attack",
+            "dieStateName": "die",
+            "scale": 1
+        },
+        {
             "id": "SoldierComponent",
             "mode": "Garrison"
         },
@@ -43,16 +56,37 @@
             "strategy": "Nearest"
         },
         {
-            "id": "EquipmentComponent",
-            "weaponConfigId": "Sword1"
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                { "id": "attack", "type": "AttackTarget", "weight": 3, "params": { "stopRangeScale": 0.92 }, "minHoldSeconds": 0.12, "hysteresis": 0.12 },
+                { "id": "chase", "type": "ChaseTarget", "weight": 2, "params": { "stopRangeScale": 0.92, "repathInterval": 0.3 }, "minHoldSeconds": 0.12, "hysteresis": 0.12 },
+                { "id": "idle", "type": "Idle", "weight": 0.1 }
+            ]
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 25,
+            "attackInterval": 1.2,
+            "range": 22,
+            "meleeShape": "Circle",
+            "meleeRadius": 18,
+            "meleeLifeSeconds": 0.12,
+            "meleeForwardOffset": 18,
+            "meleeCanHitMultiple": false
+        },
+        {
+            "id": "WeaponStateComponent"
         },
         {
             "id": "HealthComponent",
-            "max": 60
+            "max": 220
         },
         {
             "id": "DefenseComponent",
-            "defense": 0
+            "defense": 5
         },
         {
             "id": "ColliderComponent",
@@ -65,16 +99,7 @@
         {
             "id": "RenderComponent",
             "offset": { "x": 0, "y": 0 },
-            "shapes": [
-                {
-                    "type": "Circle",
-                    "color": [0, 170, 255],
-                    "lineWidth": 2,
-                    "fill": true,
-                    "radius": 10
-                }
-            ]
+            "shapes": []
         }
     ]
 }
-

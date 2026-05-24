@@ -1,0 +1,104 @@
+{
+    "id": "Archer1",
+    "name": "soldier_name_archer",
+    "description": "soldier_desc_archer",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Player"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/ArcherPrefab",
+            "idleClipPath": "clips/Archer/archerIdle",
+            "walkClipPath": "clips/Archer/archerWalk",
+            "attackClipPath": "clips/Archer/archerAttack",
+            "dieClipPath": "clips/Archer/archerDie",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "attackStateName": "attack",
+            "dieStateName": "die",
+            "scale": 1
+        },
+        {
+            "id": "SoldierComponent",
+            "mode": "Garrison"
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 42,
+            "accel": 180,
+            "decel": 260,
+            "threshold": 2
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 420,
+            "fovDeg": 180,
+            "facingDeg": 0,
+            "checkInterval": 0.25
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 0.8,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.2,
+            "lockSeconds": 0.25,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                { "id": "attack", "type": "AttackTarget", "weight": 3, "params": { "stopRangeScale": 0.92 } },
+                { "id": "chase", "type": "ChaseTarget", "weight": 2, "params": { "stopRangeScale": 0.92, "repathInterval": 0.3 } },
+                { "id": "idle", "type": "Idle", "weight": 0.1 }
+            ]
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "damage": 35,
+            "attackInterval": 1.0,
+            "range": 420,
+            "projectileConfigId": "Arrow1",
+            "projectileSpeed": 420,
+            "projectileRadius": 4,
+            "projectileLifeSeconds": 2.2
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 120
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 0
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 9,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": []
+        }
+    ]
+}
+

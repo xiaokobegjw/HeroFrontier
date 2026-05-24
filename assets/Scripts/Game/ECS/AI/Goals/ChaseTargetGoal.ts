@@ -6,10 +6,13 @@ import { ActionRequest, GoalContext } from '../AITypes';
 import { DebugState } from '../../../Debug/DebugState';
 import { TransformComponent } from '../../../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../../Shared/ECS/Components/ColliderComponent';
+import { SoldierComponent } from '../../Components/SoldierComponent';
 
 export const ChaseTargetGoal: GoalHandler = {
     type: 'ChaseTarget',
     score(world: World, entity: Entity, ai: AIComponent, goal: GoalSpec, ctx: GoalContext): number {
+        const soldier = entity.getComponent(SoldierComponent);
+        if (soldier?.mode === 'Garrison') return 0;
         if (!ctx.targetPos) return 0;
         if (ctx.weaponRange <= 0) return Math.max(0, goal.weight);
         const scaleBase = typeof goal.params?.stopRangeScale === 'number' ? goal.params.stopRangeScale : 0.9;
@@ -33,11 +36,18 @@ export const ChaseTargetGoal: GoalHandler = {
         const repathInterval = repathIntervalBase * repathJitter;
         if (ai.timeSinceRepath < repathInterval) return { type: 'None' };
         ai.timeSinceRepath = 0;
-        const a = rand01(entity.id, 302) * Math.PI * 2;
-        const r = 6 + rand01(entity.id, 303) * 10;
-        const ox = Math.cos(a) * r;
-        const oy = Math.sin(a) * r;
-        return { type: 'MoveTo', x: ctx.targetPos.x + ox, y: ctx.targetPos.y + oy };
+
+        const targetEnt = ctx.targetId !== null ? world.getEntity(ctx.targetId) : null;
+        const target = getCenterAndRadius(targetEnt);
+        const tx = target.x || ctx.targetPos.x;
+        const ty = target.y || ctx.targetPos.y;
+
+        const ringR = 26 + (entity.id % 6) * 8;
+        const angle = (entity.id % 12) * ((Math.PI * 2) / 12) + rand01(entity.id, 302) * 0.4;
+        const ox = Math.cos(angle) * ringR;
+        const oy = Math.sin(angle) * ringR;
+
+        return { type: 'MoveTo', x: tx + ox, y: ty + oy };
     }
 };
 

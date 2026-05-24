@@ -14,6 +14,7 @@ import { ActionSystem } from '../../../Shared/ECS/Systems/ActionSystem';
 import { HealthComponent } from '../Components/HealthComponent';
 import { FactionComponent } from '../Components/FactionComponent';
 import { FactionType } from '../../Data/Faction';
+import { SoldierComponent } from '../Components/SoldierComponent';
 
 export class AISystem extends ECSSystem {
     private world: World;
@@ -45,6 +46,9 @@ export class AISystem extends ECSSystem {
 
             const health = entity.getComponent(HealthComponent);
             if (health && health.isDead) continue;
+
+            const soldier = entity.getComponent(SoldierComponent);
+            if (soldier && !soldier.deployed) continue;
 
             ai.timeSinceRepath += deltaTime;
             if (ai.holdRemaining > 0) ai.holdRemaining -= deltaTime;

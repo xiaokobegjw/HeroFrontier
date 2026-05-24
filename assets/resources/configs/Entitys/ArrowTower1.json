@@ -1,0 +1,65 @@
+{
+    "id": "ArrowTower1",
+    "name": "tower_name_arrow",
+    "description": "tower_desc_arrow",
+    "ComponentsList": [
+        { "id": "FactionComponent", "faction": "Player" },
+        { "id": "TransformComponent" },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/ArrowTowerPrefab",
+            "useLevelDamageView": false,
+            "levelNodeNames": ["Level1Node", "Level2Node", "Level3Node"],
+            "scale": 1
+        },
+        { "id": "LevelComponent", "level": 1 },
+        { "id": "UpgradeableComponent", "upgradeConfigId": "ArrowTower1Upgrade" },
+        {
+            "id": "TowerComponent",
+            "towerTypeId": "Arrow",
+            "buildCost": 80,
+            "upgradeCosts": [60, 120],
+            "sellRefundRate": 0.65
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 480,
+            "fovDeg": 360,
+            "facingDeg": 0,
+            "checkInterval": 0.15
+        },
+        { "id": "MemoryComponent", "memorySeconds": 1.2, "maxTargets": 8 },
+        { "id": "TargetComponent" },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.12,
+            "lockSeconds": 0.15,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Ranged",
+            "damage": 18,
+            "attackInterval": 0.55,
+            "range": 480,
+            "projectileConfigId": "Arrow1",
+            "projectileSpeed": 620,
+            "projectileRadius": 4,
+            "projectileLifeSeconds": 2.8,
+            "pierceCount": 0
+        },
+        { "id": "WeaponStateComponent" },
+        {
+            "id": "ColliderComponent",
+            "shape": "AABB",
+            "width": 40,
+            "height": 40,
+            "layer": 1,
+            "mask": 15,
+            "isTrigger": false
+        },
+        { "id": "ObstacleComponent", "blocksMovement": true },
+        { "id": "RenderComponent", "offset": { "x": 0, "y": 0 }, "shapes": [] }
+    ]
+}

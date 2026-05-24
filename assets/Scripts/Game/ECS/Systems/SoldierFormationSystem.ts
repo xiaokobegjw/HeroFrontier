@@ -8,6 +8,8 @@ import { TransformComponent } from '../../../Shared/ECS/Components/TransformComp
 import { MoveStatsComponent } from '../Components/MoveStatsComponent';
 import { SoldierComponent } from '../Components/SoldierComponent';
 import { BaseProductionComponent } from '../Components/BaseProductionComponent';
+import { TargetComponent } from '../Components/TargetComponent';
+import { garrisonSlotPosition, followerSlotPosition } from '../FormationLayout';
 
 export class SoldierFormationSystem extends ECSSystem {
     private world: World;
@@ -44,59 +46,67 @@ export class SoldierFormationSystem extends ECSSystem {
             const prod = baseEnt?.getComponent(BaseProductionComponent) ?? null;
             if (!baseTr || !prod) continue;
 
-            const garrison = soldiers
-                .filter(e => e.getComponent(SoldierComponent)!.mode === 'Garrison')
-                .sort((a, b) => a.getComponent(SoldierComponent)!.slotIndex - b.getComponent(SoldierComponent)!.slotIndex);
-            const followers = soldiers
-                .filter(e => e.getComponent(SoldierComponent)!.mode === 'Follower')
-                .sort((a, b) => a.getComponent(SoldierComponent)!.slotIndex - b.getComponent(SoldierComponent)!.slotIndex);
+            const garrison = soldiers.filter(e => e.getComponent(SoldierComponent)!.mode === 'Garrison');
+            const followers = soldiers.filter(e => e.getComponent(SoldierComponent)!.mode === 'Follower');
+            const followerTotal = Math.max(1, followers.length);
 
-            this.updateGarrison(baseTr.x, baseTr.y, prod, garrison);
-            if (heroTr) this.updateFollowers(heroTr.x, heroTr.y, prod, followers);
+            for (const ent of soldiers) {
+                const soldier = ent.getComponent(SoldierComponent)!;
+                const tr = ent.getComponent(TransformComponent)!;
+                const target = ent.getComponent(TargetComponent);
+
+                const slot =
+                    soldier.mode === 'Garrison'
+                        ? garrisonSlotPosition(baseTr.x, baseTr.y, prod, soldier.formationIndex)
+                        : heroTr
+                          ? followerSlotPosition(heroTr.x, heroTr.y, prod, soldier.formationIndex, followerTotal)
+                          : garrisonSlotPosition(baseTr.x, baseTr.y, prod, soldier.formationIndex);
+
+                if (!soldier.deployed) {
+                    if (target) {
+                        target.targetEntityId = null;
+                        target.targetX = Number.NaN;
+                        target.targetY = Number.NaN;
+                        target.lockedUntilTime = 0;
+                    }
+                    if (this.moveToward(ent, tr, slot.x, slot.y, true)) {
+                        soldier.deployed = true;
+                    }
+                    continue;
+                }
+
+                if (soldier.mode === 'Garrison') {
+                    if (target?.targetEntityId !== null) continue;
+                    this.moveToward(ent, tr, slot.x, slot.y, false);
+                    continue;
+                }
+
+                if (soldier.mode === 'Follower') {
+                    if (target?.targetEntityId !== null) continue;
+                    if (heroTr) this.moveToward(ent, tr, slot.x, slot.y, false);
+                }
+            }
         }
     }
 
-    private updateGarrison(baseX: number, baseY: number, prod: BaseProductionComponent, garrison: Entity[]): void {
-        const rows = Math.max(1, Math.floor(prod.garrisonRows));
-        const rowSpacing = prod.garrisonRowSpacing;
-        const colSpacing = prod.garrisonColSpacing;
-        const startX = baseX - prod.garrisonOffsetX;
-        const centerRow = (rows - 1) * 0.5;
-
-        for (let i = 0; i < garrison.length; i++) {
-            const ent = garrison[i];
-            const tr = ent.getComponent(TransformComponent)!;
-            const col = Math.floor(i / rows);
-            const row = i - col * rows;
-            const tx = startX - col * colSpacing;
-            const ty = baseY + (row - centerRow) * rowSpacing;
-            this.moveToward(ent, tr, tx, ty);
-        }
-    }
-
-    private updateFollowers(heroX: number, heroY: number, prod: BaseProductionComponent, followers: Entity[]): void {
-        const r = Math.max(8, prod.followerRadius);
-        const n = followers.length;
-        for (let i = 0; i < followers.length; i++) {
-            const ent = followers[i];
-            const tr = ent.getComponent(TransformComponent)!;
-            const a = (i / Math.max(1, n)) * Math.PI * 2;
-            const tx = heroX + Math.cos(a) * r;
-            const ty = heroY + Math.sin(a) * r;
-            this.moveToward(ent, tr, tx, ty);
-        }
-    }
-
-    private moveToward(entity: Entity, tr: TransformComponent, tx: number, ty: number): void {
+    /** @returns true 表示已到达阵位 */
+    private moveToward(entity: Entity, tr: TransformComponent, tx: number, ty: number, force: boolean): boolean {
         const dx = tx - tr.x;
         const dy = ty - tr.y;
         const distSq = dx * dx + dy * dy;
         const move = entity.getComponent(MoveStatsComponent);
-        const threshold = typeof move?.threshold === 'number' ? Math.max(0.1, move.threshold) : 2;
-        if (distSq <= threshold * threshold) return;
-        if (!this.actionSystem.isIdle(entity)) return;
+        const threshold = typeof move?.threshold === 'number' ? Math.max(2, move.threshold) : 4;
+        if (distSq <= threshold * threshold) return true;
+
+        if (!force && !this.actionSystem.isIdle(entity)) return false;
+
         const opts = move ? { maxSpeed: move.maxSpeed, accel: move.accel, decel: move.decel, threshold: move.threshold } : undefined;
+        const current = this.actionSystem.getCurrentAction(entity);
+        if (current instanceof WalkAction) {
+            current.setTarget({ x: tx, y: ty });
+            return false;
+        }
         this.actionSystem.setSingleAction(entity, new WalkAction(entity, { x: tx, y: ty }, opts));
+        return false;
     }
 }
-

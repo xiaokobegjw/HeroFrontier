@@ -26,6 +26,7 @@ import { BaseProductionComponent } from '../ECS/Components/BaseProductionCompone
 import { ViewComponent } from '../ECS/Components/ViewComponent';
 import { ExperienceComponent } from '../ECS/Components/ExperienceComponent';
 import { ExperienceRewardComponent } from '../ECS/Components/ExperienceRewardComponent';
+import { TowerComponent } from '../ECS/Components/TowerComponent';
 
 export class EntityFactory {
     /**
@@ -155,6 +156,10 @@ export class EntityFactory {
                 weapon.armorPenPct = typeof config.armorPenPct === 'number' ? config.armorPenPct : weapon.armorPenPct;
                 weapon.attackInterval = config.attackInterval ?? weapon.attackInterval;
                 weapon.range = config.range ?? weapon.range;
+                weapon.skillMultiplier = typeof config.skillMultiplier === 'number' ? config.skillMultiplier : weapon.skillMultiplier;
+                weapon.critChance = typeof config.critChance === 'number' ? config.critChance : weapon.critChance;
+                weapon.critMultiplier = typeof config.critMultiplier === 'number' ? config.critMultiplier : weapon.critMultiplier;
+                weapon.finalDamageBonusPct = typeof config.finalDamageBonusPct === 'number' ? config.finalDamageBonusPct : weapon.finalDamageBonusPct;
                 weapon.projectileConfigId = config.projectileConfigId ?? weapon.projectileConfigId;
                 weapon.projectileSpeed = config.projectileSpeed ?? weapon.projectileSpeed;
                 weapon.projectileRadius = config.projectileRadius ?? weapon.projectileRadius;
@@ -166,6 +171,13 @@ export class EntityFactory {
                 weapon.meleeLifeSeconds = config.meleeLifeSeconds ?? weapon.meleeLifeSeconds;
                 weapon.meleeForwardOffset = config.meleeForwardOffset ?? weapon.meleeForwardOffset;
                 weapon.meleeCanHitMultiple = config.meleeCanHitMultiple ?? weapon.meleeCanHitMultiple;
+                weapon.projectileSplashRadius =
+                    typeof config.projectileSplashRadius === 'number' ? config.projectileSplashRadius : weapon.projectileSplashRadius;
+                weapon.burnDamagePerSecond =
+                    typeof config.burnDamagePerSecond === 'number' ? config.burnDamagePerSecond : weapon.burnDamagePerSecond;
+                weapon.burnDuration = typeof config.burnDuration === 'number' ? config.burnDuration : weapon.burnDuration;
+                weapon.burnMaxStacks = typeof config.burnMaxStacks === 'number' ? config.burnMaxStacks : weapon.burnMaxStacks;
+                weapon.pierceCount = typeof config.pierceCount === 'number' ? config.pierceCount : weapon.pierceCount;
                 entity.addComponent(weapon);
                 break;
 
@@ -253,6 +265,18 @@ export class EntityFactory {
                 entity.addComponent(expReward);
                 break;
 
+            case 'TowerComponent':
+                const tower = world.acquireComponent(TowerComponent);
+                tower.towerTypeId = config.towerTypeId ?? tower.towerTypeId;
+                tower.buildCost = typeof config.buildCost === 'number' ? config.buildCost : tower.buildCost;
+                tower.upgradeCosts = Array.isArray(config.upgradeCosts)
+                    ? config.upgradeCosts.filter((x: unknown) => typeof x === 'number')
+                    : tower.upgradeCosts;
+                tower.sellRefundRate = typeof config.sellRefundRate === 'number' ? config.sellRefundRate : tower.sellRefundRate;
+                tower.towerSlotIndex = typeof config.towerSlotIndex === 'number' ? config.towerSlotIndex : tower.towerSlotIndex;
+                entity.addComponent(tower);
+                break;
+
             case 'SoldierComponent':
                 const soldier = world.acquireComponent(SoldierComponent);
                 soldier.mode = config.mode === 'Follower' ? 'Follower' : 'Garrison';
@@ -274,6 +298,9 @@ export class EntityFactory {
                 prod.garrisonRowSpacing = typeof config.garrisonRowSpacing === 'number' ? config.garrisonRowSpacing : prod.garrisonRowSpacing;
                 prod.garrisonColSpacing = typeof config.garrisonColSpacing === 'number' ? config.garrisonColSpacing : prod.garrisonColSpacing;
                 prod.followerRadius = typeof config.followerRadius === 'number' ? config.followerRadius : prod.followerRadius;
+                if (Array.isArray(config.soldierConfigIds)) {
+                    prod.soldierConfigIds = config.soldierConfigIds.filter((x: unknown) => typeof x === 'string' && (x as string).length > 0);
+                }
                 entity.addComponent(prod);
                 break;
 

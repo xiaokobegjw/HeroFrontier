@@ -3,6 +3,7 @@ import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 import { drainKillEvents } from '../GameEvents';
 import { FactionType } from '../../Data/Faction';
+import { GameSession } from '../../Managers/GameSession';
 
 export class CurrencySystem extends ECSSystem {
     private gold: number = 0;
@@ -20,6 +21,7 @@ export class CurrencySystem extends ECSSystem {
         for (const k of kills) {
             if (k.victimFaction === FactionType.Enemy) {
                 this.gold += Math.max(0, k.gold);
+                GameSession.instance.recordKill();
             }
         }
     }

@@ -1,0 +1,97 @@
+{
+    "id": "HeavyGuard1",
+    "name": "soldier_name_heavy_guard",
+    "description": "soldier_desc_heavy_guard",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Player"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/IronWardenPrefab",
+            "idleClipPath": "clips/IronWarden/IronWardenIdle",
+            "walkClipPath": "clips/IronWarden/IronWardenWalk",
+            "attackClipPath": "clips/IronWarden/IronWardenAttack",
+            "dieClipPath": "clips/IronWarden/IronWardenDie",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "attackStateName": "attack",
+            "dieStateName": "die",
+            "scale": 1
+        },
+        {
+            "id": "SoldierComponent",
+            "mode": "Garrison"
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 34,
+            "accel": 130,
+            "decel": 210,
+            "threshold": 2
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 150,
+            "fovDeg": 180,
+            "facingDeg": 0,
+            "checkInterval": 0.25
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 0.8,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.2,
+            "lockSeconds": 0.25,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 40,
+            "attackInterval": 1.5,
+            "range": 24,
+            "meleeShape": "Circle",
+            "meleeRadius": 20,
+            "meleeLifeSeconds": 0.12,
+            "meleeForwardOffset": 20,
+            "meleeCanHitMultiple": false
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 600
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 25
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 12,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": []
+        }
+    ]
+}
+

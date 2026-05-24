@@ -1,0 +1,23 @@
+{
+    "id": "MagicTower1Upgrade",
+    "levels": [
+        {
+            "level": 1,
+            "fields": {
+                "WeaponComponent": { "damage": 55, "armorPenPct": 0.3, "attackInterval": 1.35, "range": 420, "projectileSplashRadius": 0 }
+            }
+        },
+        {
+            "level": 2,
+            "fields": {
+                "WeaponComponent": { "damage": 72, "armorPenPct": 0.5, "attackInterval": 1.25, "range": 440, "projectileSplashRadius": 48 }
+            }
+        },
+        {
+            "level": 3,
+            "fields": {
+                "WeaponComponent": { "damage": 95, "armorPenPct": 1, "attackInterval": 1.15, "range": 460, "projectileSplashRadius": 64 }
+            }
+        }
+    ]
+}

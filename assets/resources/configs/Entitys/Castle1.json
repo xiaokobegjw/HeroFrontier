@@ -29,25 +29,23 @@
             "upgradeConfigId": "Castle1Upgrade"
         },
         {
+            "id": "BaseProductionComponent",
+            "initialPopulation": 8,
+            "populationCap": 20,
+            "followerCap": 0,
+            "followerDesired": 0,
+            "productionIntervalSeconds": 3,
+            "soldierConfigIds": ["Soldier1"],
+            "garrisonRowSpacing": 24,
+            "garrisonColSpacing": 24
+        },
+        {
             "id": "HealthComponent",
             "max": 3000
         },
         {
             "id": "DefenseComponent",
             "defense": 5
-        },
-        {
-            "id": "BaseProductionComponent",
-            "initialPopulation": 20,
-            "populationCap": 20,
-            "followerCap": 0,
-            "followerDesired": 0,
-            "productionIntervalSeconds": 3,
-            "garrisonOffsetX": 80,
-            "garrisonRows": 10,
-            "garrisonRowSpacing": 18,
-            "garrisonColSpacing": 18,
-            "followerRadius": 56
         },
         {
             "id": "ColliderComponent",

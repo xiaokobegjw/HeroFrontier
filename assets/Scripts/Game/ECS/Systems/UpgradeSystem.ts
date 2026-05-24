@@ -32,11 +32,15 @@ type UpgradeFields = {
         followerCap?: NumberValue;
         followerDesired?: NumberValue;
         productionIntervalSeconds?: NumberValue;
+        soldierConfigIds?: string[];
     };
     WeaponComponent?: {
         damage?: NumberValue;
         attackInterval?: NumberValue;
         range?: NumberValue;
+        armorPenPct?: number;
+        pierceCount?: number;
+        projectileSplashRadius?: number;
         projectileSpeed?: NumberValue;
         projectileRadius?: NumberValue;
         projectileLifeSeconds?: NumberValue;
@@ -170,6 +174,9 @@ export class UpgradeSystem extends ECSSystem {
         if (rules.meleeHeight) weapon.meleeHeight = this.evalNumberValue(base.meleeHeight, rules.meleeHeight, level);
         if (rules.meleeLifeSeconds) weapon.meleeLifeSeconds = this.evalNumberValue(base.meleeLifeSeconds, rules.meleeLifeSeconds, level);
         if (rules.meleeForwardOffset) weapon.meleeForwardOffset = this.evalNumberValue(base.meleeForwardOffset, rules.meleeForwardOffset, level);
+        if (typeof rules.armorPenPct === 'number') weapon.armorPenPct = rules.armorPenPct;
+        if (typeof rules.pierceCount === 'number') weapon.pierceCount = rules.pierceCount;
+        if (typeof rules.projectileSplashRadius === 'number') weapon.projectileSplashRadius = rules.projectileSplashRadius;
     }
 
     private applyDefense(entity: Entity, fields: UpgradeFields, level: number): void {
@@ -213,6 +220,9 @@ export class UpgradeSystem extends ECSSystem {
         if (rules.followerDesired) prod.followerDesired = this.evalNumberValue(base.followerDesired, rules.followerDesired, level);
         if (rules.productionIntervalSeconds) {
             prod.productionIntervalSeconds = this.evalNumberValue(base.productionIntervalSeconds, rules.productionIntervalSeconds, level);
+        }
+        if (rules.soldierConfigIds && Array.isArray(rules.soldierConfigIds) && rules.soldierConfigIds.length > 0) {
+            prod.soldierConfigIds = rules.soldierConfigIds.filter((x: unknown) => typeof x === 'string' && x.length > 0);
         }
 
         prod.populationCap = Math.max(0, Math.floor(prod.populationCap));

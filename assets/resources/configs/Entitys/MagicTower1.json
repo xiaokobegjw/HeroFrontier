@@ -1,0 +1,66 @@
+{
+    "id": "MagicTower1",
+    "name": "tower_name_magic",
+    "description": "tower_desc_magic",
+    "ComponentsList": [
+        { "id": "FactionComponent", "faction": "Player" },
+        { "id": "TransformComponent" },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/MagicTowerPrefab",
+            "useLevelDamageView": false,
+            "levelNodeNames": ["Level1Node", "Level2Node", "Level3Node"],
+            "scale": 1
+        },
+        { "id": "LevelComponent", "level": 1 },
+        { "id": "UpgradeableComponent", "upgradeConfigId": "MagicTower1Upgrade" },
+        {
+            "id": "TowerComponent",
+            "towerTypeId": "Magic",
+            "buildCost": 100,
+            "upgradeCosts": [80, 150],
+            "sellRefundRate": 0.65
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 420,
+            "fovDeg": 360,
+            "facingDeg": 0,
+            "checkInterval": 0.18
+        },
+        { "id": "MemoryComponent", "memorySeconds": 1.0, "maxTargets": 6 },
+        { "id": "TargetComponent" },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.15,
+            "lockSeconds": 0.2,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Ranged",
+            "damage": 55,
+            "armorPenPct": 0.3,
+            "attackInterval": 1.35,
+            "range": 420,
+            "projectileConfigId": "MagicBolt1",
+            "projectileSpeed": 380,
+            "projectileRadius": 8,
+            "projectileLifeSeconds": 2.4,
+            "projectileSplashRadius": 0
+        },
+        { "id": "WeaponStateComponent" },
+        {
+            "id": "ColliderComponent",
+            "shape": "AABB",
+            "width": 44,
+            "height": 44,
+            "layer": 1,
+            "mask": 15,
+            "isTrigger": false
+        },
+        { "id": "ObstacleComponent", "blocksMovement": true },
+        { "id": "RenderComponent", "offset": { "x": 0, "y": 0 }, "shapes": [] }
+    ]
+}

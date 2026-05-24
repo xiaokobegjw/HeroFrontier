@@ -1,0 +1,23 @@
+{
+    "id": "ArrowTower1Upgrade",
+    "levels": [
+        {
+            "level": 1,
+            "fields": {
+                "WeaponComponent": { "damage": 18, "attackInterval": 0.55, "range": 480, "pierceCount": 0 }
+            }
+        },
+        {
+            "level": 2,
+            "fields": {
+                "WeaponComponent": { "damage": 24, "attackInterval": 0.5, "range": 500, "pierceCount": 2 }
+            }
+        },
+        {
+            "level": 3,
+            "fields": {
+                "WeaponComponent": { "damage": 32, "attackInterval": 0.45, "range": 520, "pierceCount": 2 }
+            }
+        }
+    ]
+}

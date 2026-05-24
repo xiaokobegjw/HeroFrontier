@@ -1,0 +1,95 @@
+{
+    "id": "Elementalist1",
+    "name": "soldier_name_elementalist",
+    "description": "soldier_desc_elementalist",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Player"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/ElementalistPrefab",
+            "idleClipPath": "clips/Elementalist/ElementalistIdle",
+            "walkClipPath": "clips/Elementalist/ElementalistWalk",
+            "attackClipPath": "clips/Elementalist/ElementalistMagicAttack",
+            "dieClipPath": "clips/Elementalist/ElementalistDie",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "attackStateName": "attack",
+            "dieStateName": "die",
+            "scale": 1
+        },
+        {
+            "id": "SoldierComponent",
+            "mode": "Garrison"
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 40,
+            "accel": 160,
+            "decel": 240,
+            "threshold": 2
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 380,
+            "fovDeg": 180,
+            "facingDeg": 0,
+            "checkInterval": 0.25
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 0.8,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.2,
+            "lockSeconds": 0.25,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "damage": 60,
+            "attackInterval": 1.8,
+            "range": 380,
+            "projectileConfigId": "Arrow1",
+            "projectileSpeed": 360,
+            "projectileRadius": 5,
+            "projectileLifeSeconds": 2.4
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 150
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 0
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 10,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": []
+        }
+    ]
+}
+

@@ -26,3 +26,18 @@ Our/Elementalist/*.png \
 Our/IronWarden/*.png \
 Our/OurArcher/*.png \
 Our/Paladin/*.png
+
+
+TexturePacker \
+--sheet UI.png \
+--data UI.plist \
+--format cocos2d \
+--max-size 2048 \
+--no-trim \
+--padding 2 \
+--enable-rotation \
+--algorithm MaxRects \
+--border-padding 0 \
+--shape-padding 1 \
+--pack-mode Best \
+UI/*.png

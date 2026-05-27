@@ -26,8 +26,8 @@ export class WaveSpawner {
     constructor(opts: WaveSpawnerOptions) {
         this.pathIds = opts.pathIds.length > 0 ? opts.pathIds : ['A'];
         this.baseEnemyId = opts.baseEnemyId ?? 'Enemy1';
-        this.heavyEnemyId = opts.heavyEnemyId ?? 'EnemyHeavy1';
-        this.bossEnemyId = opts.bossEnemyId ?? 'EnemyBoss1';
+        this.heavyEnemyId = opts.heavyEnemyId ?? 'Enemy3';
+        this.bossEnemyId = opts.bossEnemyId ?? 'Enemy3';
         this.waveGapSeconds = opts.waveGapSeconds ?? 4;
     }
 

@@ -11,18 +11,20 @@ import { ColliderComponent, ColliderShapeType } from '../Shared/ECS/Components/C
 import { LocalizationManager, LanguageType, t } from './I18n/LocalizationManager';
 import { EntityFactory } from './Managers/EntityFactory';
 import { GameConfigManager } from '../Shared/Managers/GameConfigManager';
-import heroConfig from '../../resources/configs/Entitys/Hero1.json';
-import enemyConfig from '../../resources/configs/Entitys/Enemy1.json';
+import heroConfig from '../../resources/configs/Entitys/Hero.json';
+import enemyConfig from '../../resources/configs/Entitys/EnemyMob1.json';
 import bowConfig from '../../resources/configs/Weapons/Bow1.json';
 import swordConfig from '../../resources/configs/Weapons/Sword1.json';
 import arrowConfig from '../../resources/configs/Projectiles/Arrow1.json';
 import hero1Upgrade from '../../resources/configs/Upgrade/Hero1Upgrade.json';
 import bow1Upgrade from '../../resources/configs/Upgrade/Bow1Upgrade.json';
 import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
+import hero1Skill1Config from '../../resources/configs/Skills/Hero1_Skill1.json';
+import { SkillSystem } from './ECS/Systems/SkillSystem';
 import defaultSave from '../../resources/configs/Save/DefaultSave.json';
-import castleConfig from '../../resources/configs/Entitys/Castle1.json';
+import castleConfig from '../../resources/configs/Entitys/Castle.json';
 import castle1Upgrade from '../../resources/configs/Upgrade/Castle1Upgrade.json';
-import soldierConfig from '../../resources/configs/Entitys/Soldier1.json';
+import soldierConfig from '../../resources/configs/Entitys/Infantry.json';
 import { QuadTree } from '../Shared/Spatial/QuadTree';
 import { HealthComponent } from './ECS/Components/HealthComponent';
 import { PerceptionSystem } from './ECS/Systems/PerceptionSystem';
@@ -99,6 +101,7 @@ export class GameMain extends Component {
     private perceptionSystem: PerceptionSystem = null!;
     private targetingSystem: TargetingSystem = null!;
     private equipmentSystem: EquipmentSystem = null!;
+    private skillSystem: SkillSystem = null!;
     private upgradeSystem: UpgradeSystem = null!;
     private weaponSystem: WeaponSystem = null!;
     private projectileSystem: ProjectileSystem = null!;
@@ -197,6 +200,9 @@ export class GameMain extends Component {
         this.equipmentSystem = new EquipmentSystem(this.world, { Bow1: bowConfig, Sword1: swordConfig }, 6.5);
         this.world.registerSystem(this.equipmentSystem);
 
+        this.skillSystem = new SkillSystem(this.world, { Hero1_Skill1: hero1Skill1Config as any }, 6.45);
+        this.world.registerSystem(this.skillSystem);
+
         this.upgradeSystem = new UpgradeSystem(
             this.world,
             {
@@ -288,6 +294,10 @@ export class GameMain extends Component {
             },
             upgradeSelectedTower: () => this.tryUpgradeSelectedTower(),
             sellSelectedTower: () => this.trySellSelectedTower(),
+            castSkill: (skillIndex: number, targetEntityId: number | null = null, x: number = 0, y: number = 0) => {
+                if (!this.playerEntity) return;
+                this.skillSystem.requestCast(this.playerEntity.id, skillIndex, targetEntityId, x, y);
+            },
             restartGame: () => this.restartGame()
         });
     }
@@ -505,8 +515,7 @@ export class GameMain extends Component {
             this.waveSpawner.appendProceduralWaves(this.spawnQueue, lastTime + 6, 12);
             this.spawnQueue.sort((a, b) => a.time - b.time);
 
-            enemyIds.add('EnemyHeavy1');
-            enemyIds.add('EnemyBoss1');
+            enemyIds.add('Enemy3');
             const ids = Array.from(enemyIds);
             await Promise.all(
                 ids.map(async (id) => {
@@ -544,8 +553,8 @@ export class GameMain extends Component {
             'RoyalKnight1',
             'ArrowTower1',
             'MagicTower1',
-            'EnemyHeavy1',
-            'EnemyBoss1'
+            'Enemy1',
+            'Enemy3'
         ];
         await Promise.all(preloadIds.map(id => EntityConfigCache.loadEntityConfig(id).catch(() => undefined)));
 

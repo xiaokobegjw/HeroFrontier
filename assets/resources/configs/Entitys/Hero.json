@@ -1,0 +1,130 @@
+{
+    "id": "Hero1",
+    "name": "hero_name_guanyu",
+    "description": "hero_desc_guanyu",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Player"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/Hero1Prefab",
+            "idleClipPath": "clips/hero1/hero1Idle",
+            "walkClipPath": "clips/hero1/hero1Walk",
+            "attackClipPath": "clips/hero1/hero1Attack",
+            "dieClipPath": "clips/hero1/hero1Die",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "attackStateName": "attack",
+            "dieStateName": "die",
+            "offsetY": 0,
+            "scale": 1
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 50,
+            "accel": 200,
+            "decel": 300,
+            "threshold": 2
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 300,
+            "fovDeg": 120,
+            "facingDeg": 0,
+            "checkInterval": 0.2
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 3,
+            "maxTargets": 5
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.2,
+            "lockSeconds": 0.5,
+            "strategy": "MostRecent"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                { "id": "attack", "type": "AttackTarget", "weight": 3, "params": { "stopRangeScale": 0.9 }, "minHoldSeconds": 0.15, "hysteresis": 0.15 },
+                { "id": "chase", "type": "ChaseTarget", "weight": 2, "params": { "stopRangeScale": 0.9, "repathInterval": 0.25 }, "minHoldSeconds": 0.15, "hysteresis": 0.15 },
+                { "id": "idle", "type": "Idle", "weight": 0.1 }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "ExperienceComponent",
+            "currentExp": 0,
+            "maxLevel": 50,
+            "expRequirements": [0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 170, 205, 240, 275, 310, 345, 380, 415, 450, 485, 535, 585, 635, 685, 735, 785, 835, 885, 935, 985, 1085, 1185, 1285, 1385, 1485, 1585, 1685, 1785, 1885, 1985, 2135, 2285, 2435, 2585, 2735, 2885, 3035, 3185, 3335, 3500]
+        },
+        {
+            "id": "UpgradeableComponent",
+            "upgradeConfigId": "Hero1Upgrade"
+        },
+        {
+            "id": "SkillComponent",
+            "skillConfigIds": ["Hero1_Skill1"],
+            "skillLevels": [1],
+            "autoCastEnabled": [false]
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 25,
+            "attackInterval": 0.9,
+            "range": 28,
+            "meleeShape": "Circle",
+            "meleeRadius": 24,
+            "meleeLifeSeconds": 0.12,
+            "meleeForwardOffset": 22,
+            "meleeCanHitMultiple": false
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 500
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 8
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 15,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [0, 255, 0, 0],
+                    "lineWidth": 0,
+                    "fill": false,
+                    "radius": 15
+                }
+            ]
+        }
+    ]
+}

@@ -12,6 +12,8 @@ import { TargetingComponent, TargetingStrategy } from '../ECS/Components/Targeti
 import { WeaponComponent, WeaponAttackType } from '../ECS/Components/WeaponComponent';
 import { WeaponStateComponent } from '../ECS/Components/WeaponStateComponent';
 import { EquipmentComponent } from '../ECS/Components/EquipmentComponent';
+import { SkillComponent } from '../ECS/Components/SkillComponent';
+import { SkillStateComponent } from '../ECS/Components/SkillStateComponent';
 import { ProjectileSpecComponent } from '../ECS/Components/ProjectileSpecComponent';
 import { LevelComponent } from '../ECS/Components/LevelComponent';
 import { UpgradeableComponent } from '../ECS/Components/UpgradeableComponent';
@@ -192,6 +194,32 @@ export class EntityFactory {
                 equip.weaponConfigId = config.weaponConfigId ?? '';
                 equip.weaponConfigIds = Array.isArray(config.weaponConfigIds) ? config.weaponConfigIds.filter((x: any) => typeof x === 'string' && x.length > 0) : [];
                 entity.addComponent(equip);
+                break;
+
+            case 'SkillComponent':
+                const skill = world.acquireComponent(SkillComponent);
+                skill.skillConfigIds = Array.isArray(config.skillConfigIds)
+                    ? config.skillConfigIds.filter((x: any) => typeof x === 'string' && x.length > 0)
+                    : [];
+                skill.skillLevels = Array.isArray(config.skillLevels)
+                    ? config.skillLevels.map((x: any) => (typeof x === 'number' ? Math.max(1, Math.floor(x)) : 1))
+                    : [];
+                skill.autoCastEnabled = Array.isArray(config.autoCastEnabled)
+                    ? config.autoCastEnabled.map((x: any) => Boolean(x))
+                    : [];
+                entity.addComponent(skill);
+                if (!entity.hasComponent(SkillStateComponent)) {
+                    const state = world.acquireComponent(SkillStateComponent);
+                    entity.addComponent(state);
+                }
+                break;
+
+            case 'SkillStateComponent':
+                const skillState = world.acquireComponent(SkillStateComponent);
+                skillState.skillCooldownRemaining = Array.isArray(config.skillCooldownRemaining)
+                    ? config.skillCooldownRemaining.map((x: any) => (typeof x === 'number' ? Math.max(0, x) : 0))
+                    : [];
+                entity.addComponent(skillState);
                 break;
 
             case 'ProjectileSpecComponent':

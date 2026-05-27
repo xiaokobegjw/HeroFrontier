@@ -23,6 +23,7 @@ export type GameUIHandlers = {
     upgradeSelectedTower: () => void;
     sellSelectedTower: () => void;
     restartGame: () => void;
+    castSkill?: (skillIndex: number, targetEntityId?: number | null, x?: number, y?: number) => void;
 };
 
 @ccclass('GameUIController')
@@ -89,6 +90,9 @@ export class GameUIController extends Component {
         });
         this.createButton(root, '建魔法塔', size.width * 0.5 - 90, -size.height * 0.5 + 80, () => {
             this.handlers?.buildMagicTower(this.selectedSlotIndex);
+        });
+        this.createButton(root, '技能1', size.width * 0.5 - 200, -size.height * 0.5 + 8, () => {
+            this.handlers?.castSkill?.(0);
         });
         this.createButton(root, '升级炮塔', size.width * 0.5 - 200, -size.height * 0.5 + 44, () => {
             this.handlers?.upgradeSelectedTower();

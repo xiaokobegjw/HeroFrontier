@@ -1,0 +1,123 @@
+{
+    "id": "EnemyHeavyGuard1",
+    "name": "enemy_name_heavy_guard",
+    "description": "enemy_desc_heavy_guard",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/EnemyHeavyGuard1",
+            "idleClipPath": "clips/EnemyHeavyGuard1/idle",
+            "walkClipPath": "clips/EnemyHeavyGuard1/walk",
+            "dieClipPath": "clips/EnemyHeavyGuard1/die",
+            "attackClipPath": "clips/EnemyHeavyGuard1/attack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 1.2
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 28,
+            "accel": 80,
+            "decel": 140,
+            "threshold": 2
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 120,
+            "fovDeg": 180,
+            "facingDeg": 0,
+            "checkInterval": 0.18
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 2,
+            "maxTargets": 6
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.2,
+            "lockSeconds": 0.25,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.9
+                    }
+                },
+                {
+                    "id": "idle",
+                    "type": "Idle",
+                    "weight": 0.1
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "EquipmentComponent",
+            "weaponConfigId": "Sword1"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 1600
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 24
+        },
+        {
+            "id": "LootComponent",
+            "gold": 40
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 60
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 22,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Triangle",
+                    "color": [120, 120, 160],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "points": [
+                        { "x": 0, "y": 22 },
+                        { "x": -18, "y": -12 },
+                        { "x": 18, "y": -12 }
+                    ]
+                }
+            ]
+        }
+    ]
+}

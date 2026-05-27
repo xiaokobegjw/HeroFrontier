@@ -1,0 +1,17 @@
+{
+    "id": "Hero1_Skill1",
+    "name": "skill_name_whirlwind",
+    "description": "skill_desc_whirlwind",
+    "castType": "Active",
+    "targetType": "Enemy",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 8,
+    "levels": [
+        { "level": 1, "cooldownSeconds": 8, "power": 80 },
+        { "level": 2, "cooldownSeconds": 8, "power": 95 },
+        { "level": 3, "cooldownSeconds": 7, "power": 110 },
+        { "level": 4, "cooldownSeconds": 7, "power": 125 },
+        { "level": 5, "cooldownSeconds": 6, "power": 140 },
+        { "level": 6, "cooldownSeconds": 6, "power": 160 }
+    ]
+}

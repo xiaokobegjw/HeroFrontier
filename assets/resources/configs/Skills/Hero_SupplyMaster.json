@@ -1,0 +1,18 @@
+{
+    "id": "Hero_SupplyMaster",
+    "name": "skill_name_supply_master",
+    "description": "skill_desc_supply_master",
+    "castType": "Passive",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 0,
+    "category": "Commander",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 0, "supplyRecoveryBonus": 0.15, "supplyCapacityBonus": 10 },
+        { "level": 2, "cooldownSeconds": 0, "supplyRecoveryBonus": 0.22, "supplyCapacityBonus": 15 },
+        { "level": 3, "cooldownSeconds": 0, "supplyRecoveryBonus": 0.30, "supplyCapacityBonus": 20 },
+        { "level": 4, "cooldownSeconds": 0, "supplyRecoveryBonus": 0.38, "supplyCapacityBonus": 25 },
+        { "level": 5, "cooldownSeconds": 0, "supplyRecoveryBonus": 0.46, "supplyCapacityBonus": 30 },
+        { "level": 6, "cooldownSeconds": 0, "supplyRecoveryBonus": 0.55, "supplyCapacityBonus": 35 }
+    ]
+}

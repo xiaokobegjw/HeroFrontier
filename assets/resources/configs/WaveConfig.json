@@ -1,0 +1,140 @@
+{
+    "id": "WaveConfig",
+    "description": "波次怪物刷新配置",
+    "waves": [
+        {
+            "waveRange": [1, 20],
+            "name": "新手发育期",
+            "maxCount": 15,
+            "countIncrement": 0.8,
+            "spawnInterval": 1.2,
+            "weights": {
+                "EnemyMob1": 45,
+                "EnemyMob2": 30,
+                "EnemyMob3": 20,
+                "EnemyHeavyGuard1": 5
+            },
+            "maxElitePerWave": 0,
+            "maxBossPerWave": 0,
+            "bossWave": null
+        },
+        {
+            "waveRange": [21, 40],
+            "name": "高压攻坚期",
+            "maxCount": 20,
+            "countIncrement": 0.5,
+            "spawnInterval": 1.0,
+            "weights": {
+                "EnemyMob1": 15,
+                "EnemyMob2": 12,
+                "EnemyMob3": 10,
+                "EnemyHeavyGuard1": 18,
+                "EnemyHeavyGuard2": 15,
+                "EnemyDarkMage": 12,
+                "EnemyNecroSkeleton": 10,
+                "EnemyMutantBoneSpur": 5,
+                "EnemyAbyssCurser": 3
+            },
+            "maxElitePerWave": 2,
+            "maxBossPerWave": 0,
+            "bossWave": null
+        },
+        {
+            "waveRange": [41, 60],
+            "name": "极限突破期-阶段1",
+            "maxCount": 25,
+            "countIncrement": 0.4,
+            "spawnInterval": 0.85,
+            "weights": {
+                "EnemyMob1": 8,
+                "EnemyMob2": 7,
+                "EnemyMob3": 6,
+                "EnemyHeavyGuard1": 12,
+                "EnemyHeavyGuard2": 10,
+                "EnemyDarkMage": 12,
+                "EnemyNecroSkeleton": 12,
+                "EnemyMutantBoneSpur": 10,
+                "EnemyAbyssCurser": 8,
+                "Boss_RottenCorpse": 2,
+                "Boss_LavaWarlord": 2,
+                "Boss_NetherBoneDragon": 1
+            },
+            "maxElitePerWave": 3,
+            "maxBossPerWave": 1,
+            "bossWave": null
+        },
+        {
+            "waveRange": [61, 80],
+            "name": "极限突破期-阶段2",
+            "maxCount": 28,
+            "countIncrement": 0.35,
+            "spawnInterval": 0.75,
+            "weights": {
+                "EnemyMob1": 5,
+                "EnemyMob2": 5,
+                "EnemyMob3": 4,
+                "EnemyHeavyGuard1": 10,
+                "EnemyHeavyGuard2": 8,
+                "EnemyDarkMage": 12,
+                "EnemyNecroSkeleton": 12,
+                "EnemyMutantBoneSpur": 12,
+                "EnemyAbyssCurser": 10,
+                "Boss_RottenCorpse": 3,
+                "Boss_LavaWarlord": 3,
+                "Boss_NetherBoneDragon": 2,
+                "Boss_AbyssLord": 1
+            },
+            "maxElitePerWave": 4,
+            "maxBossPerWave": 1,
+            "bossWave": null
+        },
+        {
+            "waveRange": [81, 999],
+            "name": "极限突破期-阶段3",
+            "maxCount": 30,
+            "countIncrement": 0.3,
+            "spawnInterval": 0.7,
+            "weights": {
+                "EnemyMob1": 4,
+                "EnemyMob2": 4,
+                "EnemyMob3": 3,
+                "EnemyHeavyGuard1": 8,
+                "EnemyHeavyGuard2": 7,
+                "EnemyDarkMage": 10,
+                "EnemyNecroSkeleton": 10,
+                "EnemyMutantBoneSpur": 12,
+                "EnemyAbyssCurser": 12,
+                "Boss_RottenCorpse": 4,
+                "Boss_LavaWarlord": 4,
+                "Boss_NetherBoneDragon": 3,
+                "Boss_AbyssLord": 2
+            },
+            "maxElitePerWave": 5,
+            "maxBossPerWave": 2,
+            "bossWave": null
+        }
+    ],
+    "bossWaves": [
+        { "wave": 10, "bossId": "Boss_RottenCorpse" },
+        { "wave": 20, "bossId": "Boss_LavaWarlord" },
+        { "wave": 30, "bossId": "Boss_NetherBoneDragon" },
+        { "wave": 40, "bossId": "Boss_AbyssLord" }
+    ],
+    "endlessMultiplier": {
+        "41-60": 0.10,
+        "61-80": 0.08,
+        "81+": 0.06
+    },
+    "leakPenalty": {
+        "penaltyPerLeak": 10,
+        "maxPenaltyPerWave": 50
+    },
+    "waveClearBonus": {
+        "baseBonus": 50,
+        "waveMultiplier": 5
+    },
+    "earlyWaveBonus": {
+        "thresholdSeconds": 30,
+        "bonusPercent": 0.2
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "id": "Hero_FrenzyHeart",
+    "name": "skill_name_frenzy_heart",
+    "description": "skill_desc_frenzy_heart",
+    "castType": "Passive",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 0,
+    "category": "Slash",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 0, "critChance": 0.08, "critDamage": 0.25 },
+        { "level": 2, "cooldownSeconds": 0, "critChance": 0.11, "critDamage": 0.35 },
+        { "level": 3, "cooldownSeconds": 0, "critChance": 0.14, "critDamage": 0.45 },
+        { "level": 4, "cooldownSeconds": 0, "critChance": 0.17, "critDamage": 0.55 },
+        { "level": 5, "cooldownSeconds": 0, "critChance": 0.20, "critDamage": 0.65 },
+        { "level": 6, "cooldownSeconds": 0, "critChance": 0.23, "critDamage": 0.75 }
+    ]
+}

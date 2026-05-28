@@ -9,9 +9,9 @@ type PatrolPoint = { x: number; y: number };
 export const PatrolGoal: GoalHandler = {
     type: 'Patrol',
     score(world: World, entity: Entity, ai: AIComponent, goal: GoalSpec, ctx: GoalContext): number {
-        if (ctx.targetPos) return 0;
+        if (ctx.targetPos) return -Infinity;
         const points = goal.params?.patrolPoints as PatrolPoint[] | undefined;
-        if (!points || points.length === 0) return 0;
+        if (!points || points.length === 0) return -Infinity;
         return Math.max(0, goal.weight);
     },
     build(world: World, entity: Entity, ai: AIComponent, goal: GoalSpec, ctx: GoalContext): ActionRequest {

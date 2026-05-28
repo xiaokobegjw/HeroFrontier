@@ -18,12 +18,15 @@ import { BurningComponent } from '../Components/BurningComponent';
 import { SpatialIndexSystem } from './SpatialIndexSystem';
 import { FactionType } from '../../Data/Faction';
 
+export type DamageType = 'Physical' | 'Magic';
+
 type DamageSource = {
     armorPenPct: number;
     skillMultiplier: number;
     critChance: number;
     critMultiplier: number;
     finalDamageBonusPct: number;
+    damageType: DamageType;
 };
 
 export class DamageSystem extends ECSSystem {
@@ -230,9 +233,19 @@ export class DamageSystem extends ECSSystem {
 
     private computeDamage(baseDamage: number, source: DamageSource, targetEntity: Entity): number {
         const defense = targetEntity.getComponent(DefenseComponent)?.defense ?? 0;
-        const pen = Math.max(0, Math.min(0.3, source.armorPenPct));
-        const effectiveDefense = Math.max(0, defense * (1 - pen));
-        const defenseMult = 1 - effectiveDefense / (effectiveDefense + 50);
+        const magicResist = targetEntity.getComponent(DefenseComponent)?.magicResist ?? 0;
+        
+        const pen = Math.max(0, Math.min(0.49, source.armorPenPct));
+        
+        let defenseMult: number;
+        if (source.damageType === 'Magic') {
+            const effectiveMR = Math.max(0, magicResist * (1 - pen));
+            defenseMult = 1 - effectiveMR / (effectiveMR + 50);
+        } else {
+            const effectiveDefense = Math.max(0, defense * (1 - pen));
+            defenseMult = 1 - effectiveDefense / (effectiveDefense + 50);
+        }
+        
         const skillMultiplier = Math.max(0, source.skillMultiplier);
         const critMultiplier = this.rollCrit(source.critChance)
             ? Math.max(1, Math.min(3, source.critMultiplier))

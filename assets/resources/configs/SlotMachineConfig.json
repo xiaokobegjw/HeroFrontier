@@ -1,0 +1,50 @@
+{
+    "id": "SlotMachineConfig",
+    "description": "老虎机抽奖配置",
+    "costPerSpin": 120,
+    "maxSkillSlots": 6,
+    "jackpotMultiplier": 3,
+    "probabilities": {
+        "skillSlotNotFull": {
+            "newSkill": 0.58,
+            "existingSkillUpgrade": 0.34,
+            "jackpot": 0.08
+        },
+        "skillSlotFullNotMaxed": {
+            "existingSkillUpgrade": 0.92,
+            "jackpot": 0.08
+        },
+        "limitBreakMode": {
+            "normalBonus": 0.94,
+            "jackpotBonus": 0.06
+        }
+    },
+    "limitBreak": {
+        "spinInterval": 15,
+        "multiplierBase": 1.0,
+        "multiplierPerInterval": 0.15,
+        "maxMultiplier": 3.0
+    },
+    "jackpotRewards": {
+        "skillSlotNotFull": {
+            "type": "instantMaxSkill",
+            "description": "立即获得一个满级技能"
+        },
+        "skillSlotFullNotMaxed": {
+            "type": "randomMaxUpgrade",
+            "description": "随机将一个技能升至满级"
+        },
+        "limitBreakMode": {
+            "type": "superBonus",
+            "description": "获得超级属性加成",
+            "bonusAmount": 0.25
+        }
+    },
+    "normalBonuses": [
+        { "type": "attackBonus", "value": 0.05, "duration": 0 },
+        { "type": "defenseBonus", "value": 0.05, "duration": 0 },
+        { "type": "healthBonus", "value": 0.05, "duration": 0 },
+        { "type": "goldBonus", "value": 50 },
+        { "type": "supplyBonus", "value": 10 }
+    ]
+}

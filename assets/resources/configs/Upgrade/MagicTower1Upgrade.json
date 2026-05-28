@@ -4,20 +4,33 @@
         {
             "level": 1,
             "fields": {
-                "WeaponComponent": { "damage": 55, "armorPenPct": 0.3, "attackInterval": 1.35, "range": 420, "projectileSplashRadius": 0 }
+                "WeaponComponent": { "damage": 55, "attackInterval": 1.35, "range": 420, "armorPenPct": 0.15 }
             }
         },
         {
             "level": 2,
             "fields": {
-                "WeaponComponent": { "damage": 72, "armorPenPct": 0.5, "attackInterval": 1.25, "range": 440, "projectileSplashRadius": 48 }
+                "WeaponComponent": { "damage": 78, "attackInterval": 1.25, "range": 440, "armorPenPct": 0.2, "projectileSplashRadius": 48 }
             }
         },
         {
             "level": 3,
             "fields": {
-                "WeaponComponent": { "damage": 95, "armorPenPct": 1, "attackInterval": 1.15, "range": 460, "projectileSplashRadius": 64 }
+                "WeaponComponent": { "damage": 108, "attackInterval": 1.15, "range": 460, "armorPenPct": 0.25, "projectileSplashRadius": 64 }
+            }
+        },
+        {
+            "level": 4,
+            "fields": {
+                "WeaponComponent": { "damage": 145, "attackInterval": 1.05, "range": 480, "armorPenPct": 0.3, "projectileSplashRadius": 72 }
+            }
+        },
+        {
+            "level": 5,
+            "fields": {
+                "WeaponComponent": { "damage": 195, "attackInterval": 0.95, "range": 500, "armorPenPct": 0.35, "projectileSplashRadius": 80 }
             }
         }
-    ]
+    ],
+    "evolutions": ["MagicTower_Inferno", "MagicTower_Arcane"]
 }

@@ -1,0 +1,125 @@
+{
+    "id": "EnemyDarkMage",
+    "name": "enemy_name_dark_mage",
+    "description": "enemy_desc_dark_mage",
+    "type": "Undead",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/EnemyDarkMage",
+            "idleClipPath": "clips/EnemyDarkMage/EnemyDarkMageIdle",
+            "walkClipPath": "clips/EnemyDarkMage/EnemyDarkMageWalk",
+            "dieClipPath": "clips/EnemyDarkMage/EnemyDarkMageDie",
+            "attackClipPath": "clips/EnemyDarkMage/EnemyDarkMageAttack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 1.0
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 2.4,
+            "accel": 6,
+            "decel": 10,
+            "threshold": 0.5
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 120,
+            "fovDeg": 360,
+            "facingDeg": 0,
+            "checkInterval": 0.2
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 2,
+            "maxTargets": 5
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.15,
+            "lockSeconds": 0.25,
+            "strategy": "MostDense"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.95
+                    }
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Ranged",
+            "damageType": "Magic",
+            "damage": 28,
+            "attackInterval": 1.6,
+            "range": 300,
+            "projectileSplashRadius": 40
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 160
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 4,
+            "magicResist": 18
+        },
+        {
+            "id": "LootComponent",
+            "gold": 14
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 28
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 12,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [120, 40, 140, 255],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "radius": 12
+                }
+            ]
+        }
+    ]
+}

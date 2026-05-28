@@ -53,16 +53,19 @@ import { DebugCommandContext } from './Input/DebugCommands';
 import { PlayerMoveInputAdapter } from './Input/PlayerMoveInputAdapter';
 import { DebugState } from './Debug/DebugState';
 import { LevelLoader, LevelPoint } from './Managers/LevelLoader';
+import { LoadingScreen } from './UI/LoadingScreen';
 import { ObstacleComponent } from './ECS/Components/ObstacleComponent';
 import { EntityConfigCache } from './Managers/EntityConfigCache';
 import { PathFollowSystem } from './ECS/Systems/PathFollowSystem';
 import { PathFollowComponent } from './ECS/Components/PathFollowComponent';
 import { BaseProductionSystem } from './ECS/Systems/BaseProductionSystem';
+import { SupplySystem } from './ECS/Systems/SupplySystem';
 import { SoldierFormationSystem } from './ECS/Systems/SoldierFormationSystem';
 import { MovementBlockSystem } from './ECS/Systems/MovementBlockSystem';
 import { UnitSeparationSystem } from './ECS/Systems/UnitSeparationSystem';
 import { ActorViewSystem } from './ECS/Systems/ActorViewSystem';
 import { ExperienceSystem } from './ECS/Systems/ExperienceSystem';
+import { ExperienceComponent } from './ECS/Components/ExperienceComponent';
 import { PlayerControlSystem } from './ECS/Systems/PlayerControlSystem';
 import { BurningSystem } from './ECS/Systems/BurningSystem';
 import magicBoltConfig from '../../resources/configs/Projectiles/MagicBolt1.json';
@@ -72,14 +75,15 @@ import { GameSession } from './Managers/GameSession';
 import { WaveSpawner, SpawnEvent } from './Managers/WaveSpawner';
 import { TowerPlacementManager } from './Managers/TowerPlacementManager';
 import { GameUIController } from './UI/GameUIController';
+import { HUDManager } from './UI/HUDManager';
 import { LevelComponent } from './ECS/Components/LevelComponent';
 import { BaseProductionComponent } from './ECS/Components/BaseProductionComponent';
 import { DefenseComponent } from './ECS/Components/DefenseComponent';
 import { LootComponent } from './ECS/Components/LootComponent';
 import { director } from 'cc';
 
-const CASTLE_UPGRADE_COSTS = [0, 120, 250, 500, 900];
-const STARTING_GOLD = 220;
+const CASTLE_UPGRADE_COSTS = [0, 160, 280, 420, 600];
+const STARTING_GOLD = 200;
 
 /**
  * 游戏主入口脚本：挂载到场景节点
@@ -131,7 +135,9 @@ export class GameMain extends Component {
     private waveSpawner: WaveSpawner | null = null;
     private towerManager: TowerPlacementManager = new TowerPlacementManager();
     private gameUI: GameUIController | null = null;
+    private hudManager: HUDManager | null = null;
     private currentSpawnWave: number = 1;
+    private maxWaves: number = 12; // 默认最大波次
     private selectedTowerSlot: number = 0;
 
     onLoad() {
@@ -182,6 +188,7 @@ export class GameMain extends Component {
         this.targetingSystem = new TargetingSystem(6);
         this.world.registerSystem(this.targetingSystem);
 
+        this.world.registerSystem(new SupplySystem(this.world, 5.8));
         this.world.registerSystem(
             new BaseProductionSystem(this.world, soldierConfig as any, () => this.playerEntity?.id ?? null, 5.95)
         );
@@ -286,11 +293,11 @@ export class GameMain extends Component {
             },
             buildArrowTower: (slot) => {
                 this.selectedTowerSlot = slot;
-                void this.tryBuildTower(slot, 'ArrowTower1');
+                void this.tryBuildTower(slot, 'ArrowTower');
             },
             buildMagicTower: (slot) => {
                 this.selectedTowerSlot = slot;
-                void this.tryBuildTower(slot, 'MagicTower1');
+                void this.tryBuildTower(slot, 'MagicTower');
             },
             upgradeSelectedTower: () => this.tryUpgradeSelectedTower(),
             sellSelectedTower: () => this.trySellSelectedTower(),
@@ -300,11 +307,40 @@ export class GameMain extends Component {
             },
             restartGame: () => this.restartGame()
         });
+
+        // 初始化 HUDManager
+        const hudNode = this.node.getComponent(HUDManager) ?? this.node.addComponent(HUDManager);
+        this.hudManager = hudNode;
     }
 
     start() {
         this.saveData = SaveManager.instance.loadOrDefault(defaultSave as SaveData);
 
+        // 查找 LoadingScreen 节点并监听加载完成事件
+        const loadingScreenNode = this.node.getChildByName('LoadingNode');
+        if (loadingScreenNode) {
+            const loadingScreen = loadingScreenNode.getComponent(LoadingScreen);
+            if (loadingScreen) {
+                console.log('[GameMain] Waiting for loading to complete...');
+                loadingScreenNode.on('loadingComplete', this.onLoadingComplete, this);
+                return;
+            }
+        }
+
+        // 如果没有 LoadingScreen，直接开始游戏
+        this.initGame();
+    }
+
+    private onLoadingComplete() {
+        console.log('[GameMain] Loading completed, initializing game...');
+        const loadingScreenNode = this.node.getChildByName('LoadingNode');
+        if (loadingScreenNode) {
+            loadingScreenNode.off('loadingComplete', this.onLoadingComplete, this);
+        }
+        this.initGame();
+    }
+
+    private initGame() {
         // 启动 ECS 世界
         this.world.start();
 
@@ -512,10 +548,13 @@ export class GameMain extends Component {
             this.waveSpawner = new WaveSpawner({ pathIds });
             const lastTime = this.spawnQueue.length > 0 ? this.spawnQueue[this.spawnQueue.length - 1].time : 0;
             this.waveSpawner.setStartTime(lastTime);
-            this.waveSpawner.appendProceduralWaves(this.spawnQueue, lastTime + 6, 12);
+            const proceduralWaveCount = 12;
+            this.waveSpawner.appendProceduralWaves(this.spawnQueue, lastTime + 6, proceduralWaveCount);
             this.spawnQueue.sort((a, b) => a.time - b.time);
 
-            enemyIds.add('Enemy3');
+            // 设置最大波次数量
+            this.maxWaves = rawWaves.length + proceduralWaveCount;
+
             const ids = Array.from(enemyIds);
             await Promise.all(
                 ids.map(async (id) => {
@@ -545,18 +584,29 @@ export class GameMain extends Component {
             this.spatialIndex.insert({ id: heroFromConfig.id, bounds: { x: heroTransform.x - 1, y: heroTransform.y - 1, width: 2, height: 2 } });
         }
 
-        const preloadIds = [
-            'Soldier1',
-            'Archer1',
-            'HeavyGuard1',
-            'Elementalist1',
-            'RoyalKnight1',
-            'ArrowTower1',
-            'MagicTower1',
-            'Enemy1',
-            'Enemy3'
-        ];
-        await Promise.all(preloadIds.map(id => EntityConfigCache.loadEntityConfig(id).catch(() => undefined)));
+        const preloadIds = new Set<string>();
+
+        const heroId = typeof heroConfig?.id === 'string' ? heroConfig.id : '';
+        const castleId = typeof castleConfig?.id === 'string' ? castleConfig.id : '';
+        if (heroId) preloadIds.add(heroId);
+        if (castleId) preloadIds.add(castleId);
+        preloadIds.add('ArrowTower');
+        preloadIds.add('MagicTower');
+
+        if (rawWaves && rawWaves.length > 0) {
+            for (const wv of rawWaves) {
+                const groups: any[] = Array.isArray(wv?.groups) ? wv.groups : [];
+                for (const g of groups) {
+                    const enemyId = typeof g.enemyId === 'string' ? g.enemyId.trim() : '';
+                    if (enemyId) preloadIds.add(enemyId);
+                }
+            }
+        } else {
+            const fallbackEnemyId = typeof enemyConfig?.id === 'string' ? enemyConfig.id : '';
+            if (fallbackEnemyId) preloadIds.add(fallbackEnemyId);
+        }
+
+        await Promise.all(Array.from(preloadIds).map(id => EntityConfigCache.loadEntityConfig(id).catch(() => undefined)));
 
         console.log(`[GameMain] Loaded level: ${levelResourcePathNoExt} grid=${gridW}x${gridH} cellSize=${cellSize}`);
     }
@@ -574,6 +624,38 @@ export class GameMain extends Component {
         this.updateWaveSpawns(deltaTime);
         this.checkGameOver();
         if (this.world) this.world.update(deltaTime);
+
+        // 更新 HUD 显示
+        this.updateHUDDisplay();
+    }
+
+    private updateHUDDisplay(): void {
+        if (!this.hudManager || !this.playerEntity) return;
+
+        // 更新波次显示（分数格式）
+        const currentWave = GameSession.instance.currentWave;
+        this.hudManager.displayWave(currentWave, this.maxWaves);
+
+        // 更新英雄血量条
+        const healthComponent = this.playerEntity.getComponent(HealthComponent);
+        if (healthComponent) {
+            this.hudManager.updateHealthBar(healthComponent.current, healthComponent.max);
+        }
+
+        // 更新英雄经验条
+        const expComponent = this.playerEntity.getComponent(ExperienceComponent);
+        const levelComponent = this.playerEntity.getComponent(LevelComponent);
+        if (expComponent && levelComponent) {
+            const currentLevel = Math.floor(levelComponent.level);
+            const expForCurrentLevel = expComponent.getRequiredExpForLevel(currentLevel);
+            const expForNextLevel = expComponent.getRequiredExpForLevel(currentLevel + 1);
+            const expInCurrentLevel = expComponent.currentExp - expForCurrentLevel;
+            const expNeededForNextLevel = Math.max(1, expForNextLevel - expForCurrentLevel);
+            this.hudManager.updateExperienceBar(expInCurrentLevel, expNeededForNextLevel);
+        }
+
+        // 更新金币显示
+        this.hudManager.displayCoin(this.currencySystem.getGold());
     }
 
     private checkGameOver(): void {
@@ -653,31 +735,42 @@ export class GameMain extends Component {
         }
     }
 
+    private getWaveMultiplier(wave: number): number {
+        const w = Math.max(1, Math.floor(wave));
+        if (w <= 20) {
+            return Math.pow(1.07, w - 1);
+        } else if (w <= 40) {
+            const base20 = Math.pow(1.07, 19);
+            return base20 * Math.pow(1.09, w - 20);
+        } else if (w <= 60) {
+            const base40 = Math.pow(1.07, 19) * Math.pow(1.09, 20);
+            return base40 * Math.pow(1.10, w - 40);
+        } else if (w <= 80) {
+            const base60 = Math.pow(1.07, 19) * Math.pow(1.09, 20) * Math.pow(1.10, 20);
+            return base60 * Math.pow(1.08, w - 60);
+        } else {
+            const base80 = Math.pow(1.07, 19) * Math.pow(1.09, 20) * Math.pow(1.10, 20) * Math.pow(1.08, 20);
+            return base80 * Math.pow(1.06, w - 80);
+        }
+    }
+
     private scaleEnemyForWave(enemy: Entity, wave: number): void {
         const w = Math.max(1, Math.floor(wave));
-        let hpMul = 1 + (w - 1) * 0.08;
-        let defMul = 1 + (w - 1) * 0.05;
-        if (w % 10 === 0) {
-            hpMul *= 1.35;
-            defMul *= 1.2;
-        }
-        if (w >= 25) {
-            hpMul *= 1 + (w - 24) * 0.04;
-            defMul *= 1 + (w - 24) * 0.03;
-        }
+        const multiplier = this.getWaveMultiplier(w);
 
         const health = enemy.getComponent(HealthComponent);
         if (health) {
-            health.max = Math.floor(health.max * hpMul);
+            health.max = Math.floor(health.max * multiplier);
             health.current = health.max;
         }
         const defense = enemy.getComponent(DefenseComponent);
         if (defense) {
-            defense.defense = Math.floor(defense.defense * defMul);
+            defense.defense = Math.floor(defense.defense * multiplier);
+            defense.magicResist = Math.floor(defense.magicResist * multiplier);
         }
         const loot = enemy.getComponent(LootComponent);
         if (loot) {
-            loot.gold = Math.floor(loot.gold * (1 + (w - 1) * 0.06));
+            loot.gold = Math.floor(loot.gold * multiplier);
         }
     }
 

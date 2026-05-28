@@ -8,4 +8,14 @@
     "defense": "Defense",
     "health": "Health",
     "mana": "Mana"
+    ,"loading_tip_1": "Save gold at the start; upgrading castle is more stable than building towers blindly."
+    ,"loading_tip_2": "Supply value is linked to castle level, upgrade it to restore troops faster."
+    ,"loading_tip_3": "Armor break is capped at 49% globally, no need to stack too much armor penetration."
+    ,"loading_tip_4": "Heavy armor enemies fear magic towers, light armor foes are weak against arrow towers."
+    ,"loading_tip_5": "Hero HP regeneration per second has a cap, do not tank boss DoT at low HP."
+    ,"loading_tip_6": "Choose the level 5 tower evolution wisely to match your hero build."
+    ,"loading_tip_7": "Fallen troops cost supply, control losses to keep your army strong."
+    ,"loading_tip_8": "Build completion brings balance penalties, avoid mixing all three styles blindly."
+    ,"loading_tip_9": "Use slot machine banish to remove useless skills and free skill slots."
+    ,"loading_tip_10": "Endless monster growth will decay gradually, you can still grow steadily in late waves."
 }

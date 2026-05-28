@@ -1,0 +1,134 @@
+{
+    "id": "EnemyAbyssCurser",
+    "name": "enemy_name_abyss_curser",
+    "description": "enemy_desc_abyss_curser",
+    "type": "Elite",
+    "hasAura": true,
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/EnemyAbyssCurser",
+            "idleClipPath": "clips/EnemyAbyssCurser/EnemyAbyssCurserIdle",
+            "walkClipPath": "clips/EnemyAbyssCurser/EnemyAbyssCurserWalk",
+            "dieClipPath": "clips/EnemyAbyssCurser/EnemyAbyssCurserDie",
+            "attackClipPath": "clips/EnemyAbyssCurser/EnemyAbyssCurserAttack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 1.15
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 2.6,
+            "accel": 7,
+            "decel": 11,
+            "threshold": 0.5
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 100,
+            "fovDeg": 360,
+            "facingDeg": 0,
+            "checkInterval": 0.2
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 2.5,
+            "maxTargets": 5
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.15,
+            "lockSeconds": 0.25,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.95
+                    }
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Ranged",
+            "damageType": "Magic",
+            "damage": 36,
+            "attackInterval": 1.5,
+            "range": 280
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 400
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 10,
+            "magicResist": 20
+        },
+        {
+            "id": "AuraComponent",
+            "enabled": true,
+            "radius": 150,
+            "effectType": "AllStatsBuff",
+            "effectValue": 0.08,
+            "factionFilter": "Enemy",
+            "stackLimit": 1
+        },
+        {
+            "id": "LootComponent",
+            "gold": 25
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 50
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 13,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [40, 40, 180, 255],
+                    "lineWidth": 3,
+                    "fill": true,
+                    "radius": 13
+                }
+            ]
+        }
+    ]
+}

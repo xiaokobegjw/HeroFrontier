@@ -1,0 +1,45 @@
+{
+    "id": "EnemyCorrosiveBat",
+    "name": "enemy_corrosive_bat",
+    "description": "腐蚀蝙蝠：飞行单位，魔抗较高",
+    "type": "LightArmor",
+    "ComponentsList": [
+        { "id": "FactionComponent", "faction": "Enemy" },
+        { "id": "TransformComponent" },
+         {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/mob3Prefab",
+            "idleClipPath": "clips/mob3/mob3Idle",
+            "walkClipPath": "clips/mob3/mob3Walk",
+            "dieClipPath": "clips/mob3/mob3Die",
+            "attackClipPath": "clips/mob3/mob3Attack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 1
+        },
+        { "id": "MoveStatsComponent", "maxSpeed": 3.8, "accel": 300, "decel": 350, "threshold": 1 },
+        { "id": "PerceptionComponent", "viewRange": 70, "fovDeg": 180, "facingDeg": 0, "checkInterval": 0.12 },
+        { "id": "MemoryComponent", "memorySeconds": 0.6, "maxTargets": 2 },
+        { "id": "TargetComponent" },
+        { "id": "TargetingComponent", "retargetInterval": 0.08, "lockSeconds": 0.15, "strategy": "Nearest" },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                { "id": "attack", "type": "AttackTarget", "weight": 3, "params": { "stopRangeScale": 0.85 }, "minHoldSeconds": 0.1, "hysteresis": 0.1 },
+                { "id": "idle", "type": "Idle", "weight": 0.1 }
+            ]
+        },
+        { "id": "LevelComponent", "level": 1 },
+        { "id": "WeaponComponent", "autoFire": true, "attackType": "Melee", "damage": 10, "attackInterval": 1.1, "range": 16, "meleeShape": "Circle", "meleeRadius": 12, "meleeLifeSeconds": 0.06, "meleeForwardOffset": 8 },
+        { "id": "WeaponStateComponent" },
+        { "id": "HealthComponent", "max": 55 },
+        { "id": "DefenseComponent", "defense": 0, "magicResist": 3 },
+        { "id": "LootComponent", "gold": 5 },
+        { "id": "ExperienceRewardComponent", "exp": 10 },
+        { "id": "ColliderComponent", "shape": "Circle", "radius": 8, "layer": 2, "mask": 4294967295, "isTrigger": true },
+        { "id": "RenderComponent", "offset": { "x": 0, "y": 0 }, "shapes": [{ "type": "Circle", "color": [100, 150, 100, 255], "lineWidth": 2, "fill": true, "radius": 8 }] }
+    ]
+}

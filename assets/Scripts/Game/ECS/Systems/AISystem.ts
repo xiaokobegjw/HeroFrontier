@@ -112,6 +112,7 @@ export class AISystem extends ECSSystem {
     private chooseGoal(entity: Entity, ai: AIComponent, ctx: GoalContext): GoalSpec | null {
         if (!ai.goals || ai.goals.length === 0) return null;
 
+
         let best: GoalSpec | null = null;
         let bestScore = -Infinity;
         let current: GoalSpec | null = null;

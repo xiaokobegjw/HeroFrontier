@@ -1,0 +1,144 @@
+{
+    "id": "Boss_LavaWarlord",
+    "name": "boss_name_lava_warlord",
+    "description": "boss_desc_lava_warlord",
+    "type": "Boss",
+    "wave": 20,
+    "controlResistance": 0.5,
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/Boss_LavaWarlord",
+            "idleClipPath": "clips/Boss_LavaWarlord/idle",
+            "walkClipPath": "clips/Boss_LavaWarlord/walk",
+            "dieClipPath": "clips/Boss_LavaWarlord/die",
+            "attackClipPath": "clips/Boss_LavaWarlord/attack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 2.2
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 2.0,
+            "accel": 5,
+            "decel": 9,
+            "threshold": 0.5
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 160,
+            "fovDeg": 360,
+            "facingDeg": 0,
+            "checkInterval": 0.3
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 3,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.25,
+            "lockSeconds": 0.5,
+            "strategy": "Base"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.82
+                    }
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 68,
+            "attackInterval": 1.6,
+            "range": 40
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 3800
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 28,
+            "magicResist": 14
+        },
+        {
+            "id": "DamageReductionComponent",
+            "reductionPercent": 0.15
+        },
+        {
+            "id": "SkillComponent",
+            "skills": [
+                {
+                    "id": "Boss_Skill_FlameShock",
+                    "name": "烈焰震荡",
+                    "description": "释放大范围震荡伤害，造成高额物理伤害并小幅震退士兵",
+                    "cooldown": 6.0,
+                    "castRange": 100,
+                    "effectRadius": 75,
+                    "damage": 150,
+                    "knockbackForce": 30
+                }
+            ]
+        },
+        {
+            "id": "LootComponent",
+            "gold": 220
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 400
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 32,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [200, 80, 20, 255],
+                    "lineWidth": 4,
+                    "fill": true,
+                    "radius": 32
+                }
+            ]
+        }
+    ]
+}

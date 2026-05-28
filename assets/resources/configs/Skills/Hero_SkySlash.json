@@ -1,0 +1,18 @@
+{
+    "id": "Hero_SkySlash",
+    "name": "skill_name_sky_slash",
+    "description": "skill_desc_sky_slash",
+    "castType": "Active",
+    "targetType": "Enemy",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 5,
+    "category": "Slash",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 5, "power": 120, "range": 200 },
+        { "level": 2, "cooldownSeconds": 5, "power": 145, "range": 210 },
+        { "level": 3, "cooldownSeconds": 4.5, "power": 175, "range": 220 },
+        { "level": 4, "cooldownSeconds": 4.5, "power": 205, "range": 230 },
+        { "level": 5, "cooldownSeconds": 4, "power": 240, "range": 240 },
+        { "level": 6, "cooldownSeconds": 4, "power": 280, "range": 250 }
+    ]
+}

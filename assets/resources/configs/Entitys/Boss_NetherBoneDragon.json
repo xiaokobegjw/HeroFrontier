@@ -1,0 +1,151 @@
+{
+    "id": "Boss_NetherBoneDragon",
+    "name": "boss_name_nether_bone_dragon",
+    "description": "boss_desc_nether_bone_dragon",
+    "type": "Boss",
+    "wave": 30,
+    "controlResistance": 0.5,
+    "isFlying": true,
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/Boss_NetherBoneDragon",
+            "idleClipPath": "clips/Boss_NetherBoneDragon/idle",
+            "walkClipPath": "clips/Boss_NetherBoneDragon/walk",
+            "dieClipPath": "clips/Boss_NetherBoneDragon/die",
+            "attackClipPath": "clips/Boss_NetherBoneDragon/attack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 2.5
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 2.2,
+            "accel": 6,
+            "decel": 10,
+            "threshold": 0.5
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 180,
+            "fovDeg": 360,
+            "facingDeg": 0,
+            "checkInterval": 0.3
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 3,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.25,
+            "lockSeconds": 0.5,
+            "strategy": "Base"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.9
+                    }
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Ranged",
+            "damageType": "Magic",
+            "damage": 95,
+            "attackInterval": 1.7,
+            "range": 350
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 6200
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 18,
+            "magicResist": 32
+        },
+        {
+            "id": "SkillComponent",
+            "skills": [
+                {
+                    "id": "Boss_Skill_NetherBreath",
+                    "name": "幽冥吐息",
+                    "description": "远程扇形法术AOE，附带5秒持续凋零掉血效果",
+                    "cooldown": 4.5,
+                    "castRange": 200,
+                    "effectRadius": 90,
+                    "damage": 200,
+                    "dotDamage": 35,
+                    "dotDuration": 5.0
+                }
+            ]
+        },
+        {
+            "id": "AuraComponent",
+            "enabled": true,
+            "radius": 200,
+            "effectType": "UndeadBuff",
+            "effectValue": 0.15,
+            "factionFilter": "Enemy"
+        },
+        {
+            "id": "LootComponent",
+            "gold": 350
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 600
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 35,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [100, 40, 120, 255],
+                    "lineWidth": 4,
+                    "fill": true,
+                    "radius": 35
+                }
+            ]
+        }
+    ]
+}

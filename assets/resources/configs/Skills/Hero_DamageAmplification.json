@@ -1,0 +1,18 @@
+{
+    "id": "Hero_DamageAmplification",
+    "name": "skill_name_damage_amplification",
+    "description": "skill_desc_damage_amplification",
+    "castType": "Passive",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 0,
+    "category": "Slash",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 0, "damageBonus": 0.10 },
+        { "level": 2, "cooldownSeconds": 0, "damageBonus": 0.15 },
+        { "level": 3, "cooldownSeconds": 0, "damageBonus": 0.20 },
+        { "level": 4, "cooldownSeconds": 0, "damageBonus": 0.25 },
+        { "level": 5, "cooldownSeconds": 0, "damageBonus": 0.30 },
+        { "level": 6, "cooldownSeconds": 0, "damageBonus": 0.35 }
+    ]
+}

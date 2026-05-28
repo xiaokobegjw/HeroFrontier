@@ -1,0 +1,24 @@
+{
+    "id": "MagicTower_Inferno",
+    "evolutionType": "Inferno",
+    "baseTowerId": "MagicTower",
+    "evolutionCost": 520,
+    "description": "炼狱灼烧塔：灼烧伤害倍率提升、持续压制回血",
+    "fields": {
+        "WeaponComponent": {
+            "damage": 140,
+            "attackInterval": 1.5,
+            "range": 440,
+            "armorPenPct": 0.35,
+            "projectileSplashRadius": 80,
+            "burnDamagePerSecond": 45,
+            "burnDuration": 5,
+            "burnMaxStacks": 3,
+            "suppressHealing": true
+        },
+        "TowerComponent": {
+            "evolved": true,
+            "evolutionType": "Inferno"
+        }
+    }
+}

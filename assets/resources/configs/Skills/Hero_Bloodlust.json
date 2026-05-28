@@ -1,0 +1,18 @@
+{
+    "id": "Hero_Bloodlust",
+    "name": "skill_name_bloodlust",
+    "description": "skill_desc_bloodlust",
+    "castType": "Passive",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 0,
+    "category": "Slash",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 0, "attackSpeedBonus": 0.15, "lifesteal": 0.08 },
+        { "level": 2, "cooldownSeconds": 0, "attackSpeedBonus": 0.22, "lifesteal": 0.10 },
+        { "level": 3, "cooldownSeconds": 0, "attackSpeedBonus": 0.30, "lifesteal": 0.12 },
+        { "level": 4, "cooldownSeconds": 0, "attackSpeedBonus": 0.38, "lifesteal": 0.14 },
+        { "level": 5, "cooldownSeconds": 0, "attackSpeedBonus": 0.46, "lifesteal": 0.16 },
+        { "level": 6, "cooldownSeconds": 0, "attackSpeedBonus": 0.55, "lifesteal": 0.18 }
+    ]
+}

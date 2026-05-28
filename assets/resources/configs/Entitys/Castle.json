@@ -1,5 +1,5 @@
 {
-    "id": "Castle1",
+    "id": "Castle",
     "name": "castle_name_basic",
     "description": "castle_desc_basic",
     "ComponentsList": [
@@ -34,18 +34,26 @@
             "populationCap": 20,
             "followerCap": 0,
             "followerDesired": 0,
-            "productionIntervalSeconds": 3,
-            "soldierConfigIds": ["Soldier1"],
+            "productionIntervalSeconds": 3.333,
+            "soldierConfigIds": ["Infantry"],
+            "soldierPowerMultiplier": 1.0,
             "garrisonRowSpacing": 24,
             "garrisonColSpacing": 24
         },
         {
+            "id": "SupplyComponent",
+            "current": 100,
+            "max": 100,
+            "recoveryPerSecond": 1.0
+        },
+        {
             "id": "HealthComponent",
-            "max": 3000
+            "max": 1200
         },
         {
             "id": "DefenseComponent",
-            "defense": 5
+            "defense": 8,
+            "magicResist": 8
         },
         {
             "id": "ColliderComponent",

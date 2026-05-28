@@ -2,6 +2,7 @@
     "id": "EnemyHeavyGuard1",
     "name": "enemy_name_heavy_guard",
     "description": "enemy_desc_heavy_guard",
+    "type": "HeavyArmor",
     "ComponentsList": [
         {
             "id": "FactionComponent",
@@ -25,22 +26,22 @@
         },
         {
             "id": "MoveStatsComponent",
-            "maxSpeed": 28,
-            "accel": 80,
-            "decel": 140,
-            "threshold": 2
+            "maxSpeed": 2.2,
+            "accel": 6,
+            "decel": 10,
+            "threshold": 0.5
         },
         {
             "id": "PerceptionComponent",
-            "viewRange": 120,
+            "viewRange": 100,
             "fovDeg": 180,
             "facingDeg": 0,
-            "checkInterval": 0.18
+            "checkInterval": 0.2
         },
         {
             "id": "MemoryComponent",
             "memorySeconds": 2,
-            "maxTargets": 6
+            "maxTargets": 4
         },
         {
             "id": "TargetComponent"
@@ -48,7 +49,7 @@
         {
             "id": "TargetingComponent",
             "retargetInterval": 0.2,
-            "lockSeconds": 0.25,
+            "lockSeconds": 0.3,
             "strategy": "Nearest"
         },
         {
@@ -62,11 +63,6 @@
                     "params": {
                         "stopRangeScale": 0.9
                     }
-                },
-                {
-                    "id": "idle",
-                    "type": "Idle",
-                    "weight": 0.1
                 }
             ]
         },
@@ -75,29 +71,37 @@
             "level": 1
         },
         {
-            "id": "EquipmentComponent",
-            "weaponConfigId": "Sword1"
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 18,
+            "attackInterval": 1.5,
+            "range": 22
+        },
+        {
+            "id": "WeaponStateComponent"
         },
         {
             "id": "HealthComponent",
-            "max": 1600
+            "max": 320
         },
         {
             "id": "DefenseComponent",
-            "defense": 24
+            "defense": 22,
+            "magicResist": 8
         },
         {
             "id": "LootComponent",
-            "gold": 40
+            "gold": 12
         },
         {
             "id": "ExperienceRewardComponent",
-            "exp": 60
+            "exp": 25
         },
         {
             "id": "ColliderComponent",
             "shape": "Circle",
-            "radius": 22,
+            "radius": 18,
             "layer": 2,
             "mask": 4294967295,
             "isTrigger": true
@@ -107,15 +111,11 @@
             "offset": { "x": 0, "y": 0 },
             "shapes": [
                 {
-                    "type": "Triangle",
-                    "color": [120, 120, 160],
-                    "lineWidth": 2,
+                    "type": "Circle",
+                    "color": [120, 120, 160, 255],
+                    "lineWidth": 3,
                     "fill": true,
-                    "points": [
-                        { "x": 0, "y": 22 },
-                        { "x": -18, "y": -12 },
-                        { "x": 18, "y": -12 }
-                    ]
+                    "radius": 18
                 }
             ]
         }

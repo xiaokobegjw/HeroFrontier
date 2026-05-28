@@ -1,0 +1,130 @@
+{
+    "id": "EnemyNecroSkeleton",
+    "name": "enemy_name_necro_skeleton",
+    "description": "enemy_desc_necro_skeleton",
+    "type": "Undead",
+    "hasResurrect": true,
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/EnemyNecroSkeleton",
+            "idleClipPath": "clips/EnemyNecroSkeleton/EnemyNecroSkeletonIdle",
+            "walkClipPath": "clips/EnemyNecroSkeleton/EnemyNecroSkeletonWalk",
+            "dieClipPath": "clips/EnemyNecroSkeleton/EnemyNecroSkeletonDie",
+            "attackClipPath": "clips/EnemyNecroSkeleton/EnemyNecroSkeletonAttack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 1.05
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 2.3,
+            "accel": 6,
+            "decel": 10,
+            "threshold": 0.5
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 90,
+            "fovDeg": 180,
+            "facingDeg": 0,
+            "checkInterval": 0.2
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 1.5,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.18,
+            "lockSeconds": 0.25,
+            "strategy": "Nearest"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.9
+                    }
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 22,
+            "attackInterval": 1.4,
+            "range": 20
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 220
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 6,
+            "magicResist": 22
+        },
+        {
+            "id": "ResurrectComponent",
+            "enabled": true,
+            "resurrectDelay": 3.0,
+            "resurrectHealthPercent": 0.4
+        },
+        {
+            "id": "LootComponent",
+            "gold": 16
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 32
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 14,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [180, 180, 180, 255],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "radius": 14
+                }
+            ]
+        }
+    ]
+}

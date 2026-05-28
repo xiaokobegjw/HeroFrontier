@@ -9,7 +9,7 @@ import { ColliderComponent, ColliderShapeType } from '../../../../Shared/ECS/Com
 export const AttackTargetGoal: GoalHandler = {
     type: 'AttackTarget',
     score(world: World, entity: Entity, ai: AIComponent, goal: GoalSpec, ctx: GoalContext): number {
-        if (!ctx.targetPos || ctx.weaponRange <= 0) return 0;
+        if (!ctx.targetPos || ctx.weaponRange <= 0) return -Infinity;
         const scaleBase = typeof goal.params?.stopRangeScale === 'number' ? goal.params.stopRangeScale : 0.9;
         const scale = clamp(scaleBase + (rand01(entity.id, 401) - 0.5) * 0.12, 0.75, 0.98);
         const self = getCenterAndRadius(entity);
@@ -21,7 +21,7 @@ export const AttackTargetGoal: GoalHandler = {
         const dy = ty - self.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const effectiveRange = ctx.weaponRange * scale + self.r + tr;
-        if (dist > effectiveRange) return 0;
+        if (dist > effectiveRange) return -Infinity;
         return Math.max(0, goal.weight);
     },
     build(world: World, entity: Entity, ai: AIComponent, goal: GoalSpec, ctx: GoalContext): ActionRequest {

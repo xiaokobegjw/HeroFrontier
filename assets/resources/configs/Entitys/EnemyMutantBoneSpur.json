@@ -1,0 +1,126 @@
+{
+    "id": "EnemyMutantBoneSpur",
+    "name": "enemy_name_mutant_bone_spur",
+    "description": "enemy_desc_mutant_bone_spur",
+    "type": "Elite",
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/EnemyMutantBoneSpur",
+            "idleClipPath": "clips/EnemyMutantBoneSpur/EnemyMutantBoneSpurIdle",
+            "walkClipPath": "clips/EnemyMutantBoneSpur/EnemyMutantBoneSpurWalk",
+            "dieClipPath": "clips/EnemyMutantBoneSpur/EnemyMutantBoneSpurDie",
+            "attackClipPath": "clips/EnemyMutantBoneSpur/EnemyMutantBoneSpurAttack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 1.3
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 3.0,
+            "accel": 10,
+            "decel": 14,
+            "threshold": 0.5
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 110,
+            "fovDeg": 180,
+            "facingDeg": 0,
+            "checkInterval": 0.15
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 2,
+            "maxTargets": 4
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.12,
+            "lockSeconds": 0.2,
+            "strategy": "HighestDefense"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.85
+                    }
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 32,
+            "attackInterval": 1.2,
+            "range": 26,
+            "armorPenPct": 0.12,
+            "armorPenDuration": 2.0,
+            "armorPenStackable": true
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 450
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 16,
+            "magicResist": 12
+        },
+        {
+            "id": "LootComponent",
+            "gold": 22
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 45
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 18,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [60, 180, 100, 255],
+                    "lineWidth": 3,
+                    "fill": true,
+                    "radius": 18
+                }
+            ]
+        }
+    ]
+}

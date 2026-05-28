@@ -1,0 +1,21 @@
+{
+    "id": "ArrowTower_MultiShot",
+    "evolutionType": "MultiShot",
+    "baseTowerId": "ArrowTower",
+    "evolutionCost": 450,
+    "description": "连弩速射炮塔：攻速再提升、连锁弹射、清杂兵能力翻倍",
+    "fields": {
+        "WeaponComponent": {
+            "damage": 65,
+            "attackInterval": 0.25,
+            "range": 480,
+            "pierceCount": 4,
+            "projectileChainTarget": true,
+            "chainDamageMultiplier": 0.6
+        },
+        "TowerComponent": {
+            "evolved": true,
+            "evolutionType": "MultiShot"
+        }
+    }
+}

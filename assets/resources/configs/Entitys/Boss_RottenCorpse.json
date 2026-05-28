@@ -1,0 +1,141 @@
+{
+    "id": "Boss_RottenCorpse",
+    "name": "boss_name_rotten_corpse",
+    "description": "boss_desc_rotten_corpse",
+    "type": "Boss",
+    "wave": 10,
+    "controlResistance": 0.5,
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/Boss_RottenCorpse",
+            "idleClipPath": "clips/Boss_RottenCorpse/idle",
+            "walkClipPath": "clips/Boss_RottenCorpse/walk",
+            "dieClipPath": "clips/Boss_RottenCorpse/die",
+            "attackClipPath": "clips/Boss_RottenCorpse/attack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 2.0
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 1.8,
+            "accel": 4,
+            "decel": 8,
+            "threshold": 0.5
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 150,
+            "fovDeg": 360,
+            "facingDeg": 0,
+            "checkInterval": 0.3
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 3,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.25,
+            "lockSeconds": 0.5,
+            "strategy": "Base"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.85
+                    }
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damage": 45,
+            "attackInterval": 1.8,
+            "range": 35
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 1800
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 14,
+            "magicResist": 10
+        },
+        {
+            "id": "SkillComponent",
+            "skills": [
+                {
+                    "id": "Boss_Skill_CorrosiveShock",
+                    "name": "腐毒冲击",
+                    "description": "释放范围毒素伤害，命中范围内所有单位降低20%移速，持续3秒",
+                    "cooldown": 5.0,
+                    "castRange": 80,
+                    "effectRadius": 60,
+                    "damage": 80,
+                    "slowPercent": 0.2,
+                    "slowDuration": 3.0
+                }
+            ]
+        },
+        {
+            "id": "LootComponent",
+            "gold": 120
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 200
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 28,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [80, 120, 60, 255],
+                    "lineWidth": 4,
+                    "fill": true,
+                    "radius": 28
+                }
+            ]
+        }
+    ]
+}

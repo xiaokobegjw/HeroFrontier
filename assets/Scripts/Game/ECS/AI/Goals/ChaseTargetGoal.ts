@@ -12,8 +12,8 @@ export const ChaseTargetGoal: GoalHandler = {
     type: 'ChaseTarget',
     score(world: World, entity: Entity, ai: AIComponent, goal: GoalSpec, ctx: GoalContext): number {
         const soldier = entity.getComponent(SoldierComponent);
-        if (soldier?.mode === 'Garrison') return 0;
-        if (!ctx.targetPos) return 0;
+        if (soldier?.mode === 'Garrison') return -Infinity;
+        if (!ctx.targetPos) return -Infinity;
         if (ctx.weaponRange <= 0) return Math.max(0, goal.weight);
         const scaleBase = typeof goal.params?.stopRangeScale === 'number' ? goal.params.stopRangeScale : 0.9;
         const scale = clamp(scaleBase + (rand01(entity.id, 311) - 0.5) * 0.12, 0.75, 0.98);
@@ -26,7 +26,7 @@ export const ChaseTargetGoal: GoalHandler = {
         const dy = ty - self.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const effectiveRange = ctx.weaponRange * scale + self.r + tr;
-        if (dist <= effectiveRange) return 0;
+        if (dist <= effectiveRange) return -Infinity;
         return Math.max(0, goal.weight);
     },
     build(world: World, entity: Entity, ai: AIComponent, goal: GoalSpec, ctx: GoalContext): ActionRequest {

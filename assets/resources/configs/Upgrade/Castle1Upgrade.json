@@ -4,71 +4,81 @@
         {
             "level": 1,
             "fields": {
-                "HealthComponent": { "max": 3000 },
-                "DefenseComponent": { "defense": 5 },
+                "HealthComponent": { "max": 1200 },
+                "DefenseComponent": { "defense": 8, "magicResist": 8 },
                 "BaseProductionComponent": {
                     "populationCap": 20,
                     "followerCap": 0,
                     "followerDesired": 0,
-                    "productionIntervalSeconds": 3,
-                    "soldierConfigIds": ["Soldier1"]
-                }
+                    "productionIntervalSeconds": 3.333,
+                    "soldierConfigIds": ["Infantry"],
+                    "soldierPowerMultiplier": 1.0
+                },
+                "SupplyComponent": { "recoveryPerSecond": 1.0 }
             }
         },
         {
             "level": 2,
             "fields": {
-                "HealthComponent": { "max": 5000 },
-                "DefenseComponent": { "defense": 8 },
+                "HealthComponent": { "max": 1800 },
+                "DefenseComponent": { "defense": 12, "magicResist": 12 },
                 "BaseProductionComponent": {
                     "populationCap": 40,
                     "followerCap": 12,
                     "followerDesired": 12,
-                    "productionIntervalSeconds": 2.5,
-                    "soldierConfigIds": ["Soldier1", "Archer1"]
-                }
+                    "productionIntervalSeconds": 2.632,
+                    "soldierConfigIds": ["Infantry", "Archer"],
+                    "soldierPowerMultiplier": 1.15
+                },
+                "SupplyComponent": { "recoveryPerSecond": 1.5 }
             }
         },
         {
             "level": 3,
             "fields": {
-                "HealthComponent": { "max": 8000 },
-                "DefenseComponent": { "defense": 12 },
+                "HealthComponent": { "max": 2600 },
+                "DefenseComponent": { "defense": 17, "magicResist": 17 },
                 "BaseProductionComponent": {
                     "populationCap": 65,
                     "followerCap": 25,
                     "followerDesired": 25,
-                    "productionIntervalSeconds": 2,
-                    "soldierConfigIds": ["Soldier1", "Archer1", "HeavyGuard1"]
-                }
+                    "productionIntervalSeconds": 2.083,
+                    "soldierConfigIds": ["Infantry", "Archer", "HeavyGuard"],
+                    "soldierPowerMultiplier": 1.35
+                },
+                "SupplyComponent": { "recoveryPerSecond": 2.0 }
             }
         },
         {
             "level": 4,
             "fields": {
-                "HealthComponent": { "max": 12000 },
-                "DefenseComponent": { "defense": 18 },
+                "HealthComponent": { "max": 3600 },
+                "DefenseComponent": { "defense": 23, "magicResist": 23 },
                 "BaseProductionComponent": {
                     "populationCap": 95,
                     "followerCap": 40,
                     "followerDesired": 40,
-                    "productionIntervalSeconds": 1.5,
-                    "soldierConfigIds": ["Soldier1", "Archer1", "HeavyGuard1", "Elementalist1"]
-                }
+                    "productionIntervalSeconds": 1.667,
+                    "soldierConfigIds": ["Infantry", "Archer", "HeavyGuard", "Elementalist"],
+                    "soldierPowerMultiplier": 1.60
+                },
+                "SupplyComponent": { "recoveryPerSecond": 2.5 }
             }
         },
         {
             "level": 5,
             "fields": {
-                "HealthComponent": { "max": 20000 },
-                "DefenseComponent": { "defense": 30 },
+                "HealthComponent": { "max": 4800 },
+                "DefenseComponent": { "defense": 30, "magicResist": 30 },
                 "BaseProductionComponent": {
                     "populationCap": 130,
                     "followerCap": 60,
                     "followerDesired": 60,
-                    "productionIntervalSeconds": 1,
-                    "soldierConfigIds": ["Soldier1", "Archer1", "HeavyGuard1", "Elementalist1", "RoyalKnight1"]
-                }
+                    "productionIntervalSeconds": 1.333,
+                    "soldierConfigIds": ["Infantry", "Archer", "HeavyGuard", "Elementalist", "RoyalKnight"],
+                    "soldierPowerMultiplier": 1.90
+                },
+                "SupplyComponent": { "recoveryPerSecond": 3.0 }
             }
         }
     ]

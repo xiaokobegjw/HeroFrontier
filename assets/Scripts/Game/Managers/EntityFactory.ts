@@ -29,6 +29,7 @@ import { ViewComponent } from '../ECS/Components/ViewComponent';
 import { ExperienceComponent } from '../ECS/Components/ExperienceComponent';
 import { ExperienceRewardComponent } from '../ECS/Components/ExperienceRewardComponent';
 import { TowerComponent } from '../ECS/Components/TowerComponent';
+import { SupplyComponent } from '../ECS/Components/SupplyComponent';
 
 export class EntityFactory {
     /**
@@ -354,6 +355,14 @@ export class EntityFactory {
                 view.offsetY = typeof config.offsetY === 'number' ? config.offsetY : view.offsetY;
                 view.scale = typeof config.scale === 'number' ? config.scale : view.scale;
                 entity.addComponent(view);
+                break;
+
+            case 'SupplyComponent':
+                const supply = world.acquireComponent(SupplyComponent);
+                supply.current = typeof config.current === 'number' ? config.current : supply.current;
+                supply.max = typeof config.max === 'number' ? config.max : supply.max;
+                supply.recoveryPerSecond = typeof config.recoveryPerSecond === 'number' ? config.recoveryPerSecond : supply.recoveryPerSecond;
+                entity.addComponent(supply);
                 break;
                 
             default:

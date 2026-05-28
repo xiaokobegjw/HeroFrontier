@@ -1,0 +1,18 @@
+{
+    "id": "Hero_IronFrenzy",
+    "name": "skill_name_iron_frenzy",
+    "description": "skill_desc_iron_frenzy",
+    "castType": "Passive",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 0,
+    "category": "Tank",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 0, "defenseToAttack": 0.06, "damageReduction": 0.01 },
+        { "level": 2, "cooldownSeconds": 0, "defenseToAttack": 0.10, "damageReduction": 0.015 },
+        { "level": 3, "cooldownSeconds": 0, "defenseToAttack": 0.14, "damageReduction": 0.02 },
+        { "level": 4, "cooldownSeconds": 0, "defenseToAttack": 0.18, "damageReduction": 0.025 },
+        { "level": 5, "cooldownSeconds": 0, "defenseToAttack": 0.21, "damageReduction": 0.028 },
+        { "level": 6, "cooldownSeconds": 0, "defenseToAttack": 0.24, "damageReduction": 0.03 }
+    ]
+}

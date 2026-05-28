@@ -1,0 +1,156 @@
+{
+    "id": "Boss_AbyssLord",
+    "name": "boss_name_abyss_lord",
+    "description": "boss_desc_abyss_lord",
+    "type": "Boss",
+    "wave": 40,
+    "isFinalBoss": true,
+    "controlResistance": 0.5,
+    "ComponentsList": [
+        {
+            "id": "FactionComponent",
+            "faction": "Enemy"
+        },
+        {
+            "id": "TransformComponent"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/Boss_AbyssLord",
+            "idleClipPath": "clips/Boss_AbyssLord/idle",
+            "walkClipPath": "clips/Boss_AbyssLord/walk",
+            "dieClipPath": "clips/Boss_AbyssLord/die",
+            "attackClipPath": "clips/Boss_AbyssLord/attack",
+            "idleStateName": "idle",
+            "walkStateName": "walk",
+            "dieStateName": "die",
+            "attackStateName": "attack",
+            "scale": 2.8
+        },
+        {
+            "id": "MoveStatsComponent",
+            "maxSpeed": 2.1,
+            "accel": 5,
+            "decel": 9,
+            "threshold": 0.5
+        },
+        {
+            "id": "PerceptionComponent",
+            "viewRange": 200,
+            "fovDeg": 360,
+            "facingDeg": 0,
+            "checkInterval": 0.3
+        },
+        {
+            "id": "MemoryComponent",
+            "memorySeconds": 4,
+            "maxTargets": 3
+        },
+        {
+            "id": "TargetComponent"
+        },
+        {
+            "id": "TargetingComponent",
+            "retargetInterval": 0.25,
+            "lockSeconds": 0.5,
+            "strategy": "Base"
+        },
+        {
+            "id": "AIComponent",
+            "enabled": true,
+            "goals": [
+                {
+                    "id": "attack",
+                    "type": "AttackTarget",
+                    "weight": 3,
+                    "params": {
+                        "stopRangeScale": 0.8
+                    }
+                }
+            ]
+        },
+        {
+            "id": "LevelComponent",
+            "level": 1
+        },
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Melee",
+            "damageType": "Mixed",
+            "damage": 130,
+            "attackInterval": 1.5,
+            "range": 45
+        },
+        {
+            "id": "WeaponStateComponent"
+        },
+        {
+            "id": "HealthComponent",
+            "max": 12000
+        },
+        {
+            "id": "DefenseComponent",
+            "defense": 24,
+            "magicResist": 24
+        },
+        {
+            "id": "SkillComponent",
+            "skills": [
+                {
+                    "id": "Boss_Skill_AbyssDescend",
+                    "name": "深渊降临",
+                    "description": "进场全屏震荡，对所有士兵、英雄造成高额范围伤害，小幅击退全场单位",
+                    "cooldown": 0,
+                    "isEnterSkill": true,
+                    "effectRadius": 500,
+                    "damage": 300,
+                    "knockbackForce": 40
+                }
+            ]
+        },
+        {
+            "id": "AuraComponent",
+            "enabled": true,
+            "radius": 250,
+            "effectType": "AllStatsBuff",
+            "effectValue": 0.12,
+            "factionFilter": "Enemy"
+        },
+        {
+            "id": "LifeStealComponent",
+            "enabled": true,
+            "healInterval": 10.0,
+            "healPercent": 0.02
+        },
+        {
+            "id": "LootComponent",
+            "gold": 600
+        },
+        {
+            "id": "ExperienceRewardComponent",
+            "exp": 1000
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 40,
+            "layer": 2,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [20, 20, 60, 255],
+                    "lineWidth": 5,
+                    "fill": true,
+                    "radius": 40
+                }
+            ]
+        }
+    ]
+}

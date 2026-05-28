@@ -10,7 +10,7 @@ TexturePacker \
 --border-padding 0 \
 --shape-padding 1 \
 --pack-mode Best \
-*.png \
+Tower/*.png \
 Enemy/Mob1/*.png \
 Enemy/Mob2/*.png \
 Enemy/Mob3/*.png \

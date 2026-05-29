@@ -16,11 +16,11 @@
         },
         {
             "id": "ViewComponent",
-            "prefabPath": "prefabs/Boss_NetherBoneDragon",
-            "idleClipPath": "clips/Boss_NetherBoneDragon/idle",
-            "walkClipPath": "clips/Boss_NetherBoneDragon/walk",
-            "dieClipPath": "clips/Boss_NetherBoneDragon/die",
-            "attackClipPath": "clips/Boss_NetherBoneDragon/attack",
+            "prefabPath": "prefabs/Boss3",
+            "idleClipPath": "clips/clips/boss3Idle",
+            "walkClipPath": "clips/clips/boss3Walk",
+            "dieClipPath": "clips/clips/boss3Die",
+            "attackClipPath": "clips/clips/boss3Attack",
             "idleStateName": "idle",
             "walkStateName": "walk",
             "dieStateName": "die",
@@ -29,9 +29,9 @@
         },
         {
             "id": "MoveStatsComponent",
-            "maxSpeed": 2.2,
-            "accel": 6,
-            "decel": 10,
+            "maxSpeed": 22,
+            "accel": 100,
+            "decel": 150,
             "threshold": 0.5
         },
         {

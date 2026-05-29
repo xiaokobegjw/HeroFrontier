@@ -15,11 +15,11 @@
         },
         {
             "id": "ViewComponent",
-            "prefabPath": "prefabs/Boss_LavaWarlord",
-            "idleClipPath": "clips/Boss_LavaWarlord/idle",
-            "walkClipPath": "clips/Boss_LavaWarlord/walk",
-            "dieClipPath": "clips/Boss_LavaWarlord/die",
-            "attackClipPath": "clips/Boss_LavaWarlord/attack",
+            "prefabPath": "prefabs/Boss2",
+            "idleClipPath": "clips/boss2/boss2Idle",
+            "walkClipPath": "clips/boss2/boss2Walk",
+            "dieClipPath": "clips/boss2/boss2Die",
+            "attackClipPath": "clips/boss2/boss2Attack",
             "idleStateName": "idle",
             "walkStateName": "walk",
             "dieStateName": "die",
@@ -28,9 +28,9 @@
         },
         {
             "id": "MoveStatsComponent",
-            "maxSpeed": 2.0,
-            "accel": 5,
-            "decel": 9,
+            "maxSpeed": 20,
+            "accel": 90,
+            "decel": 130,
             "threshold": 0.5
         },
         {

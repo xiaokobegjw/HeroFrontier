@@ -15,11 +15,11 @@
         },
         {
             "id": "ViewComponent",
-            "prefabPath": "prefabs/Boss_RottenCorpse",
-            "idleClipPath": "clips/Boss_RottenCorpse/idle",
-            "walkClipPath": "clips/Boss_RottenCorpse/walk",
-            "dieClipPath": "clips/Boss_RottenCorpse/die",
-            "attackClipPath": "clips/Boss_RottenCorpse/attack",
+            "prefabPath": "prefabs/Boss1",
+            "idleClipPath": "clips/boss1/boss1Idle",
+            "walkClipPath": "clips/boss1/boss1Walk",
+            "dieClipPath": "clips/boss1/boss1Die",
+            "attackClipPath": "clips/boss1/boss1Attack",
             "idleStateName": "idle",
             "walkStateName": "walk",
             "dieStateName": "die",
@@ -28,9 +28,9 @@
         },
         {
             "id": "MoveStatsComponent",
-            "maxSpeed": 1.8,
-            "accel": 4,
-            "decel": 8,
+            "maxSpeed": 18,
+            "accel": 80,
+            "decel": 120,
             "threshold": 0.5
         },
         {

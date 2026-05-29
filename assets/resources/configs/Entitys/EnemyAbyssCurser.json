@@ -27,10 +27,10 @@
         },
         {
             "id": "MoveStatsComponent",
-            "maxSpeed": 2.6,
-            "accel": 7,
-            "decel": 11,
-            "threshold": 0.5
+            "maxSpeed": 26,
+            "accel": 120,
+            "decel": 180,
+            "threshold": 1
         },
         {
             "id": "PerceptionComponent",

@@ -60,6 +60,7 @@ const Tool = {
   TowerAdd: "tower_add",
   TowerRemove: "tower_remove",
   ObstacleAdd: "obstacle_add",
+  ObstacleRectAdd: "obstacle_rect_add",
   ObstacleRemove: "obstacle_remove",
 };
 
@@ -226,6 +227,21 @@ class MapState {
           }
         : null;
 
+    // 导出障碍物数据
+    const exportObstacles = (this.obstacles || []).map(obs => {
+      if (obs.type === "rect") {
+        return {
+          type: "rect",
+          x: obs.x,
+          y: obs.y,
+          w: obs.w,
+          h: obs.h
+        };
+      } else {
+        return toPoint(obs);
+      }
+    });
+
     return {
       version: this.version,
       background: backgroundOut,
@@ -236,7 +252,7 @@ class MapState {
       hero: toPoint(this.hero),
       base: toPoint(this.base),
       towerSlots: (this.towerSlots || []).map(toPoint),
-      obstacles: (this.obstacles || []).map(toPoint),
+      obstacles: exportObstacles,
       paths: (this.paths || []).map((path) => ({
         id: String(path.id || ""),
         start: toPoint(path.start),
@@ -303,7 +319,21 @@ class MapState {
         )
       : [];
     this.obstacles = Array.isArray(obj.obstacles)
-      ? Array.from(new Map(obj.obstacles.map(readPoint).filter(Boolean).map((p) => [`${p.gx},${p.gy}`, p])).values())
+      ? obj.obstacles.map(obs => {
+          // 支持矩形障碍物
+          if (obs && obs.type === "rect") {
+            return {
+              type: "rect",
+              x: typeof obs.x === "number" ? Math.floor(obs.x) : 0,
+              y: typeof obs.y === "number" ? Math.floor(obs.y) : 0,
+              w: typeof obs.w === "number" ? Math.max(1, Math.floor(obs.w)) : 1,
+              h: typeof obs.h === "number" ? Math.max(1, Math.floor(obs.h)) : 1
+            };
+          }
+          // 兼容旧格式的单格障碍物
+          const p = readPoint(obs);
+          return p;
+        }).filter(Boolean)
       : [];
 
     const waveSpawnDuration = (groups) => {
@@ -491,6 +521,10 @@ class Editor {
 
     this.fitOnNextFrame = false;
     this.paintLastKey = "";
+
+    this.rectStartGx = null;
+    this.rectStartGy = null;
+    this.isDrawingRect = false;
   }
 
   setStatus(lines) {
@@ -1295,6 +1329,31 @@ class Editor {
     this.updateUiState();
   }
 
+  addRectObstacle(startGx, startGy, endGx, endGy) {
+    const minX = Math.min(startGx, endGx);
+    const maxX = Math.max(startGx, endGx);
+    const minY = Math.min(startGy, endGy);
+    const maxY = Math.max(startGy, endGy);
+
+    const obstacles = this.state.obstacles || (this.state.obstacles = []);
+    
+    // 添加矩形障碍物
+    const rect = {
+      type: "rect",
+      x: minX,
+      y: minY,
+      w: maxX - minX + 1,
+      h: maxY - minY + 1
+    };
+    
+    const index = obstacles.length;
+    obstacles.push(rect);
+    this.undo.push({ type: "obstacle_rect_add", index, rect });
+    this.offDirty = true;
+    this.updateJsonText();
+    this.updateUiState();
+  }
+
   removeObstacleAt(index) {
     const obstacles = this.state.obstacles || (this.state.obstacles = []);
     if (index < 0 || index >= obstacles.length) return;
@@ -1540,6 +1599,17 @@ class Editor {
       this.updateJsonText();
       return;
     }
+    if (op.type === "obstacle_rect_add") {
+      const obstacles = this.state.obstacles || (this.state.obstacles = []);
+      if (dir === "undo") {
+        obstacles.splice(op.index, 1);
+      } else {
+        obstacles.splice(op.index, 0, { ...op.rect });
+      }
+      this.offDirty = true;
+      this.updateJsonText();
+      return;
+    }
     if (op.type === "set_obstacles") {
       this.state.obstacles = (dir === "undo" ? op.before : op.after).map((p) => ({ gx: p.gx, gy: p.gy }));
       this.offDirty = true;
@@ -1661,6 +1731,13 @@ class Editor {
       }
       return;
     }
+    if (this.tool === Tool.ObstacleRectAdd) {
+      this.rectStartGx = cell.gx;
+      this.rectStartGy = cell.gy;
+      this.isDrawingRect = true;
+      this.offDirty = true;
+      return;
+    }
     this.ensureActivePath();
     if (this.tool === Tool.PathStart) this.setPathPoint(this.activePathId, "start", { gx: cell.gx, gy: cell.gy });
     if (this.tool === Tool.PathEnd) this.setPathPoint(this.activePathId, "end", { gx: cell.gx, gy: cell.gy });
@@ -1701,6 +1778,10 @@ class Editor {
       }
       return;
     }
+    if (this.tool === Tool.ObstacleRectAdd && this.isDrawingRect) {
+      this.offDirty = true;
+      return;
+    }
   }
 
   handlePointerUp(ev) {
@@ -1708,6 +1789,17 @@ class Editor {
     this.isPointerDown = false;
     if (this.isPanning) {
       this.isPanning = false;
+      return;
+    }
+    if (this.tool === Tool.ObstacleRectAdd && this.isDrawingRect) {
+      const p = this.viewport.toWorld(ev.clientX, ev.clientY);
+      const cell = this.canvasToGrid(p.x, p.y);
+      if (cell) {
+        this.addRectObstacle(this.rectStartGx, this.rectStartGy, cell.gx, cell.gy);
+      }
+      this.isDrawingRect = false;
+      this.rectStartGx = null;
+      this.rectStartGy = null;
       return;
     }
     this.paintLastKey = "";
@@ -1768,14 +1860,26 @@ class Editor {
       this.offctx.fillStyle = "rgba(255, 80, 80, 0.18)";
       this.offctx.strokeStyle = "rgba(255, 80, 80, 0.55)";
       this.offctx.lineWidth = 1;
-      for (const p of this.state.obstacles) {
-        const gx = p.gx | 0;
-        const gy = p.gy | 0;
-        const gyTop = this.state.gridH - 1 - gy;
-        const x = gx * cs;
-        const y = gyTop * cs;
-        this.offctx.fillRect(x, y, cs, cs);
-        this.offctx.strokeRect(x + 0.5, y + 0.5, cs - 1, cs - 1);
+      for (const obs of this.state.obstacles) {
+        if (obs.type === "rect") {
+          // 绘制矩形障碍物
+          const gyTop = this.state.gridH - 1 - obs.y;
+          const x = obs.x * cs;
+          const y = (gyTop - obs.h + 1) * cs;
+          const w = obs.w * cs;
+          const h = obs.h * cs;
+          this.offctx.fillRect(x, y, w, h);
+          this.offctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+        } else {
+          // 绘制单个格子障碍物（兼容旧数据）
+          const gx = obs.gx | 0;
+          const gy = obs.gy | 0;
+          const gyTop = this.state.gridH - 1 - gy;
+          const x = gx * cs;
+          const y = gyTop * cs;
+          this.offctx.fillRect(x, y, cs, cs);
+          this.offctx.strokeRect(x + 0.5, y + 0.5, cs - 1, cs - 1);
+        }
       }
       this.offctx.restore();
     }
@@ -1915,6 +2019,29 @@ class Editor {
       const baseY = this.hoverCell.gy * cs;
       ctx.fillRect(baseX, baseY, cs, cs);
       ctx.strokeRect(baseX + 0.5, baseY + 0.5, cs - 1, cs - 1);
+      ctx.restore();
+    }
+
+    if (this.isDrawingRect && this.tool === Tool.ObstacleRectAdd && this.rectStartGx !== null && this.hoverCell) {
+      const cs = this.state.cellSize;
+      const minX = Math.min(this.rectStartGx, this.hoverCell.gx);
+      const maxX = Math.max(this.rectStartGx, this.hoverCell.gx);
+      const minY = Math.min(this.rectStartGy, this.hoverCell.gy);
+      const maxY = Math.max(this.rectStartGy, this.hoverCell.gy);
+
+      ctx.save();
+      ctx.translate(-this.bgW / 2, -this.bgH / 2);
+      ctx.fillStyle = "rgba(255, 100, 100, 0.3)";
+      ctx.strokeStyle = "rgba(255, 100, 100, 0.8)";
+      ctx.lineWidth = 2 / this.viewport.scale;
+      
+      const startX = minX * cs;
+      const startYTop = this.state.gridH - 1 - maxY;
+      const width = (maxX - minX + 1) * cs;
+      const height = (maxY - minY + 1) * cs;
+      
+      ctx.fillRect(startX, startYTop * cs, width, height);
+      ctx.strokeRect(startX + 0.5, startYTop * cs + 0.5, width - 1, height - 1);
       ctx.restore();
     }
 

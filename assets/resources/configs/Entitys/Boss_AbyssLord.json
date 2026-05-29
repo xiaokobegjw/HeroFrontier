@@ -16,11 +16,11 @@
         },
         {
             "id": "ViewComponent",
-            "prefabPath": "prefabs/Boss_AbyssLord",
-            "idleClipPath": "clips/Boss_AbyssLord/idle",
-            "walkClipPath": "clips/Boss_AbyssLord/walk",
-            "dieClipPath": "clips/Boss_AbyssLord/die",
-            "attackClipPath": "clips/Boss_AbyssLord/attack",
+            "prefabPath": "prefabs/boss4",
+            "idleClipPath": "clips/boss4/boss4Idle",
+            "walkClipPath": "clips/boss4/boss4Walk",
+            "dieClipPath": "clips/boss4/boss4Die",
+            "attackClipPath": "clips/boss4/boss4Attack",
             "idleStateName": "idle",
             "walkStateName": "walk",
             "dieStateName": "die",
@@ -29,9 +29,9 @@
         },
         {
             "id": "MoveStatsComponent",
-            "maxSpeed": 2.1,
-            "accel": 5,
-            "decel": 9,
+            "maxSpeed": 21,
+            "accel": 100,
+            "decel": 140,
             "threshold": 0.5
         },
         {

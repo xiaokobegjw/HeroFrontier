@@ -12,7 +12,7 @@ import { LocalizationManager, LanguageType, t } from './I18n/LocalizationManager
 import { EntityFactory } from './Managers/EntityFactory';
 import { GameConfigManager } from '../Shared/Managers/GameConfigManager';
 import heroConfig from '../../resources/configs/Entitys/Hero.json';
-import enemyConfig from '../../resources/configs/Entitys/EnemyMob1.json';
+import enemyConfig from '../../resources/configs/Entitys/EnemyRottenPeasant.json';
 import bowConfig from '../../resources/configs/Weapons/Bow1.json';
 import swordConfig from '../../resources/configs/Weapons/Sword1.json';
 import arrowConfig from '../../resources/configs/Projectiles/Arrow1.json';
@@ -417,34 +417,65 @@ export class GameMain extends Component {
         const rawObstacles: any[] | null = Array.isArray((level as any).obstacles) ? (level as any).obstacles : null;
         if (rawObstacles && rawObstacles.length > 0) {
             for (let i = 0; i < rawObstacles.length; i++) {
-                const p = rawObstacles[i] as any;
-                if (!p) continue;
-                const pos = toWorldPos(p as any);
-                const ent = this.world.createEntity('Obstacle');
-                ent.name = `Obstacle_${i + 1}`;
+                const obs = rawObstacles[i] as any;
+                if (!obs) continue;
+                
+                // 支持矩形障碍物
+                if (obs.type === 'rect') {
+                    const x = typeof obs.x === 'number' ? obs.x : 0;
+                    const y = typeof obs.y === 'number' ? obs.y : 0;
+                    const w = typeof obs.w === 'number' ? Math.max(1, obs.w) : 1;
+                    const h = typeof obs.h === 'number' ? Math.max(1, obs.h) : 1;
+                    
+                    // 将矩形转换为世界坐标
+                    const worldX = (x + w * 0.5) * cellSize - levelW * 0.5;
+                    const yRaw = (y + h * 0.5) * cellSize;
+                    const worldY = legacyTopLeft ? levelH * 0.5 - yRaw : yRaw - levelH * 0.5;
+                    
+                    const ent = this.world.createEntity('Obstacle');
+                    ent.name = `Obstacle_Rect_${i + 1}`;
 
-                const tr = this.world.acquireComponent(TransformComponent);
-                tr.x = pos.x;
-                tr.y = pos.y;
-                ent.addComponent(tr);
+                    const tr = this.world.acquireComponent(TransformComponent);
+                    tr.x = worldX;
+                    tr.y = worldY;
+                    ent.addComponent(tr);
 
-                const col = this.world.acquireComponent(ColliderComponent);
-                col.shape = ColliderShapeType.AABB;
-                col.isTrigger = false;
-                col.width = cellSize;
-                col.height = cellSize;
-                col.layer = 16;
-                col.mask = 0;
-                ent.addComponent(col);
+                    const col = this.world.acquireComponent(ColliderComponent);
+                    col.shape = ColliderShapeType.AABB;
+                    col.isTrigger = false;
+                    col.width = w * cellSize;
+                    col.height = h * cellSize;
+                    col.layer = 16;
+                    col.mask = 0;
+                    ent.addComponent(col);
 
-                const obs = this.world.acquireComponent(ObstacleComponent);
-                obs.blocksMovement = true;
-                ent.addComponent(obs);
+                    const obsComp = this.world.acquireComponent(ObstacleComponent);
+                    obsComp.blocksMovement = true;
+                    ent.addComponent(obsComp);
+                } else {
+                    // 兼容旧格式的单格障碍物
+                    const pos = toWorldPos(obs as any);
+                    const ent = this.world.createEntity('Obstacle');
+                    ent.name = `Obstacle_${i + 1}`;
 
-                const render = this.world.acquireComponent(RenderComponent);
-                render.offset = { x: 0, y: 0 };
-                render.addSquare(cellSize, [120, 120, 120, 120], true);
-                ent.addComponent(render);
+                    const tr = this.world.acquireComponent(TransformComponent);
+                    tr.x = pos.x;
+                    tr.y = pos.y;
+                    ent.addComponent(tr);
+
+                    const col = this.world.acquireComponent(ColliderComponent);
+                    col.shape = ColliderShapeType.AABB;
+                    col.isTrigger = false;
+                    col.width = cellSize;
+                    col.height = cellSize;
+                    col.layer = 16;
+                    col.mask = 0;
+                    ent.addComponent(col);
+
+                    const obsComp = this.world.acquireComponent(ObstacleComponent);
+                    obsComp.blocksMovement = true;
+                    ent.addComponent(obsComp);
+                }
             }
         }
 
@@ -652,6 +683,9 @@ export class GameMain extends Component {
             const expInCurrentLevel = expComponent.currentExp - expForCurrentLevel;
             const expNeededForNextLevel = Math.max(1, expForNextLevel - expForCurrentLevel);
             this.hudManager.updateExperienceBar(expInCurrentLevel, expNeededForNextLevel);
+            
+            // 更新英雄等级显示
+            this.hudManager.displayLevel(currentLevel);
         }
 
         // 更新金币显示

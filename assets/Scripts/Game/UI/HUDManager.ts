@@ -10,6 +10,7 @@ import { NumberDisplay } from './NumberDisplay';
  * - 英雄经验进度条 (BluePR / 蓝条)
  * - 金币数字显示 (CoinNumGe, CoinNumShi, CoinNumBai)
  * - 波次显示 分数格式 (NTGE/DTGE, NTSHI/DTSHI)
+ * - 英雄等级显示 (LevelShi, LevelGe)
  */
 @ccclass('HUDManager')
 export class HUDManager extends Component {
@@ -40,6 +41,12 @@ export class HUDManager extends Component {
     @property({ type: Node })
     public waveDenominatorShiNode: Node | null = null; // DTSHI 波次分母十位
 
+    @property({ type: Node })
+    public levelShiNode: Node | null = null;  // 英雄等级十位
+
+    @property({ type: Node })
+    public levelGeNode: Node | null = null;   // 英雄等级个位
+
     private coinNumGe: NumberDisplay | null = null;
     private coinNumShi: NumberDisplay | null = null;
     private coinNumBai: NumberDisplay | null = null;
@@ -48,6 +55,9 @@ export class HUDManager extends Component {
     private waveNumeratorShi: NumberDisplay | null = null;
     private waveDenominatorGe: NumberDisplay | null = null;
     private waveDenominatorShi: NumberDisplay | null = null;
+
+    private levelShi: NumberDisplay | null = null;
+    private levelGe: NumberDisplay | null = null;
 
     onLoad(): void {
         this.initNumberDisplays();
@@ -100,6 +110,20 @@ export class HUDManager extends Component {
             this.waveDenominatorShi = this.waveDenominatorShiNode.getComponent(NumberDisplay);
             if (!this.waveDenominatorShi) {
                 this.waveDenominatorShi = this.waveDenominatorShiNode.addComponent(NumberDisplay);
+            }
+        }
+
+        if (this.levelShiNode) {
+            this.levelShi = this.levelShiNode.getComponent(NumberDisplay);
+            if (!this.levelShi) {
+                this.levelShi = this.levelShiNode.addComponent(NumberDisplay);
+            }
+        }
+
+        if (this.levelGeNode) {
+            this.levelGe = this.levelGeNode.getComponent(NumberDisplay);
+            if (!this.levelGe) {
+                this.levelGe = this.levelGeNode.addComponent(NumberDisplay);
             }
         }
     }
@@ -189,6 +213,28 @@ export class HUDManager extends Component {
     }
 
     /**
+     * 显示英雄等级（两位数）
+     * @param level 英雄等级 (1-99)
+     */
+    public displayLevel(level: number): void {
+        level = Math.max(1, Math.min(99, Math.floor(level)));
+
+        const shi = Math.floor(level / 10);
+        const ge = level % 10;
+
+        if (this.levelShi) this.levelShi.setNumber(shi);
+        if (this.levelGe) this.levelGe.setNumber(ge);
+    }
+
+    /**
+     * 获取当前显示的英雄等级
+     */
+    public getLevelDisplay(): number {
+        if (!this.levelShi || !this.levelGe) return 1;
+        return this.levelShi.getNumber() * 10 + this.levelGe.getNumber();
+    }
+
+    /**
      * 隐藏或显示 HUD
      */
     public setHUDVisible(visible: boolean): void {
@@ -206,5 +252,8 @@ export class HUDManager extends Component {
         if (this.waveNumeratorShiNode) this.waveNumeratorShiNode.active = visible;
         if (this.waveDenominatorGeNode) this.waveDenominatorGeNode.active = visible;
         if (this.waveDenominatorShiNode) this.waveDenominatorShiNode.active = visible;
+
+        if (this.levelShiNode) this.levelShiNode.active = visible;
+        if (this.levelGeNode) this.levelGeNode.active = visible;
     }
 }

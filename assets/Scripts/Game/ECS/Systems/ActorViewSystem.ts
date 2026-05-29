@@ -233,7 +233,8 @@ export class ActorViewSystem extends ECSSystem {
         }
         if (Number.isFinite(state.lastX)) {
             const dx = transform.x - state.lastX;
-            if (Math.abs(dx) > 0.01) {
+            // 增加阈值到 0.5，避免微小移动导致朝向频繁翻转
+            if (Math.abs(dx) > 0.5) {
                 state.facingX = dx < 0 ? -1 : 1;
                 return;
             }
@@ -244,7 +245,8 @@ export class ActorViewSystem extends ECSSystem {
             const targetTransform = this.world.getEntity(targetId)?.getComponent(TransformComponent);
             if (targetTransform) {
                 const dx = targetTransform.x - transform.x;
-                if (Math.abs(dx) > 0.01) state.facingX = dx < 0 ? -1 : 1;
+                // 增加阈值到 0.5，避免微小移动导致朝向频繁翻转
+                if (Math.abs(dx) > 0.5) state.facingX = dx < 0 ? -1 : 1;
             }
         }
     }

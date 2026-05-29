@@ -19,7 +19,7 @@
             "attackStateName": "attack",
             "scale": 1
         },
-        { "id": "MoveStatsComponent", "maxSpeed": 3.4, "accel": 250, "decel": 300, "threshold": 1 },
+        { "id": "MoveStatsComponent", "maxSpeed": 34, "accel": 250, "decel": 300, "threshold": 1 },
         { "id": "PerceptionComponent", "viewRange": 100, "fovDeg": 150, "facingDeg": 0, "checkInterval": 0.15 },
         { "id": "MemoryComponent", "memorySeconds": 0.8, "maxTargets": 3 },
         { "id": "TargetComponent" },

@@ -20,6 +20,10 @@ Enemy/jingyinBianYi1/*.png \
 Enemy/jingyinBianYi2/*.png \
 Enemy/Undead1/*.png \
 Enemy/Undead2/*.png \
+Enemy/Boss1/*.png \
+Enemy/Boss2/*.png \
+Enemy/Boss3/*.png \
+Enemy/Boss4/*.png \
 Hero1/*.png \
 Our/OurInfantrySoldiers/*.png \
 Our/Elementalist/*.png \

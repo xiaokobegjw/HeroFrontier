@@ -10,6 +10,7 @@ export class SoldierComponent extends ECSComponent {
     public formationIndex: number = 0;
     /** 是否已到达阵位，未到位前不追击 */
     public deployed: boolean = false;
+    public configId: string = '';
 
     reset(): void {
         super.reset();
@@ -18,6 +19,7 @@ export class SoldierComponent extends ECSComponent {
         this.slotIndex = 0;
         this.formationIndex = 0;
         this.deployed = false;
+        this.configId = '';
     }
 }
 

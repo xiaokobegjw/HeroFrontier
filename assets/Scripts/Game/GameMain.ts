@@ -1,4 +1,4 @@
-import { _decorator, Component, Graphics, UITransform, Layers, Node, Label, Color, view, Sprite } from 'cc';
+import { _decorator, Component, Graphics, UITransform, Layers, Node, Label, Color, view, Sprite, Vec3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { World } from '../Shared/ECS/Core/World';
@@ -81,6 +81,7 @@ import { BaseProductionComponent } from './ECS/Components/BaseProductionComponen
 import { DefenseComponent } from './ECS/Components/DefenseComponent';
 import { LootComponent } from './ECS/Components/LootComponent';
 import { director } from 'cc';
+import { TowerBuildUI } from './UI/TowerBuildUI';
 
 const CASTLE_UPGRADE_COSTS = [0, 160, 280, 420, 600];
 const STARTING_GOLD = 200;
@@ -99,6 +100,8 @@ export class GameMain extends Component {
     public levelBgNode: Node | null = null;
     @property(Node)
     public entityRootNode: Node | null = null;
+    @property(TowerBuildUI)
+    public towerBuildUI: TowerBuildUI | null = null;
     private debugOverlaySystem: DebugOverlaySystem | null = null;
     private spatialIndex: QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }> | null = null;
     private collisionSystem: CollisionSystem = null!;
@@ -268,6 +271,10 @@ export class GameMain extends Component {
         this.currencySystem = new CurrencySystem(11.5);
         this.world.registerSystem(this.currencySystem);
 
+        if (this.towerBuildUI) {
+            this.towerBuildUI.init(this.world, this.currencySystem, this.towerManager);
+        }
+
         if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
             DebugState.enabled = true;
             this.debugCommandBus = new CommandBus();
@@ -311,6 +318,43 @@ export class GameMain extends Component {
         // 初始化 HUDManager
         const hudNode = this.node.getComponent(HUDManager) ?? this.node.addComponent(HUDManager);
         this.hudManager = hudNode;
+
+        // 4. 监听全局点击事件，用于塔防坑位触发
+        this.levelBgNode.on(Node.EventType.TOUCH_END, this.onSceneTouched, this);
+    }
+
+    private onSceneTouched(event: any) {
+        if (!this.levelBgNode) return;
+
+        const touchPos = event.getUILocation();
+        const uiTransform = this.levelBgNode.getComponent(UITransform)!;
+        
+        // 将屏幕点击点转换为 levelBgNode 的本地坐标 (AR 模式，以中心为 0,0)
+        const localTouchPos = uiTransform.convertToNodeSpaceAR(new Vec3(touchPos.x, touchPos.y, 0));
+        
+        // 检查是否点击了炮塔坑位
+        const slots = this.towerManager.slots;
+        let clickedSlot = false;
+        for (const slot of slots) {
+            // slot.x/y 在加载时已经换算为相对于 levelBgNode 中心的坐标
+            const dx = localTouchPos.x - slot.x;
+            const dy = localTouchPos.y - slot.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // 判定半径设置为 80，提高点击成功率
+            if (dist < 80) { 
+                clickedSlot = true;
+                if (slot.entityId === null) {
+                    this.towerBuildUI?.showBuildMenu(slot.index, { x: slot.x, y: slot.y });
+                }
+                break;
+            }
+        }
+
+        // 如果没有点击任何槽位，隐藏建造面板
+        if (!clickedSlot) {
+            this.towerBuildUI?.hide();
+        }
     }
 
     start() {
@@ -408,10 +452,16 @@ export class GameMain extends Component {
 
         const toWorldPos = (p: LevelPoint | null | undefined): { x: number; y: number } => {
             if (!p) return { x: 0, y: 0 };
-            const x = typeof p.px === 'number' ? p.px : (p.gx + 0.5) * cellSize;
-            const yRaw = typeof p.py === 'number' ? p.py : (p.gy + 0.5) * cellSize;
-            const y = legacyTopLeft ? levelH * 0.5 - yRaw : yRaw - levelH * 0.5;
-            return { x: x - levelW * 0.5, y };
+            const px = typeof p.px === 'number' ? p.px : (p.gx + 0.5) * cellSize;
+            const py = typeof p.py === 'number' ? p.py : (p.gy + 0.5) * cellSize;
+            
+            // 统一坐标换算：将像素坐标转换为以地图中心为原点的本地坐标 (Cocos UI 坐标系)
+            // X: 从左往右 (0 到 levelW) -> (-levelW/2 到 levelW/2)
+            const x = px - levelW * 0.5;
+            // Y: 根据版本处理 Top-Down 或 Bottom-Up，确保结果是 Y 轴向上且以中心为 0
+            const y = legacyTopLeft ? (levelH * 0.5 - py) : (py - levelH * 0.5);
+            
+            return { x, y };
         };
 
         const rawObstacles: any[] | null = Array.isArray((level as any).obstacles) ? (level as any).obstacles : null;
@@ -578,7 +628,6 @@ export class GameMain extends Component {
             const pathIds = Array.from(this.levelPaths.keys());
             this.waveSpawner = new WaveSpawner({ pathIds });
             const lastTime = this.spawnQueue.length > 0 ? this.spawnQueue[this.spawnQueue.length - 1].time : 0;
-            this.waveSpawner.setStartTime(lastTime);
             const proceduralWaveCount = 12;
             this.waveSpawner.appendProceduralWaves(this.spawnQueue, lastTime + 6, proceduralWaveCount);
             this.spawnQueue.sort((a, b) => a.time - b.time);

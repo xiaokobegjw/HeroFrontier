@@ -6,6 +6,7 @@ import { SkillStateComponent } from '../Components/SkillStateComponent';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
 import { RenderComponent } from '../../../Shared/ECS/Components/RenderComponent';
+import { PlaystyleComponent } from '../Components/PlaystyleComponent';
 
 export type SkillTargetType = 'None' | 'Self' | 'Enemy' | 'Ally' | 'Point' | 'Area';
 export type SkillCastType = 'Active' | 'Passive';
@@ -23,6 +24,7 @@ export type SkillConfig = {
     description?: string;
     castType?: SkillCastType;
     targetType?: SkillTargetType;
+    category?: string;
     maxLevel?: number;
     defaultCooldownSeconds?: number;
     levels?: SkillLevelConfig[];
@@ -49,8 +51,54 @@ export class SkillSystem extends ECSSystem {
             if (!skillComponent || !skillState) continue;
 
             this.ensureSkillState(skillComponent, skillState);
+            this.updatePlaystyle(entity, skillComponent);
             this.updateCooldowns(skillComponent, skillState, deltaTime);
             this.processRequestedCast(entity, skillComponent, skillState);
+        }
+    }
+
+    private updatePlaystyle(entity: Entity, skill: SkillComponent): void {
+        let playstyle = entity.getComponent(PlaystyleComponent);
+        if (!playstyle) {
+            playstyle = this.world.acquireComponent(PlaystyleComponent);
+            entity.addComponent(playstyle);
+        }
+
+        let tank = 0;
+        let slash = 0;
+        let commander = 0;
+
+        for (const configId of skill.skillConfigIds) {
+            const cfg = this.configs[configId];
+            if (!cfg) continue;
+            if (cfg.category === 'Tank') tank++;
+            else if (cfg.category === 'Slash') slash++;
+            else if (cfg.category === 'Commander') commander++;
+        }
+
+        // 仅在数值变化时更新，避免每帧重复计算复杂逻辑
+        if (playstyle.tankSkillCount !== tank || playstyle.slashSkillCount !== slash || playstyle.commanderSkillCount !== commander) {
+            playstyle.tankSkillCount = tank;
+            playstyle.slashSkillCount = slash;
+            playstyle.commanderSkillCount = commander;
+
+            // 应用 V2/V3 制衡逻辑
+            // 1. 指挥官流成型 (>=3): 英雄全伤害 -35%
+            playstyle.heroDamageMultiplier = commander >= 3 ? 0.65 : 1.0;
+            
+            // 2. 坦流成型 (>=3): 防御塔伤害 -20%
+            playstyle.towerDamageMultiplier = tank >= 3 ? 0.8 : 1.0;
+            
+            // 3. 割草流成型 (>=3): 士兵上限 -15% (130 * 0.15 ≈ 20)
+            playstyle.soldierCapOffset = slash >= 3 ? -20 : 0;
+
+            // 4. 割草流额外奖励: 防御塔输出 +10%
+            if (slash >= 3) {
+                playstyle.towerDamageMultiplier *= 1.1;
+            }
+
+            // 5. 指挥官流额外奖励: 补给恢复 +10%
+            playstyle.supplyRecoveryMultiplier = commander >= 3 ? 1.1 : 1.0;
         }
     }
 

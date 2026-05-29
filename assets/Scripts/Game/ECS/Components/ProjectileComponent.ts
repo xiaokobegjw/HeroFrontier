@@ -3,6 +3,7 @@ import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 export class ProjectileComponent extends ECSComponent {
     public ownerId: number = 0;
     public damage: number = 0;
+    public damageType: 'Physical' | 'Magic' = 'Physical';
     public armorPenPct: number = 0;
     public skillMultiplier: number = 1;
     public critChance: number = 0;

@@ -18,11 +18,24 @@ import { garrisonSlotPosition, followerSlotPosition } from '../FormationLayout';
 import { SupplySystem } from './SupplySystem';
 import { ActionSystem } from '../../../Shared/ECS/Systems/ActionSystem';
 import { WalkAction } from '../../../Shared/ECS/Actions/WalkAction';
+import { HealthComponent } from '../Components/HealthComponent';
+import { WeaponComponent } from '../Components/WeaponComponent';
+import { DefenseComponent } from '../Components/DefenseComponent';
+import { PlaystyleComponent } from '../Components/PlaystyleComponent';
 
 /** 低消耗补给单位列表 */
 const LOW_SUPPLY_UNITS = ['Infantry', 'Archer'];
 /** 高消耗补给单位列表 */
 const HIGH_SUPPLY_UNITS = ['HeavyGuard', 'Elementalist', 'RoyalKnight'];
+
+/** V3 策划案各兵种重组 CD (秒) */
+const REGROUPING_CD: Record<string, number> = {
+    'Infantry': 2,
+    'Archer': 3,
+    'HeavyGuard': 5,
+    'Elementalist': 6,
+    'RoyalKnight': 8
+};
 
 /**
  * 城堡生产系统
@@ -93,6 +106,13 @@ export class BaseProductionSystem extends ECSSystem {
             // 更新生产冷却时间
             prod.spawnCooldownRemaining = Math.max(0, prod.spawnCooldownRemaining - deltaTime);
 
+            // V3: 更新重组计时器
+            for (const configId in prod.regroupingTimers) {
+                if (prod.regroupingTimers[configId] > 0) {
+                    prod.regroupingTimers[configId] = Math.max(0, prod.regroupingTimers[configId] - deltaTime);
+                }
+            }
+
             // 获取所有属于此城堡的士兵
             const soldiers = this.world.getAllEntities().filter(e => e.active && e.hasComponent(SoldierComponent));
             const owned = soldiers
@@ -110,13 +130,22 @@ export class BaseProductionSystem extends ECSSystem {
                 continue;
             }
 
+            // 获取流派修正
+            const heroId = this.getHeroEntityId();
+            const hero = heroId !== null ? this.world.getEntity(heroId) : null;
+            const playstyle = hero?.getComponent(PlaystyleComponent);
+            const capOffset = playstyle?.soldierCapOffset ?? 0;
+            const effectiveCap = Math.max(1, prod.populationCap + capOffset);
+
             // 处理初始人口爆发式生成
-            if (!prod.initialSpawned && prod.initialPopulation > 0 && total < prod.populationCap) {
-                const remaining = Math.min(prod.initialPopulation, prod.populationCap - total);
+            if (!prod.initialSpawned && prod.initialPopulation > 0 && total < effectiveCap) {
+                const remaining = Math.min(prod.initialPopulation, effectiveCap - total);
                 const burst = Math.min(10, remaining); // 每帧最多生成10个
                 for (let i = 0; i < burst; i++) {
                     const mode = followers < followerDesired ? 'Follower' : 'Garrison';
                     const configId = this.pickSoldierConfigId(prod);
+                    if (!configId) break; // 都在 CD 中
+
                     const supplyCost = this.getSupplyCost(configId);
                     
                     // 消耗补给并生成士兵
@@ -135,12 +164,14 @@ export class BaseProductionSystem extends ECSSystem {
             let spawnedThisFrame = 0;
             let followersSpawned = 0;
             let garrisonSpawned = 0;
-            while (prod.spawnCooldownRemaining <= 0 && total + spawnedThisFrame < prod.populationCap && spawnedThisFrame < 3) {
+            while (prod.spawnCooldownRemaining <= 0 && total + spawnedThisFrame < effectiveCap && spawnedThisFrame < 3) {
                 const mode = followers + followersSpawned < followerDesired ? 'Follower' : 'Garrison';
                 const g = garrisonCount + garrisonSpawned;
                 const f = followers + followersSpawned;
                 
                 const configId = this.pickSoldierConfigId(prod);
+                if (!configId) break; // 都在 CD 中
+
                 const supplyCost = this.getSupplyCost(configId);
                 
                 // 补给不足时停止生产
@@ -171,6 +202,21 @@ export class BaseProductionSystem extends ECSSystem {
         if (!soldier) return;
 
         this.supplySystem?.deductOnDeath(soldier.baseEntityId);
+
+        // V3: 触发兵种重组 CD
+        if (soldier.configId && REGROUPING_CD[soldier.configId]) {
+            const baseEntity = this.world.getEntity(soldier.baseEntityId);
+            const prod = baseEntity?.getComponent(BaseProductionComponent);
+            if (prod) {
+                let cd = REGROUPING_CD[soldier.configId];
+                
+                // V3: 前 10 波重组 CD 减少 30%
+                const gameMain = this.world.getAllEntities().find(e => e.name === 'GameMain');
+                // 简单起见，这里假设我们可以从某个地方获取当前波次，或者直接通过 LevelLoader
+                // 暂时实现基础 CD，后续可根据 WaveSystem 优化
+                prod.regroupingTimers[soldier.configId] = cd;
+            }
+        }
     }
 
     /**
@@ -179,10 +225,10 @@ export class BaseProductionSystem extends ECSSystem {
      * @returns 补给消耗值（1或2）
      */
     private getSupplyCost(configId: string): number {
-        if (LOW_SUPPLY_UNITS.includes(configId)) {
+        if (LOW_SUPPLY_UNITS.indexOf(configId) !== -1) {
             return 1;
         }
-        if (HIGH_SUPPLY_UNITS.includes(configId)) {
+        if (HIGH_SUPPLY_UNITS.indexOf(configId) !== -1) {
             return 2;
         }
         return 1;
@@ -260,6 +306,7 @@ export class BaseProductionSystem extends ECSSystem {
         soldier.slotIndex = prod.nextSoldierIndex++;
         soldier.formationIndex = formationIndex;
         soldier.deployed = false;
+        soldier.configId = configId;
         if (!created.hasComponent(SoldierComponent)) created.addComponent(soldier);
 
         // 应用战力倍率
@@ -401,20 +448,20 @@ export class BaseProductionSystem extends ECSSystem {
      */
     private applyPowerMultiplier(entity: Entity, multiplier: number): void {
         // 应用到生命值
-        const health = entity.getComponent(require('../Components/HealthComponent').HealthComponent);
+        const health = entity.getComponent(HealthComponent);
         if (health) {
             health.max = Math.floor(health.max * multiplier);
             health.current = health.max;
         }
 
         // 应用到攻击力
-        const weapon = entity.getComponent(require('../Components/WeaponComponent').WeaponComponent);
+        const weapon = entity.getComponent(WeaponComponent);
         if (weapon) {
             weapon.damage = Math.floor(weapon.damage * multiplier);
         }
 
         // 应用到防御力
-        const defense = entity.getComponent(require('../Components/DefenseComponent').DefenseComponent);
+        const defense = entity.getComponent(DefenseComponent);
         if (defense) {
             defense.defense = Math.floor(defense.defense * multiplier);
             defense.magicResist = Math.floor(defense.magicResist * multiplier);
@@ -423,15 +470,25 @@ export class BaseProductionSystem extends ECSSystem {
 
     /**
      * 选择下一个士兵配置ID
-     * 使用循环方式从配置列表中选取，确保士兵类型多样化
+     * 使用循环方式从配置列表中选取，并检查重组 CD
      * @param prod 城堡生产组件
-     * @returns 士兵配置ID
+     * @returns 士兵配置ID，如果都在 CD 中则返回 null
      */
-    private pickSoldierConfigId(prod: BaseProductionComponent): string {
+    private pickSoldierConfigId(prod: BaseProductionComponent): string | null {
         // 获取可用的士兵配置列表，默认只有步兵
         const ids = prod.soldierConfigIds?.length > 0 ? prod.soldierConfigIds : ['Infantry'];
-        // 使用循环索引确保均匀分配
-        const idx = prod.nextSoldierIndex % ids.length;
-        return ids[idx] ?? ids[0];
+        
+        // 尝试从当前索引开始找一个不在 CD 的兵种
+        for (let i = 0; i < ids.length; i++) {
+            const idx = (prod.nextSoldierIndex + i) % ids.length;
+            const configId = ids[idx];
+            
+            if (!prod.regroupingTimers[configId] || prod.regroupingTimers[configId] <= 0) {
+                // 找到了一个不在 CD 的兵种，但不在这里更新 nextSoldierIndex，由调用者在成功生成时处理
+                return configId;
+            }
+        }
+        
+        return null; // 都在 CD 中
     }
 }

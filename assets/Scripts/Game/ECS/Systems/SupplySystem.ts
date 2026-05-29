@@ -4,6 +4,8 @@ import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { World } from '../../../Shared/ECS/Core/World';
 import { SupplyComponent } from '../Components/SupplyComponent';
 import { SoldierComponent } from '../Components/SoldierComponent';
+import { PlaystyleComponent } from '../Components/PlaystyleComponent';
+import { SkillComponent } from '../Components/SkillComponent';
 
 export class SupplySystem extends ECSSystem {
     private world: World;
@@ -18,12 +20,16 @@ export class SupplySystem extends ECSSystem {
     }
 
     public update(entities: Entity[], deltaTime: number): void {
+        const hero = this.world.getAllEntities().find(e => e.name === 'Hero' || e.hasComponent(SkillComponent));
+        const playstyle = hero?.getComponent(PlaystyleComponent);
+        const recoveryMult = playstyle?.supplyRecoveryMultiplier ?? 1.0;
+
         for (const entity of entities) {
             const supply = entity.getComponent(SupplyComponent);
             if (!supply) continue;
 
             if (supply.current < supply.max) {
-                supply.current = Math.min(supply.max, supply.current + supply.recoveryPerSecond * deltaTime);
+                supply.current = Math.min(supply.max, supply.current + supply.recoveryPerSecond * recoveryMult * deltaTime);
             }
 
             if (supply.current >= 0) {

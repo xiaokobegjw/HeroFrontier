@@ -16,6 +16,10 @@ export class BaseProductionComponent extends ECSComponent {
     public followerRadius: number = 56;
     /** 当前主塔等级可生产的兵种配置 id 列表 */
     public soldierConfigIds: string[] = ['Soldier1'];
+    /** 士兵战力倍率 */
+    public soldierPowerMultiplier: number = 1.0;
+    /** 各兵种的重组计时器 (配置 ID -> 剩余秒数) */
+    public regroupingTimers: Record<string, number> = {};
 
     reset(): void {
         super.reset();
@@ -33,5 +37,7 @@ export class BaseProductionComponent extends ECSComponent {
         this.garrisonColSpacing = 18;
         this.followerRadius = 56;
         this.soldierConfigIds = ['Soldier1'];
+        this.soldierPowerMultiplier = 1.0;
+        this.regroupingTimers = {};
     }
 }

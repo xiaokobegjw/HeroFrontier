@@ -17,6 +17,8 @@ import { ViewComponent } from '../Components/ViewComponent';
 import { BurningComponent } from '../Components/BurningComponent';
 import { SpatialIndexSystem } from './SpatialIndexSystem';
 import { FactionType } from '../../Data/Faction';
+import { SkillComponent } from '../Components/SkillComponent';
+import { PlaystyleComponent } from '../Components/PlaystyleComponent';
 
 export type DamageType = 'Physical' | 'Magic';
 
@@ -27,6 +29,7 @@ type DamageSource = {
     critMultiplier: number;
     finalDamageBonusPct: number;
     damageType: DamageType;
+    sourceEntityId?: number;
 };
 
 export class DamageSystem extends ECSSystem {
@@ -217,7 +220,9 @@ export class DamageSystem extends ECSSystem {
             skillMultiplier: projectile.skillMultiplier,
             critChance: projectile.critChance,
             critMultiplier: projectile.critMultiplier,
-            finalDamageBonusPct: projectile.finalDamageBonusPct
+            finalDamageBonusPct: projectile.finalDamageBonusPct,
+            damageType: projectile.damageType,
+            sourceEntityId: projectile.ownerId
         };
     }
 
@@ -227,7 +232,9 @@ export class DamageSystem extends ECSSystem {
             skillMultiplier: hitbox.skillMultiplier,
             critChance: hitbox.critChance,
             critMultiplier: hitbox.critMultiplier,
-            finalDamageBonusPct: hitbox.finalDamageBonusPct
+            finalDamageBonusPct: hitbox.finalDamageBonusPct,
+            damageType: hitbox.damageType,
+            sourceEntityId: hitbox.ownerId
         };
     }
 
@@ -252,7 +259,25 @@ export class DamageSystem extends ECSSystem {
             : 1;
         const finalBonus = 1 + Math.max(0, source.finalDamageBonusPct);
 
-        return Math.max(0, baseDamage * skillMultiplier * critMultiplier * defenseMult * finalBonus);
+        // 获取流派制衡倍率
+        let playstyleMult = 1.0;
+        const hero = this.world.getAllEntities().find(e => e.name === 'Hero' || e.hasComponent(SkillComponent));
+        const playstyle = hero?.getComponent(PlaystyleComponent);
+        
+        if (playstyle && source.sourceEntityId !== undefined) {
+            const sourceEnt = this.world.getEntity(source.sourceEntityId);
+            if (sourceEnt) {
+                // 判断是否是英雄
+                if (sourceEnt === hero) {
+                    playstyleMult = playstyle.heroDamageMultiplier;
+                } else if (sourceEnt.name.includes('Tower')) {
+                    // 判断是否是塔 (根据名称或组件)
+                    playstyleMult = playstyle.towerDamageMultiplier;
+                }
+            }
+        }
+
+        return Math.max(0, baseDamage * skillMultiplier * critMultiplier * defenseMult * finalBonus * playstyleMult);
     }
 
     private rollCrit(critChance: number): boolean {

@@ -23,7 +23,7 @@
         },
         {
             "id": "PerceptionComponent",
-            "viewRange": 480,
+            "viewRange": 240,
             "fovDeg": 360,
             "facingDeg": 0,
             "checkInterval": 0.15
@@ -42,7 +42,7 @@
             "attackType": "Ranged",
             "damage": 18,
             "attackInterval": 0.55,
-            "range": 480,
+            "range": 240,
             "projectileConfigId": "Arrow1",
             "projectileSpeed": 620,
             "projectileRadius": 4,

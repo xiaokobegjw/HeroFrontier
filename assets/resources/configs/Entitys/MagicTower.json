@@ -23,7 +23,7 @@
         },
         {
             "id": "PerceptionComponent",
-            "viewRange": 420,
+            "viewRange": 210,
             "fovDeg": 360,
             "facingDeg": 0,
             "checkInterval": 0.18
@@ -43,7 +43,7 @@
             "damage": 55,
             "armorPenPct": 0.3,
             "attackInterval": 1.35,
-            "range": 420,
+            "range": 210,
             "projectileConfigId": "MagicBolt1",
             "projectileSpeed": 380,
             "projectileRadius": 8,

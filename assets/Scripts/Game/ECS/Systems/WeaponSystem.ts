@@ -10,11 +10,15 @@ import { WeaponComponent } from '../Components/WeaponComponent';
 import { WeaponStateComponent } from '../Components/WeaponStateComponent';
 import { ProjectileComponent } from '../Components/ProjectileComponent';
 import { FactionComponent } from '../Components/FactionComponent';
+import { ViewComponent } from '../Components/ViewComponent';
 import { EquipmentComponent } from '../Components/EquipmentComponent';
 import { ProjectileSpecComponent } from '../Components/ProjectileSpecComponent';
 import { FactionType } from '../../Data/Faction';
 import { EntityFactory } from '../../Managers/EntityFactory';
 import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
+import { GameConfigManager } from '../../../Shared/Managers/GameConfigManager';
+import { DebugState } from '../../Debug/DebugState';
+import { ShapeType } from '../../../Shared/Data/ShapeData';
 
 export class WeaponSystem extends ECSSystem {
     private world: World;
@@ -79,6 +83,14 @@ export class WeaponSystem extends ECSSystem {
                     w.state.cooldownRemaining = Math.max(0, w.state.cooldownRemaining) + w.weapon.attackInterval * j;
                 }
 
+                if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
+                    if(entity.id === DebugState.selectedEntityId)
+                    {
+                        let adsfasd = 0;
+                        adsfasd++;
+                    }
+                }
+
                 w.state.cooldownRemaining = Math.max(0, w.state.cooldownRemaining - deltaTime);
                 w.state.attackAnimRemaining = Math.max(0, w.state.attackAnimRemaining - deltaTime);
                 if (w.state.cooldownRemaining > 0) continue;
@@ -86,10 +98,13 @@ export class WeaponSystem extends ECSSystem {
                 const effectiveRange = w.weapon.range + selfRadius + targetRadius;
                 if (distSq > effectiveRange * effectiveRange) continue;
 
-                const fired =
-                    w.weapon.attackType === 'Melee'
-                        ? this.spawnMeleeHitbox(entity, faction.faction, transform.x, transform.y, w.weapon, dirX, dirY)
-                        : this.spawnProjectile(entity, faction.faction, transform.x, transform.y, w.weapon, dirX, dirY);
+                const view = entity.getComponent(ViewComponent);
+                const fireX = transform.x + (view ? view.fireOffsetX : 0);
+                const fireY = transform.y + (view ? view.fireOffsetY : 0);
+
+                const fired = w.weapon.attackType === 'Melee'
+                    ? this.spawnMeleeHitbox(entity, faction.faction, fireX, fireY, w.weapon, dirX, dirY)
+                    : this.spawnProjectile(entity, faction.faction, fireX, fireY, w.weapon, dirX, dirY);
 
                 if (fired) {
                     w.state.cooldownRemaining = w.weapon.attackInterval;
@@ -197,6 +212,35 @@ export class WeaponSystem extends ECSSystem {
         projectile.vx = dirX * speed;
         projectile.vy = dirY * speed;
         projectile.lifeRemaining = lifeSeconds;
+
+        // 处理抛物线发射参数
+        if (configId && configId.toLowerCase().includes('arrow')) {
+            projectile.isParabola = true;
+            projectile.gravity = 600; // 模拟重力
+            
+            // 计算飞行时间：T = 距离 / 平面速度
+            // 如果有特定目标，计算到目标的飞行时间以修正落点
+            const targetId = owner.getComponent(TargetComponent)?.targetEntityId;
+            const targetEnt = targetId !== null ? this.world.getEntity(targetId!) : null;
+            const targetTr = targetEnt?.getComponent(TransformComponent);
+            
+            let dist = 300; // 默认距离
+            if (targetTr) {
+                const dx = targetTr.x - x;
+                const dy = targetTr.y - y;
+                dist = Math.sqrt(dx * dx + dy * dy);
+            }
+            
+            const flightTime = Math.max(0.05, dist / Math.max(1, speed));
+            const launchHeight = 10;
+            projectile.height = launchHeight;
+
+            // 让箭在到达目标距离 (t = flightTime) 时落地：0 = h0 + vz*T - 0.5*g*T^2
+            // => vz = 0.5*g*T - h0/T
+            projectile.vz = projectile.gravity * flightTime * 0.5 - launchHeight / flightTime;
+            if (projectile.vz < 0) projectile.vz = 0;
+        }
+
         entity.addComponent(projectile);
 
         const factionComp = this.world.acquireComponent(FactionComponent);
@@ -214,9 +258,20 @@ export class WeaponSystem extends ECSSystem {
         }
 
         const render = entity.getComponent(RenderComponent) ?? this.world.acquireComponent(RenderComponent);
+        render.offset = { x: 0, y: 0 };
+        const w = collider.shape === ColliderShapeType.Circle ? collider.radius * 2 : collider.width;
+        const h = collider.shape === ColliderShapeType.Circle ? collider.radius * 2 : collider.height;
+        render.shapes = [
+            {
+                type: ShapeType.Square,
+                color: faction === FactionType.Player ? [0, 200, 255, 200] : [255, 200, 0, 200],
+                lineWidth: 2,
+                fill: true,
+                width: Math.max(1, w),
+                height: Math.max(1, h)
+            }
+        ];
         if (!entity.hasComponent(RenderComponent)) {
-            render.offset = { x: 0, y: 0 };
-            render.addCircle(collider.radius, faction === FactionType.Player ? [0, 200, 255] : [255, 200, 0], true);
             entity.addComponent(render);
         }
 

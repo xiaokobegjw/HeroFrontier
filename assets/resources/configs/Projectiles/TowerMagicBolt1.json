@@ -1,0 +1,34 @@
+{
+    "id": "TowerMagicBolt1",
+    "name": "projectile_tower_magic",
+    "description": "projectile_tower_magic_desc",
+    "ComponentsList": [
+        {
+            "id": "ProjectileSpecComponent",
+            "speed": 380,
+            "radius": 8,
+            "lifeSeconds": 2.4
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 8,
+            "layer": 0,
+            "mask": 0,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [100, 200, 255],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "radius": 8
+                }
+            ]
+        }
+    ]
+}

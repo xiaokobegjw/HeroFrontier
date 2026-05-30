@@ -1,6 +1,6 @@
 import { input, Input, EventKeyboard, KeyCode, EventMouse, UITransform, Vec3 } from 'cc';
 import { CommandBus } from './CommandBus';
-import { DebugCommandContext, SelectEntityAtCommand, TogglePauseCommand } from './DebugCommands';
+import { DebugCommandContext, SelectEntityAtCommand, ToggleGMCommand, TogglePauseCommand } from './DebugCommands';
 
 export class DebugCommandAdapter {
     private bus: CommandBus;
@@ -28,6 +28,9 @@ export class DebugCommandAdapter {
             case KeyCode.KEY_P:
                 this.bus.enqueue(new TogglePauseCommand(this.ctx));
                 break;
+            case KeyCode.KEY_G:
+                this.bus.enqueue(new ToggleGMCommand(this.ctx));
+                break;
         }
     }
 
@@ -37,4 +40,3 @@ export class DebugCommandAdapter {
         this.bus.enqueue(new SelectEntityAtCommand(this.ctx, local.x, local.y));
     }
 }
-

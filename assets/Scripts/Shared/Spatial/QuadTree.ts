@@ -89,6 +89,17 @@ export class QuadTree<T extends QuadTreeItem> {
         return out;
     }
 
+    public debugTraverse(visitor: (boundary: QuadTreeRect, depth: number, itemCount: number, divided: boolean) => void, includeEmpty: boolean = true): void {
+        if (!includeEmpty && this.items.length === 0 && !this.divided) return;
+        visitor(this.boundary, this.depth, this.items.length, this.divided);
+        if (this.divided) {
+            this.northeast!.debugTraverse(visitor, includeEmpty);
+            this.northwest!.debugTraverse(visitor, includeEmpty);
+            this.southeast!.debugTraverse(visitor, includeEmpty);
+            this.southwest!.debugTraverse(visitor, includeEmpty);
+        }
+    }
+
     private insertIntoChildren(item: T): boolean {
         if (!this.divided) return false;
         return (

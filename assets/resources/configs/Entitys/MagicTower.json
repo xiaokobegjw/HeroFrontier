@@ -8,11 +8,12 @@
         {
             "id": "ViewComponent",
             "prefabPath": "prefabs/MagicTowerPrefab",
-            "useLevelDamageView": false,
-            "levelNodeNames": ["Level1Node", "Level2Node", "Level3Node"],
+            "useLevelDamageView": true,
+            "levelNodeNames": ["Level1Node", "Level2Node", "Level3Node", "Level4Node"],
             "scale": 1
         },
         { "id": "LevelComponent", "level": 1 },
+        { "id": "HealthComponent", "max": 650 },
         { "id": "UpgradeableComponent", "upgradeConfigId": "MagicTower1Upgrade" },
         {
             "id": "TowerComponent",
@@ -44,7 +45,7 @@
             "armorPenPct": 0.3,
             "attackInterval": 1.35,
             "range": 210,
-            "projectileConfigId": "MagicBolt1",
+            "projectileConfigId": "TowerMagicBolt1",
             "projectileSpeed": 380,
             "projectileRadius": 8,
             "projectileLifeSeconds": 2.4,
@@ -61,6 +62,10 @@
             "isTrigger": false
         },
         { "id": "ObstacleComponent", "blocksMovement": true },
-        { "id": "RenderComponent", "offset": { "x": 0, "y": 0 }, "shapes": [] }
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [{ "type": "Square", "color": [160, 120, 255, 140], "lineWidth": 2, "fill": true, "width": 44, "height": 44 }]
+        }
     ]
 }

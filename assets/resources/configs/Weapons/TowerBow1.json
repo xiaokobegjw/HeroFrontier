@@ -1,0 +1,21 @@
+{
+    "id": "TowerBow1",
+    "name": "weapon_tower_bow",
+    "description": "weapon_tower_bow_desc",
+    "ComponentsList": [
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Ranged",
+            "damage": 18,
+            "attackInterval": 0.55,
+            "range": 240,
+            "projectileConfigId": "TowerArrow1",
+            "projectileSpeed": 620,
+            "projectileRadius": 4,
+            "projectileLifeSeconds": 2.8,
+            "pierceCount": 0
+        },
+        { "id": "WeaponStateComponent" }
+    ]
+}

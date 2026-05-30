@@ -15,6 +15,7 @@ export class CollisionSystem extends ECSSystem {
 
     private index: QuadTree<Indexed>;
     private readonly worldBounds: Rect;
+    private lastIndexed: { id: number; bounds: Rect }[] = [];
 
     constructor(priority: number = 10, worldBounds: Rect = { x: 0, y: 0, width: 2000, height: 2000 }) {
         super('CollisionSystem', priority);
@@ -32,6 +33,14 @@ export class CollisionSystem extends ECSSystem {
         return out;
     }
 
+    public debugTraverseIndex(visitor: (bounds: Rect, depth: number, itemCount: number, divided: boolean) => void, includeEmpty: boolean = true): void {
+        this.index.debugTraverse(visitor as any, includeEmpty);
+    }
+
+    public debugGetIndexItems(): { id: number; bounds: Rect }[] {
+        return this.lastIndexed;
+    }
+
     public update(entities: Entity[], deltaTime: number): void {
         this.index.clear();
         this.events.length = 0;
@@ -47,6 +56,7 @@ export class CollisionSystem extends ECSSystem {
             indexed.push(item);
             this.index.insert(item);
         }
+        this.lastIndexed = indexed.map(it => ({ id: it.id, bounds: it.bounds }));
 
         for (const item of indexed) {
             const candidates = this.index.query(item.bounds);

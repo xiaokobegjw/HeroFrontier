@@ -8,6 +8,7 @@ import { CollisionSystem } from '../Shared/ECS/Systems/CollisionSystem';
 import { TransformComponent } from '../Shared/ECS/Components/TransformComponent';
 import { RenderComponent } from '../Shared/ECS/Components/RenderComponent';
 import { ColliderComponent, ColliderShapeType } from '../Shared/ECS/Components/ColliderComponent';
+import { ShapeType } from '../Shared/Data/ShapeData';
 import { LocalizationManager, LanguageType, t } from './I18n/LocalizationManager';
 import { EntityFactory } from './Managers/EntityFactory';
 import { GameConfigManager } from '../Shared/Managers/GameConfigManager';
@@ -69,6 +70,8 @@ import { ExperienceComponent } from './ECS/Components/ExperienceComponent';
 import { PlayerControlSystem } from './ECS/Systems/PlayerControlSystem';
 import { BurningSystem } from './ECS/Systems/BurningSystem';
 import magicBoltConfig from '../../resources/configs/Projectiles/MagicBolt1.json';
+import towerArrowConfig from '../../resources/configs/Projectiles/TowerArrow1.json';
+import towerMagicBoltConfig from '../../resources/configs/Projectiles/TowerMagicBolt1.json';
 import arrowTower1Upgrade from '../../resources/configs/Upgrade/ArrowTower1Upgrade.json';
 import magicTower1Upgrade from '../../resources/configs/Upgrade/MagicTower1Upgrade.json';
 import { GameSession } from './Managers/GameSession';
@@ -82,6 +85,8 @@ import { DefenseComponent } from './ECS/Components/DefenseComponent';
 import { LootComponent } from './ECS/Components/LootComponent';
 import { director } from 'cc';
 import { TowerBuildUI } from './UI/TowerBuildUI';
+import { GMPanel } from './Debug/GMPanel';
+import { QuadTreeDebugDrawSystem } from './Debug/QuadTreeDebugDrawSystem';
 
 const CASTLE_UPGRADE_COSTS = [0, 160, 280, 420, 600];
 const STARTING_GOLD = 200;
@@ -100,6 +105,8 @@ export class GameMain extends Component {
     public levelBgNode: Node | null = null;
     @property(Node)
     public entityRootNode: Node | null = null;
+    @property(Node)
+    public effectRootNode: Node | null = null;
     @property(TowerBuildUI)
     public towerBuildUI: TowerBuildUI | null = null;
     private debugOverlaySystem: DebugOverlaySystem | null = null;
@@ -129,6 +136,10 @@ export class GameMain extends Component {
     private debugDamageLabels: Map<number, { node: Node; label: Label; ttl: number }> = new Map();
     private debugCommandBus: CommandBus | null = null;
     private debugInput: DebugCommandAdapter | null = null;
+    private gmPanel: GMPanel | null = null;
+    private debugShowRender: boolean = false;
+    private debugShowQuadTree: boolean = false;
+    private quadTreeDebugSystem: QuadTreeDebugDrawSystem | null = null;
     private playerMoveInput: PlayerMoveInputAdapter | null = null;
     private playerControlSystem: PlayerControlSystem | null = null;
     private levelTimeSeconds: number = 0;
@@ -171,6 +182,18 @@ export class GameMain extends Component {
         entityRoot.layer = Layers.Enum.UI_2D;
         entityRoot.setPosition(0, 0, 0);
         entityRoot.getComponent(UITransform) ?? entityRoot.addComponent(UITransform);
+
+        let effectRoot = this.effectRootNode ?? this.node.getChildByName('EffectNode');
+        if (!effectRoot) {
+            effectRoot = new Node('EffectNode');
+            this.node.addChild(effectRoot);
+        }
+        this.effectRootNode = effectRoot;
+        effectRoot.layer = Layers.Enum.UI_2D;
+        effectRoot.setPosition(0, 0, 0);
+        effectRoot.getComponent(UITransform) ?? effectRoot.addComponent(UITransform);
+        // 确保特效层在实体层之上
+        effectRoot.setSiblingIndex(entityRoot.getSiblingIndex() + 1);
 
         // 1. 初始化 ECS 世界
         this.world = new World();
@@ -227,7 +250,12 @@ export class GameMain extends Component {
         );
         this.world.registerSystem(this.upgradeSystem);
 
-        this.weaponSystem = new WeaponSystem(this.world, { Arrow1: arrowConfig, MagicBolt1: magicBoltConfig }, 7);
+        this.weaponSystem = new WeaponSystem(this.world, { 
+            Arrow1: arrowConfig, 
+            MagicBolt1: magicBoltConfig,
+            TowerArrow1: towerArrowConfig,
+            TowerMagicBolt1: towerMagicBoltConfig
+        }, 7);
         this.world.registerSystem(this.weaponSystem);
 
         this.projectileSystem = new ProjectileSystem(this.world, 8);
@@ -245,9 +273,10 @@ export class GameMain extends Component {
         }
         this.renderSystem.setContext(graphics as any);
         this.world.registerSystem(this.renderSystem);
+        this.renderSystem.active = false;
 
         if (entityRootNode) {
-            this.actorViewSystem = new ActorViewSystem(this.world, entityRootNode, 99);
+            this.actorViewSystem = new ActorViewSystem(this.world, entityRootNode, this.effectRootNode, 99);
             this.world.registerSystem(this.actorViewSystem);
         }
 
@@ -259,6 +288,21 @@ export class GameMain extends Component {
 
         this.collisionSystem = new CollisionSystem(10, { x: -1000, y: -1000, width: 2000, height: 2000 });
         this.world.registerSystem(this.collisionSystem);
+
+        if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug && entityRootNode) {
+            const gmGfx = new Node('GMOverlayGfx');
+            gmGfx.layer = Layers.Enum.UI_2D;
+            gmGfx.setPosition(0, 0, 0);
+            gmGfx.getComponent(UITransform) ?? gmGfx.addComponent(UITransform);
+            entityRootNode.addChild(gmGfx);
+            gmGfx.setSiblingIndex(entityRootNode.children.length - 1);
+            const gmGraphics = gmGfx.addComponent(Graphics);
+
+            this.quadTreeDebugSystem = new QuadTreeDebugDrawSystem(this.collisionSystem, () => this.spatialIndex, 102);
+            this.quadTreeDebugSystem.setContext(gmGraphics as any);
+            this.quadTreeDebugSystem.setEnabled(false);
+            this.world.registerSystem(this.quadTreeDebugSystem);
+        }
 
         this.damageSystem = new DamageSystem(this.world, this.collisionSystem, 11);
         this.world.registerSystem(this.damageSystem);
@@ -280,11 +324,14 @@ export class GameMain extends Component {
             this.debugCommandBus = new CommandBus();
             const ctx: DebugCommandContext = {
                 togglePause: () => this.togglePause(),
-                selectAt: (x: number, y: number) => this.selectEntityAt(x, y)
+                selectAt: (x: number, y: number) => this.selectEntityAt(x, y),
+                toggleGM: () => this.toggleGM()
             };
             this.debugInput = new DebugCommandAdapter(this.debugCommandBus, ctx, uiTransform);
             this.debugInput.enable();
             this.createDebugLabel();
+            this.initGMPanel();
+            this.setDebugViewMode(false);
         }
 
         const ui = this.node.getComponent(GameUIController) ?? this.node.addComponent(GameUIController);
@@ -502,6 +549,13 @@ export class GameMain extends Component {
                     const obsComp = this.world.acquireComponent(ObstacleComponent);
                     obsComp.blocksMovement = true;
                     ent.addComponent(obsComp);
+
+                    const render = this.world.acquireComponent(RenderComponent);
+                    render.offset = { x: 0, y: 0 };
+                    render.shapes = [
+                        { type: ShapeType.Square, color: [255, 80, 80, 120], lineWidth: 2, fill: true, width: col.width, height: col.height }
+                    ];
+                    ent.addComponent(render);
                 } else {
                     // 兼容旧格式的单格障碍物
                     const pos = toWorldPos(obs as any);
@@ -525,6 +579,13 @@ export class GameMain extends Component {
                     const obsComp = this.world.acquireComponent(ObstacleComponent);
                     obsComp.blocksMovement = true;
                     ent.addComponent(obsComp);
+
+                    const render = this.world.acquireComponent(RenderComponent);
+                    render.offset = { x: 0, y: 0 };
+                    render.shapes = [
+                        { type: ShapeType.Square, color: [255, 80, 80, 120], lineWidth: 2, fill: true, width: col.width, height: col.height }
+                    ];
+                    ent.addComponent(render);
                 }
             }
         }
@@ -695,6 +756,10 @@ export class GameMain extends Component {
         this.debugCommandBus?.flush();
         this.updateDebugLabel();
         this.updateDebugDamagePopups(deltaTime);
+
+        if (this.debugShowQuadTree && this.spatialIndex) {
+            this.rebuildSpatialIndexForSelection();
+        }
 
         if (this.isPaused || GameSession.instance.isGameOver) {
             this.renderWhilePaused();
@@ -888,9 +953,10 @@ export class GameMain extends Component {
             this.rebuildSpatialIndexForSelection();
         }
 
+        const queryPad = 64;
         const candidateIds = this.spatialIndex
             ? this.spatialIndex
-                  .query({ x: x - 1, y: y - 1, width: 2, height: 2 })
+                  .query({ x: x - queryPad, y: y - queryPad, width: queryPad * 2, height: queryPad * 2 })
                   .map(item => item.id)
             : this.world.getAllEntities().map(ent => ent.id);
 
@@ -905,7 +971,8 @@ export class GameMain extends Component {
             const c = ent.getComponent(ColliderComponent)!;
             const cx = t.x + c.offsetX;
             const cy = t.y + c.offsetY;
-            if (!this.pointInCollider(x, y, cx, cy, c)) continue;
+            const pickPadding = ent.id === this.playerEntity?.id ? 40 : 0;
+            if (!this.pointInCollider(x, y, cx, cy, c, pickPadding)) continue;
             const dx = x - cx;
             const dy = y - cy;
             const dsq = dx * dx + dy * dy;
@@ -951,14 +1018,50 @@ export class GameMain extends Component {
         console.log(`[GameMain] Paused: ${this.isPaused}`);
     }
 
-    private pointInCollider(px: number, py: number, cx: number, cy: number, c: ColliderComponent): boolean {
+    private toggleGM(): void {
+        this.gmPanel?.toggle();
+    }
+
+    private initGMPanel(): void {
+        if (this.gmPanel) return;
+        const gm = this.node.getComponent(GMPanel) ?? this.node.addComponent(GMPanel);
+        this.gmPanel = gm;
+        gm.init({
+            getModeLabel: () => (this.debugShowRender ? 'Render' : 'Sprite'),
+            getGoldLabel: () => `${Math.floor(this.currencySystem?.getGold?.() ?? 0)}`,
+            getQuadTreeLabel: () => (this.debugShowQuadTree ? 'ON' : 'OFF'),
+            toggleMode: () => this.setDebugViewMode(!this.debugShowRender),
+            toggleQuadTree: () => this.setQuadTreeDebugEnabled(!this.debugShowQuadTree),
+            addGold: (amount: number) => {
+                this.currencySystem?.addGold(amount);
+            }
+        });
+    }
+
+    private setDebugViewMode(showRender: boolean): void {
+        this.debugShowRender = showRender;
+        if (this.renderSystem) {
+            this.renderSystem.active = showRender;
+            if (!showRender) this.renderSystem.clear();
+        }
+        this.actorViewSystem?.setSpriteVisible(!showRender);
+    }
+
+    private setQuadTreeDebugEnabled(enabled: boolean): void {
+        this.debugShowQuadTree = enabled;
+        this.quadTreeDebugSystem?.setEnabled(enabled);
+    }
+
+    private pointInCollider(px: number, py: number, cx: number, cy: number, c: ColliderComponent, padding: number = 0): boolean {
+        const pad = Math.max(0, padding);
         if (c.shape === ColliderShapeType.Circle) {
             const dx = px - cx;
             const dy = py - cy;
-            return dx * dx + dy * dy <= c.radius * c.radius;
+            const r = Math.max(0, c.radius + pad);
+            return dx * dx + dy * dy <= r * r;
         }
-        const halfW = c.width * 0.5;
-        const halfH = c.height * 0.5;
+        const halfW = c.width * 0.5 + pad;
+        const halfH = c.height * 0.5 + pad;
         return px >= cx - halfW && px <= cx + halfW && py >= cy - halfH && py <= cy + halfH;
     }
 

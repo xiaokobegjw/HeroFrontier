@@ -15,6 +15,8 @@ import { HealthComponent } from '../Components/HealthComponent';
 import { FactionComponent } from '../Components/FactionComponent';
 import { FactionType } from '../../Data/Faction';
 import { SoldierComponent } from '../Components/SoldierComponent';
+import { GameConfigManager } from '../../../Shared/Managers/GameConfigManager';
+import { DebugState } from '../../Debug/DebugState';
 
 export class AISystem extends ECSSystem {
     private world: World;
@@ -49,6 +51,14 @@ export class AISystem extends ECSSystem {
 
             const soldier = entity.getComponent(SoldierComponent);
             if (soldier && !soldier.deployed) continue;
+
+            if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
+                if(entity.id === DebugState.selectedEntityId)
+                {
+                    let adsfasd = 0;
+                    adsfasd++;
+                }
+            }
 
             ai.timeSinceRepath += deltaTime;
             if (ai.holdRemaining > 0) ai.holdRemaining -= deltaTime;

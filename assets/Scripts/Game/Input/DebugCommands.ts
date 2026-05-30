@@ -3,6 +3,7 @@ import { ICommand } from './ICommand';
 export type DebugCommandContext = {
     togglePause: () => void;
     selectAt: (x: number, y: number) => void;
+    toggleGM: () => void;
 };
 
 export class TogglePauseCommand implements ICommand {
@@ -33,3 +34,14 @@ export class SelectEntityAtCommand implements ICommand {
     }
 }
 
+export class ToggleGMCommand implements ICommand {
+    private ctx: DebugCommandContext;
+
+    constructor(ctx: DebugCommandContext) {
+        this.ctx = ctx;
+    }
+
+    execute(): void {
+        this.ctx.toggleGM();
+    }
+}

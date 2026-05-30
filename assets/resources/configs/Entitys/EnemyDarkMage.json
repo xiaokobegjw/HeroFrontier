@@ -103,7 +103,7 @@
         {
             "id": "ColliderComponent",
             "shape": "Circle",
-            "radius": 12,
+            "radius": 4,
             "layer": 2,
             "mask": 4294967295,
             "isTrigger": true
@@ -117,7 +117,7 @@
                     "color": [120, 40, 140, 255],
                     "lineWidth": 2,
                     "fill": true,
-                    "radius": 12
+                    "radius": 4
                 }
             ]
         }

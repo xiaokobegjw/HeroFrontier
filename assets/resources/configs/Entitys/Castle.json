@@ -58,8 +58,8 @@
         {
             "id": "ColliderComponent",
             "shape": "AABB",
-            "width": 48,
-            "height": 48,
+            "width": 64,
+            "height": 56,
             "layer": 1,
             "mask": 15,
             "isTrigger": false
@@ -71,7 +71,7 @@
         {
             "id": "RenderComponent",
             "offset": { "x": 0, "y": 0 },
-            "shapes": []
+            "shapes": [{ "type": "Square", "color": [255, 220, 80, 140], "lineWidth": 2, "fill": true, "width": 64, "height": 56 }]
         }
     ]
 }

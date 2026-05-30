@@ -18,20 +18,14 @@
             "isTrigger": true
         },
         {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/ArcherArrowPrefab",
+            "scale": 1
+        },
+        {
             "id": "RenderComponent",
             "offset": { "x": 0, "y": 0 },
-            "shapes": [
-                {
-                    "type": "Line",
-                    "color": [200, 200, 200],
-                    "lineWidth": 2,
-                    "fill": false,
-                    "points": [
-                        { "x": -8, "y": 0 },
-                        { "x": 8, "y": 0 }
-                    ]
-                }
-            ]
+            "shapes": []
         }
     ]
 }

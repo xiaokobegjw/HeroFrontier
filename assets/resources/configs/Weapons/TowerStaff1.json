@@ -1,0 +1,22 @@
+{
+    "id": "TowerStaff1",
+    "name": "weapon_tower_staff",
+    "description": "weapon_tower_staff_desc",
+    "ComponentsList": [
+        {
+            "id": "WeaponComponent",
+            "autoFire": true,
+            "attackType": "Ranged",
+            "damage": 55,
+            "armorPenPct": 0.3,
+            "attackInterval": 1.35,
+            "range": 210,
+            "projectileConfigId": "TowerMagicBolt1",
+            "projectileSpeed": 380,
+            "projectileRadius": 8,
+            "projectileLifeSeconds": 2.4,
+            "projectileSplashRadius": 0
+        },
+        { "id": "WeaponStateComponent" }
+    ]
+}

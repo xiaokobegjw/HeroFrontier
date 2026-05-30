@@ -40,6 +40,10 @@ export class RenderSystem extends ECSSystem {
         this.ctx = ctx;
     }
 
+    public clear(): void {
+        this.ctx?.clear();
+    }
+
     public getRequiredComponents(): (new (...args: any[]) => ECSComponent)[] {
         return [RenderComponent, TransformComponent];
     }

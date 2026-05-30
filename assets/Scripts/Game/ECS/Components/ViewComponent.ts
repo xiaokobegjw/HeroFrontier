@@ -19,6 +19,11 @@ export class ViewComponent extends ECSComponent {
     public offsetY: number = 0;
     public scale: number = 1;
 
+    /** 动态计算出的发射点 X 偏移 (相对于实体位置) */
+    public fireOffsetX: number = 0;
+    /** 动态计算出的发射点 Y 偏移 (相对于实体位置) */
+    public fireOffsetY: number = 0;
+
     reset(): void {
         super.reset();
         this.prefabPath = '';

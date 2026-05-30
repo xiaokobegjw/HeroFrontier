@@ -91,7 +91,7 @@
         {
             "id": "ColliderComponent",
             "shape": "Circle",
-            "radius": 10,
+            "radius": 4,
             "layer": 1,
             "mask": 4294967295,
             "isTrigger": true
@@ -99,7 +99,9 @@
         {
             "id": "RenderComponent",
             "offset": { "x": 0, "y": 0 },
-            "shapes": []
+            "shapes": [
+                { "type": "Circle", "color": [60, 180, 100, 255], "lineWidth": 3, "fill": true, "radius": 4 }
+            ]
         }
     ]
 }

@@ -1,0 +1,31 @@
+{
+    "id": "TowerArrow1",
+    "name": "projectile_tower_arrow",
+    "description": "projectile_tower_arrow_desc",
+    "ComponentsList": [
+        {
+            "id": "ProjectileSpecComponent",
+            "speed": 620,
+            "radius": 4,
+            "lifeSeconds": 2.8
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 4,
+            "layer": 0,
+            "mask": 0,
+            "isTrigger": true
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/ArcherArrowPrefab",
+            "scale": 1.2
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": []
+        }
+    ]
+}

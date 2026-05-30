@@ -8,11 +8,12 @@
         {
             "id": "ViewComponent",
             "prefabPath": "prefabs/ArrowTowerPrefab",
-            "useLevelDamageView": false,
-            "levelNodeNames": ["Level1Node", "Level2Node", "Level3Node"],
+            "useLevelDamageView": true,
+            "levelNodeNames": ["Level1Node", "Level2Node", "Level3Node", "Level4Node"],
             "scale": 1
         },
         { "id": "LevelComponent", "level": 1 },
+        { "id": "HealthComponent", "max": 500 },
         { "id": "UpgradeableComponent", "upgradeConfigId": "ArrowTower1Upgrade" },
         {
             "id": "TowerComponent",
@@ -43,7 +44,7 @@
             "damage": 18,
             "attackInterval": 0.55,
             "range": 240,
-            "projectileConfigId": "Arrow1",
+            "projectileConfigId": "TowerArrow1",
             "projectileSpeed": 620,
             "projectileRadius": 4,
             "projectileLifeSeconds": 2.8,
@@ -60,6 +61,10 @@
             "isTrigger": false
         },
         { "id": "ObstacleComponent", "blocksMovement": true },
-        { "id": "RenderComponent", "offset": { "x": 0, "y": 0 }, "shapes": [] }
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [{ "type": "Square", "color": [80, 180, 255, 140], "lineWidth": 2, "fill": true, "width": 40, "height": 40 }]
+        }
     ]
 }

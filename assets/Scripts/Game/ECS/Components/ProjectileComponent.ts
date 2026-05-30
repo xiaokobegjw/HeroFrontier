@@ -15,6 +15,14 @@ export class ProjectileComponent extends ECSComponent {
     public burnMaxStacks: number = 0;
     public vx: number = 0;
     public vy: number = 0;
+    /** 抛物线垂直速度 (Z轴高度模拟) */
+    public vz: number = 0;
+    /** 抛物线当前高度 */
+    public height: number = 0;
+    /** 重力加速度 */
+    public gravity: number = 0;
+    /** 是否是抛物线运动 */
+    public isParabola: boolean = false;
     public lifeRemaining: number = 0;
     public pierceRemaining: number = 0;
     public hitEntityIds: number[] = [];

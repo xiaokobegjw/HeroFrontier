@@ -78,7 +78,7 @@
         "__id__": 9
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 15
@@ -1190,6 +1190,7 @@
       "__id__": 0
     },
     "fileId": "0bbxaxrihJiZyCfoSbzjkk",
+    "instance": null,
     "targetOverrides": null
   }
 ]

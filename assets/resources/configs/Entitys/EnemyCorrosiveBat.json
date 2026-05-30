@@ -39,7 +39,7 @@
         { "id": "DefenseComponent", "defense": 0, "magicResist": 3 },
         { "id": "LootComponent", "gold": 5 },
         { "id": "ExperienceRewardComponent", "exp": 10 },
-        { "id": "ColliderComponent", "shape": "Circle", "radius": 8, "layer": 2, "mask": 4294967295, "isTrigger": true },
-        { "id": "RenderComponent", "offset": { "x": 0, "y": 0 }, "shapes": [{ "type": "Circle", "color": [100, 150, 100, 255], "lineWidth": 2, "fill": true, "radius": 8 }] }
+        { "id": "ColliderComponent", "shape": "Circle", "radius": 4, "layer": 2, "mask": 4294967295, "isTrigger": true },
+        { "id": "RenderComponent", "offset": { "x": 0, "y": 0 }, "shapes": [{ "type": "Circle", "color": [100, 150, 100, 255], "lineWidth": 2, "fill": true, "radius": 4 }] }
     ]
 }

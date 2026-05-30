@@ -120,7 +120,7 @@
                 {
                     "type": "Circle",
                     "color": [0, 255, 0, 0],
-                    "lineWidth": 0,
+                    "lineWidth": 3,
                     "fill": false,
                     "radius": 8
                 }

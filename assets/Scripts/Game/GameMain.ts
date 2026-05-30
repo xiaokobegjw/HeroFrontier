@@ -87,6 +87,7 @@ import { director } from 'cc';
 import { TowerBuildUI } from './UI/TowerBuildUI';
 import { GMPanel } from './Debug/GMPanel';
 import { QuadTreeDebugDrawSystem } from './Debug/QuadTreeDebugDrawSystem';
+import { RenderModeSelectionOverlaySystem } from './Debug/RenderModeSelectionOverlaySystem';
 
 const CASTLE_UPGRADE_COSTS = [0, 160, 280, 420, 600];
 const STARTING_GOLD = 200;
@@ -140,6 +141,8 @@ export class GameMain extends Component {
     private debugShowRender: boolean = false;
     private debugShowQuadTree: boolean = false;
     private quadTreeDebugSystem: QuadTreeDebugDrawSystem | null = null;
+    private renderModeSelectionOverlaySystem: RenderModeSelectionOverlaySystem | null = null;
+    private debugClickMarker: { x: number; y: number; ttl: number; maxTtl: number } | null = null;
     private playerMoveInput: PlayerMoveInputAdapter | null = null;
     private playerControlSystem: PlayerControlSystem | null = null;
     private levelTimeSeconds: number = 0;
@@ -302,6 +305,24 @@ export class GameMain extends Component {
             this.quadTreeDebugSystem.setContext(gmGraphics as any);
             this.quadTreeDebugSystem.setEnabled(false);
             this.world.registerSystem(this.quadTreeDebugSystem);
+
+            const selectGfx = new Node('GMSelectionGfx');
+            selectGfx.layer = Layers.Enum.UI_2D;
+            selectGfx.setPosition(0, 0, 0);
+            selectGfx.getComponent(UITransform) ?? selectGfx.addComponent(UITransform);
+            entityRootNode.addChild(selectGfx);
+            selectGfx.setSiblingIndex(entityRootNode.children.length - 1);
+            const selectGraphics = selectGfx.addComponent(Graphics);
+
+            this.renderModeSelectionOverlaySystem = new RenderModeSelectionOverlaySystem(
+                this.world,
+                () => this.debugSelectedEntityId,
+                () => this.debugClickMarker,
+                103
+            );
+            this.renderModeSelectionOverlaySystem.setContext(selectGraphics as any);
+            this.renderModeSelectionOverlaySystem.setEnabled(false);
+            this.world.registerSystem(this.renderModeSelectionOverlaySystem);
         }
 
         this.damageSystem = new DamageSystem(this.world, this.collisionSystem, 11);
@@ -327,7 +348,8 @@ export class GameMain extends Component {
                 selectAt: (x: number, y: number) => this.selectEntityAt(x, y),
                 toggleGM: () => this.toggleGM()
             };
-            this.debugInput = new DebugCommandAdapter(this.debugCommandBus, ctx, uiTransform);
+            const pickTransform = this.entityRootNode?.getComponent(UITransform) ?? uiTransform;
+            this.debugInput = new DebugCommandAdapter(this.debugCommandBus, ctx, pickTransform);
             this.debugInput.enable();
             this.createDebugLabel();
             this.initGMPanel();
@@ -760,6 +782,10 @@ export class GameMain extends Component {
         if (this.debugShowQuadTree && this.spatialIndex) {
             this.rebuildSpatialIndexForSelection();
         }
+        if (this.debugClickMarker) {
+            this.debugClickMarker.ttl -= Math.max(0, deltaTime);
+            if (this.debugClickMarker.ttl <= 0) this.debugClickMarker = null;
+        }
 
         if (this.isPaused || GameSession.instance.isGameOver) {
             this.renderWhilePaused();
@@ -949,6 +975,7 @@ export class GameMain extends Component {
 
     private selectEntityAt(x: number, y: number): void {
         if (!this.world) return;
+        this.debugClickMarker = { x, y, ttl: 0.35, maxTtl: 0.35 };
         if (this.spatialIndex) {
             this.rebuildSpatialIndexForSelection();
         }
@@ -982,8 +1009,10 @@ export class GameMain extends Component {
             }
         }
 
-        this.debugSelectedEntityId = bestId;
-        DebugState.selectedEntityId = bestId;
+        if (bestId !== null) {
+            this.debugSelectedEntityId = bestId;
+            DebugState.selectedEntityId = bestId;
+        }
         this.updateDebugLabel();
     }
 
@@ -1045,6 +1074,8 @@ export class GameMain extends Component {
             if (!showRender) this.renderSystem.clear();
         }
         this.actorViewSystem?.setSpriteVisible(!showRender);
+        if (this.debugOverlaySystem) this.debugOverlaySystem.active = !showRender;
+        this.renderModeSelectionOverlaySystem?.setEnabled(showRender);
     }
 
     private setQuadTreeDebugEnabled(enabled: boolean): void {

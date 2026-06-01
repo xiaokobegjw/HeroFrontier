@@ -317,7 +317,10 @@ export class BaseProductionSystem extends ECSSystem {
 
         // 让士兵走到最终目标位置（确保不会与障碍物碰撞）
         if (this.actionSystem) {
-            this.actionSystem.setSingleAction(created, new WalkAction(created, { x: finalTargetPos.x, y: finalTargetPos.y }));
+            this.actionSystem.setSingleAction(
+                created,
+                new WalkAction(created, { x: finalTargetPos.x, y: finalTargetPos.y })
+            );
         }
 
         return true;

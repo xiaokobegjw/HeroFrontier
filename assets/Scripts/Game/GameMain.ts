@@ -64,7 +64,10 @@ import { SupplySystem } from './ECS/Systems/SupplySystem';
 import { SoldierFormationSystem } from './ECS/Systems/SoldierFormationSystem';
 import { MovementBlockSystem } from './ECS/Systems/MovementBlockSystem';
 import { UnitSeparationSystem } from './ECS/Systems/UnitSeparationSystem';
+import { WorldBoundsSystem } from './ECS/Systems/WorldBoundsSystem';
+import { IdleFriendlySpacingSystem } from './ECS/Systems/IdleFriendlySpacingSystem';
 import { ActorViewSystem } from './ECS/Systems/ActorViewSystem';
+import { HealthBarOverlaySystem } from './ECS/Systems/HealthBarOverlaySystem';
 import { ExperienceSystem } from './ECS/Systems/ExperienceSystem';
 import { ExperienceComponent } from './ECS/Components/ExperienceComponent';
 import { PlayerControlSystem } from './ECS/Systems/PlayerControlSystem';
@@ -102,12 +105,17 @@ export class GameMain extends Component {
     private spatialIndexSystem: SpatialIndexSystem = null!;
     private aiSystem: AISystem = null!;
     private renderSystem: RenderSystem = null!;
+    private worldBoundsSystem: WorldBoundsSystem | null = null;
+    private idleFriendlySpacingSystem: IdleFriendlySpacingSystem | null = null;
+    private healthBarOverlaySystem: HealthBarOverlaySystem | null = null;
     @property(Node)
     public levelBgNode: Node | null = null;
     @property(Node)
     public entityRootNode: Node | null = null;
     @property(Node)
     public effectRootNode: Node | null = null;
+    @property(Node)
+    public healthBarGfxNode: Node | null = null;
     @property(TowerBuildUI)
     public towerBuildUI: TowerBuildUI | null = null;
     private debugOverlaySystem: DebugOverlaySystem | null = null;
@@ -207,6 +215,8 @@ export class GameMain extends Component {
 
         this.world.registerSystem(new MovementBlockSystem(this.world, 4.85));
         this.world.registerSystem(new UnitSeparationSystem(this.world, 4.86));
+        this.worldBoundsSystem = new WorldBoundsSystem(4.87);
+        this.world.registerSystem(this.worldBoundsSystem);
 
         this.spatialIndexSystem = new SpatialIndexSystem({ x: -1000, y: -1000, width: 2000, height: 2000 }, 4.9);
         this.world.registerSystem(this.spatialIndexSystem);
@@ -214,8 +224,11 @@ export class GameMain extends Component {
         this.perceptionSystem = new PerceptionSystem(this.world, 5);
         this.world.registerSystem(this.perceptionSystem);
 
-        this.targetingSystem = new TargetingSystem(6);
+        this.targetingSystem = new TargetingSystem(this.world, 6);
         this.world.registerSystem(this.targetingSystem);
+
+        this.idleFriendlySpacingSystem = new IdleFriendlySpacingSystem(this.world, this.actionSystem, 6.25);
+        this.world.registerSystem(this.idleFriendlySpacingSystem);
 
         this.world.registerSystem(new SupplySystem(this.world, 5.8));
         this.world.registerSystem(
@@ -283,9 +296,35 @@ export class GameMain extends Component {
             this.world.registerSystem(this.actorViewSystem);
         }
 
-        if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
+        if (entityRootNode) {
+            const hbGfx = this.healthBarGfxNode ?? new Node('HealthBarGfx');
+            hbGfx.layer = Layers.Enum.UI_2D;
+            hbGfx.setPosition(0, 0, 0);
+            hbGfx.getComponent(UITransform) ?? hbGfx.addComponent(UITransform);
+            if (!hbGfx.parent) {
+                const hbParent = this.effectRootNode ?? entityRootNode;
+                hbParent.addChild(hbGfx);
+                hbGfx.setSiblingIndex(hbParent.children.length - 1);
+            }
+            this.healthBarGfxNode = hbGfx;
+
+            const hbGraphics = hbGfx.getComponent(Graphics) ?? hbGfx.addComponent(Graphics);
+            this.healthBarOverlaySystem = new HealthBarOverlaySystem(this.world, 101.2);
+            this.healthBarOverlaySystem.setContext(hbGraphics as any);
+            this.world.registerSystem(this.healthBarOverlaySystem);
+        }
+
+        if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug && entityRootNode) {
+            const overlayGfx = new Node('DebugOverlayGfx');
+            overlayGfx.layer = Layers.Enum.UI_2D;
+            overlayGfx.setPosition(0, 0, 0);
+            overlayGfx.getComponent(UITransform) ?? overlayGfx.addComponent(UITransform);
+            entityRootNode.addChild(overlayGfx);
+            overlayGfx.setSiblingIndex(entityRootNode.children.length - 1);
+            const overlayGraphics = overlayGfx.addComponent(Graphics);
+
             this.debugOverlaySystem = new DebugOverlaySystem(this.world, () => this.debugSelectedEntityId, 101);
-            this.debugOverlaySystem.setContext(graphics as any);
+            this.debugOverlaySystem.setContext(overlayGraphics as any);
             this.world.registerSystem(this.debugOverlaySystem);
         }
 
@@ -473,6 +512,8 @@ export class GameMain extends Component {
         const gridH = Math.max(1, Math.floor(level.gridH));
         const levelW = gridW * cellSize;
         const levelH = gridH * cellSize;
+        this.worldBoundsSystem?.setBounds(-levelW * 0.5, levelW * 0.5, -levelH * 0.5, levelH * 0.5);
+        this.idleFriendlySpacingSystem?.setBounds(-levelW * 0.5, levelW * 0.5, -levelH * 0.5, levelH * 0.5);
 
         try {
             const alpha = Math.max(0, Math.min(1, typeof level.backgroundOpacity === 'number' ? level.backgroundOpacity : 1));
@@ -492,6 +533,11 @@ export class GameMain extends Component {
                 const entityUi = entityRootNode.getComponent(UITransform) ?? entityRootNode.addComponent(UITransform);
                 entityUi.setContentSize(levelW, levelH);
                 entityUi.setAnchorPoint(0.5, 0.5);
+            }
+            const hb = this.healthBarGfxNode?.getComponent(UITransform);
+            if (hb) {
+                hb.setContentSize(levelW, levelH);
+                hb.setAnchorPoint(0.5, 0.5);
             }
 
             const ui = bgNode.getComponent(UITransform) ?? bgNode.addComponent(UITransform);

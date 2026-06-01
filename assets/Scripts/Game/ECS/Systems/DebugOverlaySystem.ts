@@ -29,7 +29,12 @@ export class DebugOverlaySystem extends ECSSystem {
     }
 
     public update(entities: Entity[], deltaTime: number): void {
+        void entities;
+        void deltaTime;
         if (!this.ctx) return;
+
+        const ctx = this.ctx;
+        ctx.clear();
 
         const id = this.getSelectedEntityId();
         if (id === null) return;

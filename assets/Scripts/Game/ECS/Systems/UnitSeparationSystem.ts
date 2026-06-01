@@ -4,20 +4,19 @@ import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { World } from '../../../Shared/ECS/Core/World';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
-import { SpatialIndexSystem } from './SpatialIndexSystem';
 import { HealthComponent } from '../Components/HealthComponent';
 import { FactionComponent } from '../Components/FactionComponent';
 import { FactionType } from '../../Data/Faction';
 
 type Body = {
     entity: Entity;
+    ox: number;
+    oy: number;
     x: number;
     y: number;
     r: number;
     faction: FactionType;
-    // 存储需要应用的位移（延迟更新）
-    dx: number;
-    dy: number;
+    enemyContact: boolean;
 };
 
 /**
@@ -26,8 +25,13 @@ type Body = {
 export class UnitSeparationSystem extends ECSSystem {
     private world: World;
     private queryPadding: number = 48;
-    private maxPushPerFrame: number = 8;  // 每帧最大推挤距离，防止过度修正
-    private separationStrength: number = 1.0;  // 分离强度系数
+    private maxPushPerFrameEnemy: number = 8;
+    private maxPushPerFrameFriendly: number = 5;
+    private separationStrengthEnemy: number = 1.0;
+    private separationStrengthFriendly: number = 0.7;
+    private friendlyMinDistScale: number = 0.9;
+    private cellSize: number = 64;
+    private solverIterations: number = 4;
 
     constructor(world: World, priority: number = 4.86) {
         super('UnitSeparationSystem', priority);
@@ -39,11 +43,7 @@ export class UnitSeparationSystem extends ECSSystem {
     }
 
     public update(entities: Entity[], deltaTime: number): void {
-        const spatial = this.world.getSystem(SpatialIndexSystem);
-        if (!spatial) return;
-
         const bodies: Body[] = [];
-        // 收集所有活跃单位的信息（延迟更新模式）
         for (const e of entities) {
             const hp = e.getComponent(HealthComponent);
             if (!hp || hp.isDead) continue;
@@ -51,100 +51,119 @@ export class UnitSeparationSystem extends ECSSystem {
             const col = e.getComponent(ColliderComponent);
             const fac = e.getComponent(FactionComponent);
             if (!tr || !col || col.shape !== ColliderShapeType.Circle) continue;
+            const cx = tr.x + col.offsetX;
+            const cy = tr.y + col.offsetY;
             bodies.push({
                 entity: e,
-                x: tr.x + col.offsetX,
-                y: tr.y + col.offsetY,
+                ox: cx,
+                oy: cy,
+                x: cx,
+                y: cy,
                 r: col.radius,
                 faction: fac?.faction ?? FactionType.Neutral,
-                dx: 0,  // 初始化位移为0
-                dy: 0
+                enemyContact: false
             });
         }
 
-        // 计算分离力（使用初始位置，不立即更新）
-        for (let i = 0; i < bodies.length; i++) {
-            const a = bodies[i];
-            const range = {
-                x: a.x - a.r - this.queryPadding,
-                y: a.y - a.r - this.queryPadding,
-                width: (a.r + this.queryPadding) * 2,
-                height: (a.r + this.queryPadding) * 2
-            };
+        if (bodies.length <= 1) return;
 
-            const neighborIds = [
-                ...spatial.queryFaction(FactionType.Player, range),
-                ...spatial.queryFaction(FactionType.Enemy, range),
-                ...spatial.queryFaction(FactionType.Neutral, range)
-            ];
+        const dtFactor = Math.min(Math.max(0, deltaTime) * 60, 1);
+        const cellSize = Math.max(16, this.cellSize);
+        const iters = Math.max(1, this.solverIterations);
 
-            let pushX = 0;
-            let pushY = 0;
+        for (let iter = 0; iter < iters; iter++) {
+            const grid = this.buildGrid(bodies, cellSize);
+            for (const a of bodies) {
+                const ix = Math.floor(a.x / cellSize);
+                const iy = Math.floor(a.y / cellSize);
+                for (let gx = ix - 1; gx <= ix + 1; gx++) {
+                    for (let gy = iy - 1; gy <= iy + 1; gy++) {
+                        const list = grid.get(`${gx},${gy}`);
+                        if (!list) continue;
+                        for (const b of list) {
+                            if (b.entity.id <= a.entity.id) continue;
+                            const qx = b.x - a.x;
+                            const qy = b.y - a.y;
+                            const qDistSq = qx * qx + qy * qy;
+                            const maxR = a.r + b.r + this.queryPadding;
+                            if (qDistSq > maxR * maxR) continue;
 
-            for (const id of neighborIds) {
-                // 跳过自己
-                if (id === a.entity.id) continue;
+                            const dx = a.x - b.x;
+                            const dy = a.y - b.y;
+                            const distSq = dx * dx + dy * dy;
+                            const sameFaction = a.faction === b.faction;
+                            if (sameFaction) continue;
+                            const rSum = a.r + b.r;
+                            const minDist = rSum + 2;
+                            if (distSq >= minDist * minDist) continue;
 
-                // 找到邻居实体对应的 body
-                let b: Body | undefined;
-                for (let j = 0; j < bodies.length; j++) {
-                    if (bodies[j].entity.id === id) {
-                        b = bodies[j];
-                        break;
+                            let nx = 0;
+                            let ny = 0;
+                            const dist = Math.sqrt(Math.max(1e-8, distSq));
+                            if (dist > 1e-4) {
+                                nx = dx / dist;
+                                ny = dy / dist;
+                            } else {
+                                const n = this.pairUnit(a.entity.id, b.entity.id);
+                                nx = n.x;
+                                ny = n.y;
+                            }
+
+                            const overlap = minDist - dist;
+                            const corr = overlap * 0.5 * this.separationStrengthEnemy * dtFactor;
+
+                            a.x += nx * corr;
+                            a.y += ny * corr;
+                            b.x -= nx * corr;
+                            b.y -= ny * corr;
+
+                            a.enemyContact = true;
+                            b.enemyContact = true;
+                        }
                     }
                 }
-                if (!b) continue;
-
-                const dx = a.x - b.x;
-                const dy = a.y - b.y;
-                const distSq = dx * dx + dy * dy;
-                const minDist = a.r + b.r + 2;
-                const minDistSq = minDist * minDist;
-                
-                // 没有重叠则跳过
-                if (distSq >= minDistSq) continue;
-
-                // 计算分离方向和力度
-                const dist = Math.sqrt(Math.max(1e-6, distSq));
-                const nx = dist > 1e-4 ? dx / dist : (Math.random() - 0.5) * 2;  // 避免除零，随机方向
-                const ny = dist > 1e-4 ? dy / dist : (Math.random() - 0.5) * 2;
-                const overlap = minDist - dist;
-                
-                // 同阵营分离力度更大
-                const sameFaction = a.faction === b.faction;
-                const strength = sameFaction ? 1 : 0.65;
-                
-                // 累积推挤力
-                pushX += nx * overlap * strength;
-                pushY += ny * overlap * strength;
             }
-
-            // 存储位移（延迟应用）
-            a.dx = pushX;
-            a.dy = pushY;
         }
 
-        // 统一应用位移（使用 deltaTime 缩放和最大限制）
-        const dtFactor = Math.min(deltaTime * 60, 1);  // 基于帧率的缩放因子
         for (const body of bodies) {
-            // 应用 deltaTime 缩放
-            let finalDx = body.dx * this.separationStrength * dtFactor;
-            let finalDy = body.dy * this.separationStrength * dtFactor;
-
-            // 限制最大推挤距离，防止震荡
+            const maxPush = body.enemyContact ? this.maxPushPerFrameEnemy : this.maxPushPerFrameFriendly;
+            let finalDx = body.x - body.ox;
+            let finalDy = body.y - body.oy;
             const pushMagnitude = Math.sqrt(finalDx * finalDx + finalDy * finalDy);
-            if (pushMagnitude > this.maxPushPerFrame) {
-                const scale = this.maxPushPerFrame / pushMagnitude;
+            if (pushMagnitude > maxPush && pushMagnitude > 1e-8) {
+                const scale = maxPush / pushMagnitude;
                 finalDx *= scale;
                 finalDy *= scale;
             }
 
-            // 应用到位移组件
             const tr = body.entity.getComponent(TransformComponent);
             if (tr) {
                 tr.x += finalDx;
                 tr.y += finalDy;
             }
         }
+    }
+
+    private buildGrid(bodies: Body[], cellSize: number): Map<string, Body[]> {
+        const grid = new Map<string, Body[]>();
+        for (const b of bodies) {
+            const ix = Math.floor(b.x / cellSize);
+            const iy = Math.floor(b.y / cellSize);
+            const key = `${ix},${iy}`;
+            const list = grid.get(key);
+            if (list) list.push(b);
+            else grid.set(key, [b]);
+        }
+        return grid;
+    }
+
+    private pairUnit(a: number, b: number): { x: number; y: number } {
+        let x = (a * 1103515245 + b * 12345) >>> 0;
+        x ^= x << 13;
+        x ^= x >>> 17;
+        x ^= x << 5;
+        const t = (x >>> 0) / 4294967296;
+        const ang = t * Math.PI * 2;
+        return { x: Math.cos(ang), y: Math.sin(ang) };
     }
 }

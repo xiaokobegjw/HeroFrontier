@@ -10,6 +10,7 @@ export class HealthComponent extends ECSComponent {
     public max: number = 100;
     /** 是否死亡 */
     public isDead: boolean = false;
+    public lastDamagedTime: number = -9999;
 
     constructor(max: number = 100) {
         super();
@@ -25,5 +26,6 @@ export class HealthComponent extends ECSComponent {
         this.current = 100;
         this.max = 100;
         this.isDead = false;
+        this.lastDamagedTime = -9999;
     }
 }

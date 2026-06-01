@@ -29,6 +29,7 @@
             "enabled": true,
             "goals": [
                 { "id": "attack", "type": "AttackTarget", "weight": 3, "params": { "stopRangeScale": 0.85 }, "minHoldSeconds": 0.1, "hysteresis": 0.1 },
+                { "id": "chase", "type": "ChaseTarget", "weight": 2.5, "params": { "stopRangeScale": 0.9, "repathInterval": 0.25 }, "minHoldSeconds": 0.15, "hysteresis": 0.15 },
                 { "id": "idle", "type": "Idle", "weight": 0.1 }
             ]
         },

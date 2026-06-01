@@ -37,7 +37,10 @@ export class PathFollowSystem extends ECSSystem {
             const follow = entity.getComponent(PathFollowComponent);
             if (!transform || !target || !faction || !follow) continue;
 
-            if (target.targetEntityId !== null) continue;
+            const hasAnyTarget =
+                target.targetEntityId !== null ||
+                (Number.isFinite(target.targetX) && Number.isFinite(target.targetY));
+            if (hasAnyTarget) continue;
 
             if (spatial) {
                 const selfR = approxRadius(entity);

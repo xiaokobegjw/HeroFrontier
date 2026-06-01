@@ -2,7 +2,8 @@ import { ECSSystem } from '../Core/ECSSystem';
 import { Entity } from '../Core/Entity';
 import { ECSComponent } from '../Core/ECSComponent';
 import { Action } from '../Actions/Action';
-import { ActionResult } from '../Actions/ActionResult';
+import { GameConfigManager } from '../../Managers/GameConfigManager';
+import { DebugState } from '../../../Game/Debug/DebugState';
 
 /**
  * 动作系统：管理实体的动作队列执行
@@ -35,6 +36,14 @@ export class ActionSystem extends ECSSystem {
     }
 
     public clearActions(entity: Entity): void {
+        if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
+            if (entity.id === DebugState.selectedEntityId) {
+                let adsfasd = 0;
+                adsfasd++;
+                void adsfasd;
+            }
+        }
+
         this.actionQueues.delete(entity.id);
         this.currentActions.set(entity.id, null);
     }

@@ -39,6 +39,16 @@ export class AISystem extends ECSSystem {
             const ai = entity.getComponent(AIComponent);
             const transform = entity.getComponent(TransformComponent);
             const target = entity.getComponent(TargetComponent);
+
+            if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
+                if(entity.id === DebugState.selectedEntityId)
+                {
+                    let adsfasd = 0;
+                    adsfasd++;
+                    void adsfasd;
+                }
+            }
+                
             if (!ai || !transform || !target) continue;
             if (!ai.enabled) continue;
 
@@ -57,6 +67,7 @@ export class AISystem extends ECSSystem {
                 {
                     let adsfasd = 0;
                     adsfasd++;
+                    void adsfasd;
                 }
             }
 

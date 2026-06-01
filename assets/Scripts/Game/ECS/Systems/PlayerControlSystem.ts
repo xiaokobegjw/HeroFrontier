@@ -49,17 +49,24 @@ export class PlayerControlSystem extends ECSSystem {
             return;
         }
 
+        const dir = this.input.getDirection();
+        const hasInput = Math.abs(dir.x) >= 0.0001 || Math.abs(dir.y) >= 0.0001;
+        if (!hasInput) {
+            if (ai && !ai.enabled) {
+                this.actionSystem.clearActions(player);
+                ai.enabled = true;
+                ai.activeGoalId = '';
+                ai.holdRemaining = 0;
+                ai.hasLastMoveGoal = false;
+            }
+            return;
+        }
+
         if (ai && ai.enabled) {
             ai.enabled = false;
             ai.activeGoalId = '';
             ai.holdRemaining = 0;
             ai.hasLastMoveGoal = false;
-        }
-
-        const dir = this.input.getDirection();
-        if (Math.abs(dir.x) < 0.0001 && Math.abs(dir.y) < 0.0001) {
-            this.actionSystem.clearActions(player);
-            return;
         }
 
         const targetDistance = Math.max(64, move.maxSpeed * 0.5);
@@ -81,4 +88,3 @@ export class PlayerControlSystem extends ECSSystem {
         this.actionSystem.setSingleAction(player, new WalkAction(player, { x: tx, y: ty }, opts));
     }
 }
-

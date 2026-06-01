@@ -19,6 +19,7 @@ import { SpatialIndexSystem } from './SpatialIndexSystem';
 import { FactionType } from '../../Data/Faction';
 import { SkillComponent } from '../Components/SkillComponent';
 import { PlaystyleComponent } from '../Components/PlaystyleComponent';
+import { AggroComponent } from '../Components/AggroComponent';
 
 export type DamageType = 'Physical' | 'Magic';
 
@@ -35,6 +36,7 @@ type DamageSource = {
 export class DamageSystem extends ECSSystem {
     private world: World;
     private collisionSystem: CollisionSystem;
+    private timeSeconds: number = 0;
 
     constructor(world: World, collisionSystem: CollisionSystem, priority: number = 11) {
         super('DamageSystem', priority);
@@ -47,6 +49,7 @@ export class DamageSystem extends ECSSystem {
     }
 
     public update(entities: Entity[], deltaTime: number): void {
+        this.timeSeconds += Math.max(0, deltaTime);
         const events = this.collisionSystem.drainEvents();
         for (const ev of events) {
             const a = this.world.getEntity(ev.aId);
@@ -172,6 +175,9 @@ export class DamageSystem extends ECSSystem {
         const health = targetEntity.getComponent(HealthComponent);
         if (!health || health.isDead) return;
 
+        this.recordAggro(targetEntity, killerId);
+        health.lastDamagedTime = this.timeSeconds;
+
         health.current -= appliedDamage;
         if (health.current <= 0) {
             health.current = 0;
@@ -183,6 +189,26 @@ export class DamageSystem extends ECSSystem {
             this.emitKill(killerId, targetEntity);
             this.world.destroyEntity(targetEntity);
         }
+    }
+
+    private recordAggro(targetEntity: Entity, attackerId: number | null): void {
+        if (attackerId === null) return;
+        if (attackerId === targetEntity.id) return;
+        const attacker = this.world.getEntity(attackerId);
+        if (!attacker || !attacker.active) return;
+        const targetFaction = targetEntity.getComponent(FactionComponent);
+        const attackerFaction = attacker.getComponent(FactionComponent);
+        if (!targetFaction || !attackerFaction) return;
+        if (!targetFaction.isEnemyFaction(attackerFaction.faction)) return;
+
+        let aggro = targetEntity.getComponent(AggroComponent);
+        if (!aggro) {
+            aggro = this.world.acquireComponent(AggroComponent);
+            targetEntity.addComponent(aggro);
+        }
+        aggro.lastAttackerId = attackerId;
+        aggro.lastHitTime = this.timeSeconds;
+        aggro.aggroUntilTime = this.timeSeconds + 1.2;
     }
 
     private tryApplyMeleeHit(hitboxEntity: Entity, targetEntity: Entity): boolean {

@@ -6,13 +6,11 @@ import { ActionRequest, GoalContext } from '../AITypes';
 import { DebugState } from '../../../Debug/DebugState';
 import { TransformComponent } from '../../../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../../Shared/ECS/Components/ColliderComponent';
-import { SoldierComponent } from '../../Components/SoldierComponent';
+import { GameConfigManager } from '../../../../Shared/Managers/GameConfigManager';
 
 export const ChaseTargetGoal: GoalHandler = {
     type: 'ChaseTarget',
     score(world: World, entity: Entity, ai: AIComponent, goal: GoalSpec, ctx: GoalContext): number {
-        const soldier = entity.getComponent(SoldierComponent);
-        if (soldier?.mode === 'Garrison') return -Infinity;
         if (!ctx.targetPos) return -Infinity;
         if (ctx.weaponRange <= 0) return Math.max(0, goal.weight);
         const scaleBase = typeof goal.params?.stopRangeScale === 'number' ? goal.params.stopRangeScale : 0.9;
@@ -36,13 +34,34 @@ export const ChaseTargetGoal: GoalHandler = {
         const repathInterval = repathIntervalBase * repathJitter;
         if (ai.timeSinceRepath < repathInterval) return { type: 'None' };
         ai.timeSinceRepath = 0;
-
+        
+        if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
+                        if(entity.id === DebugState.selectedEntityId)
+                        {
+                            let adsfasd = 0;
+                            adsfasd++;
+                            void adsfasd;
+                        }
+                    }
+                    
+        const self = getCenterAndRadius(entity);
         const targetEnt = ctx.targetId !== null ? world.getEntity(ctx.targetId) : null;
         const target = getCenterAndRadius(targetEnt);
-        const tx = target.x || ctx.targetPos.x;
-        const ty = target.y || ctx.targetPos.y;
+        const tx = targetEnt ? target.x : ctx.targetPos.x;
+        const ty = targetEnt ? target.y : ctx.targetPos.y;
 
-        const ringR = 26 + (entity.id % 6) * 8;
+        const scaleBase = typeof goal.params?.stopRangeScale === 'number' ? goal.params.stopRangeScale : 0.9;
+        const scale = clamp(scaleBase + (rand01(entity.id, 311) - 0.5) * 0.12, 0.75, 0.98);
+
+        const weaponRange = Math.max(0, ctx.weaponRange);
+        const effectiveRange = weaponRange * scale + self.r + target.r;
+        const minR = self.r + target.r + 6;
+        const prefer = effectiveRange * 0.9;
+        const jitterAmp = clamp(self.r + 6, 6, 12);
+        const jitter = (rand01(entity.id, 303) - 0.5) * (jitterAmp * 2);
+        const maxR = Math.max(minR, effectiveRange - 1);
+        const ringR = clamp(prefer + jitter, minR, maxR);
+
         const angle = (entity.id % 12) * ((Math.PI * 2) / 12) + rand01(entity.id, 302) * 0.4;
         const ox = Math.cos(angle) * ringR;
         const oy = Math.sin(angle) * ringR;

@@ -6,6 +6,8 @@ import { ECSComponent } from '../../Shared/ECS/Core/ECSComponent';
 import { IGraphicsContext } from '../../Shared/ECS/Systems/RenderSystem';
 import { TransformComponent } from '../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../Shared/ECS/Components/ColliderComponent';
+import { TargetComponent } from '../ECS/Components/TargetComponent';
+import { PerceptionComponent } from '../ECS/Components/PerceptionComponent';
 
 type ClickMarker = { x: number; y: number; ttl: number; maxTtl: number } | null;
 
@@ -51,11 +53,11 @@ export class RenderModeSelectionOverlaySystem extends ECSSystem {
         ctx.clear();
         if (!this.enabled) return;
 
-        this.drawSelectedRadius(ctx);
+        this.drawSelectedRadiusAndOverlays(ctx);
         this.drawClickMarker(ctx);
     }
 
-    private drawSelectedRadius(ctx: IGraphicsContext): void {
+    private drawSelectedRadiusAndOverlays(ctx: IGraphicsContext): void {
         const id = this.getSelectedEntityId();
         if (id === null) return;
         const ent = this.world.getEntity(id);
@@ -76,6 +78,41 @@ export class RenderModeSelectionOverlaySystem extends ECSSystem {
         ctx.lineWidth = 3;
         ctx.circle(cx, cy, Math.max(1, r));
         ctx.stroke();
+
+        const perception = ent.getComponent(PerceptionComponent);
+        if (perception && perception.viewRange > 0) {
+            ctx.strokeColor = new Color(0, 200, 255, 140);
+            ctx.lineWidth = 2;
+            ctx.circle(tr.x, tr.y, Math.max(1, perception.viewRange));
+            ctx.stroke();
+        }
+
+        const target = ent.getComponent(TargetComponent);
+        if (target) {
+            let tx = target.targetX;
+            let ty = target.targetY;
+            if (target.targetEntityId !== null) {
+                const tEnt = this.world.getEntity(target.targetEntityId);
+                const tTr = tEnt?.getComponent(TransformComponent);
+                const tCol = tEnt?.getComponent(ColliderComponent);
+                if (tTr) {
+                    tx = tTr.x + (tCol?.offsetX ?? 0);
+                    ty = tTr.y + (tCol?.offsetY ?? 0);
+                }
+            }
+            if (Number.isFinite(tx) && Number.isFinite(ty)) {
+                ctx.strokeColor = new Color(255, 80, 80, 230);
+                ctx.lineWidth = 2;
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(tx, ty);
+                ctx.stroke();
+
+                ctx.strokeColor = new Color(255, 80, 80, 200);
+                ctx.lineWidth = 2;
+                ctx.circle(tx, ty, 6);
+                ctx.stroke();
+            }
+        }
     }
 
     private drawClickMarker(ctx: IGraphicsContext): void {
@@ -92,4 +129,3 @@ export class RenderModeSelectionOverlaySystem extends ECSSystem {
         ctx.stroke();
     }
 }
-

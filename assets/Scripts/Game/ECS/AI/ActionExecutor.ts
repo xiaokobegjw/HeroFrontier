@@ -5,6 +5,8 @@ import { AIComponent } from '../Components/AIComponent';
 import { ActionRequest } from './AITypes';
 import { World } from '../../../Shared/ECS/Core/World';
 import { MoveStatsComponent } from '../Components/MoveStatsComponent';
+import { GameConfigManager } from '../../../Shared/Managers/GameConfigManager';
+import { DebugState } from '../../Debug/DebugState';
 
 export class ActionExecutor {
     private actionSystem: ActionSystem;
@@ -25,6 +27,16 @@ export class ActionExecutor {
         }
 
         if (req.type === 'MoveTo') {
+
+            if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
+                if(entity.id === DebugState.selectedEntityId)
+                {
+                    let adsfasd = 0;
+                    adsfasd++;
+                    void adsfasd;
+                }
+            }
+
             const changed =
                 !ai.hasLastMoveGoal ||
                 Math.abs(ai.lastMoveGoalX - req.x) > 2 ||

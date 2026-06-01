@@ -66,6 +66,14 @@
                     "params": {
                         "stopRangeScale": 0.9
                     }
+                },
+                {
+                    "id": "chase",
+                    "type": "ChaseTarget",
+                    "weight": 2.5,
+                    "params": { "stopRangeScale": 0.9, "repathInterval": 0.25 },
+                    "minHoldSeconds": 0.15,
+                    "hysteresis": 0.15
                 }
             ]
         },

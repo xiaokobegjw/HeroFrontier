@@ -3,9 +3,6 @@ import { ActionResult } from './ActionResult';
 import { Entity } from '../Core/Entity';
 import { TransformComponent } from '../Components/TransformComponent';
 
-/**
- * 移动动作
- */
 export class WalkAction extends Action {
     private maxSpeed: number = 200;
     private accel: number = 800;

@@ -3,7 +3,7 @@
     "evolutionType": "MultiShot",
     "baseTowerId": "ArrowTower",
     "evolutionCost": 450,
-    "description": "连弩速射炮塔：攻速再提升、连锁弹射、清杂兵能力翻倍",
+    "description": "upgrade_desc_arrow_tower_multishot",
     "fields": {
         "WeaponComponent": {
             "damage": 65,

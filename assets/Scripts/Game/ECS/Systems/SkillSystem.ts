@@ -3,41 +3,56 @@ import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { World } from '../../../Shared/ECS/Core/World';
 import { SkillComponent } from '../Components/SkillComponent';
 import { SkillStateComponent } from '../Components/SkillStateComponent';
-import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
-import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
-import { RenderComponent } from '../../../Shared/ECS/Components/RenderComponent';
 import { PlaystyleComponent } from '../Components/PlaystyleComponent';
+import { TargetComponent } from '../Components/TargetComponent';
+import { SkillExecutor, SkillExecuteContext } from '../Skills/SkillExecutor';
+import { DefaultSkillExecutor } from '../Skills/DefaultSkillExecutor';
+import { BladeStormSkillExecutor } from '../Skills/BladeStormSkillExecutor';
+import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 
-export type SkillTargetType = 'None' | 'Self' | 'Enemy' | 'Ally' | 'Point' | 'Area';
-export type SkillCastType = 'Active' | 'Passive';
-
-export type SkillLevelConfig = {
-    level: number;
-    cooldownSeconds: number;
-    power?: number;
-    bonusPct?: number;
-};
-
-export type SkillConfig = {
-    id: string;
-    name?: string;
-    description?: string;
-    castType?: SkillCastType;
-    targetType?: SkillTargetType;
-    category?: string;
-    maxLevel?: number;
-    defaultCooldownSeconds?: number;
-    levels?: SkillLevelConfig[];
-};
+export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
 
 export class SkillSystem extends ECSSystem {
     private world: World;
     private configs: Record<string, SkillConfig>;
+    private executors: Map<string, SkillExecutor> = new Map();
+    private defaultExecutor: SkillExecutor;
 
     constructor(world: World, configs: Record<string, SkillConfig>, priority: number = 6.4) {
         super('SkillSystem', priority);
         this.world = world;
         this.configs = configs;
+        this.defaultExecutor = new DefaultSkillExecutor();
+        this.registerExecutor(new BladeStormSkillExecutor());
+    }
+
+    public getMaxLevel(configId: string): number {
+        const cfg = this.configs[configId];
+        const fromCfg = cfg && typeof cfg.maxLevel === 'number' ? Math.floor(cfg.maxLevel) : 0;
+        if (fromCfg > 0) return fromCfg;
+        if (Array.isArray(cfg?.levels) && cfg!.levels!.length > 0) {
+            let max = 1;
+            for (const lv of cfg!.levels!) {
+                if (typeof (lv as any)?.level === 'number') max = Math.max(max, Math.floor((lv as any).level));
+            }
+            return Math.max(1, max);
+        }
+        return 1;
+    }
+
+    public hasConfig(configId: string): boolean {
+        return !!this.configs[configId];
+    }
+
+    public registerConfig(config: SkillConfig): void {
+        if (!config || typeof (config as any).id !== 'string') return;
+        const id = (config as any).id.trim();
+        if (!id) return;
+        this.configs[id] = config;
+    }
+
+    public registerExecutor(executor: SkillExecutor): void {
+        this.executors.set(executor.id, executor);
     }
 
     public getRequiredComponents(): (new (...args: any[]) => any)[] {
@@ -53,6 +68,7 @@ export class SkillSystem extends ECSSystem {
             this.ensureSkillState(skillComponent, skillState);
             this.updatePlaystyle(entity, skillComponent);
             this.updateCooldowns(skillComponent, skillState, deltaTime);
+            this.tryAutoCast(entity, skillComponent, skillState);
             this.processRequestedCast(entity, skillComponent, skillState);
         }
     }
@@ -137,7 +153,7 @@ export class SkillSystem extends ECSSystem {
         }
 
         while (skill.autoCastEnabled.length < count) {
-            skill.autoCastEnabled.push(false);
+            skill.autoCastEnabled.push(true);
         }
         while (skill.autoCastEnabled.length > count) {
             skill.autoCastEnabled.pop();
@@ -149,6 +165,42 @@ export class SkillSystem extends ECSSystem {
             if (state.skillCooldownRemaining[index] > 0) {
                 state.skillCooldownRemaining[index] = Math.max(0, state.skillCooldownRemaining[index] - deltaTime);
             }
+        }
+    }
+
+    private tryAutoCast(entity: Entity, skill: SkillComponent, state: SkillStateComponent): void {
+        if (state.requestedSkillIndex !== -1) return;
+
+        for (let i = 0; i < skill.skillConfigIds.length; i++) {
+            if (!skill.autoCastEnabled[i]) continue;
+            if ((state.skillCooldownRemaining[i] ?? 0) > 0) continue;
+
+            const configId = skill.skillConfigIds[i] ?? '';
+            if (!configId) continue;
+            const cfg = this.configs[configId];
+            if (!cfg) continue;
+
+            const tt = (cfg.targetType ?? 'Self') as SkillTargetType;
+            const target = entity.getComponent(TargetComponent);
+
+            let targetEntityId: number | null = null;
+            let targetX: number = Number.NaN;
+            let targetY: number = Number.NaN;
+
+            if (tt === 'Enemy' || tt === 'Ally') {
+                targetEntityId = target?.targetEntityId ?? null;
+                if (targetEntityId === null) continue;
+            } else if (tt === 'Point' || tt === 'Area') {
+                const x = target?.targetX ?? Number.NaN;
+                const y = target?.targetY ?? Number.NaN;
+                if (Number.isFinite(x) && Number.isFinite(y)) {
+                    targetX = x;
+                    targetY = y;
+                }
+            }
+
+            this.requestCast(entity.id, i, targetEntityId, targetX, targetY);
+            break;
         }
     }
 
@@ -215,57 +267,20 @@ export class SkillSystem extends ECSSystem {
             `[SkillSystem] ${entity.name} cast skill ${configId} level ${level} on ${targetDesc}`
         );
 
-        // 此处为技能执行框架占位：
-        // 后续可以根据 config.castType / config.targetType / config.levels
-        // 实现具体的伤害、治疗、buff、召唤等效果。
         const levelCfg = this.resolveLevelConfig(config, level);
-        const power = (levelCfg && typeof levelCfg.power === 'number') ? levelCfg.power : 0;
+        const ctx: SkillExecuteContext = {
+            world: this.world,
+            caster: entity,
+            configId,
+            config,
+            level,
+            levelConfig: levelCfg,
+            targetEntityId,
+            targetX,
+            targetY
+        };
 
-        if (power <= 0) return;
-
-        // compute spawn position: target entity center if provided, otherwise provided coords or caster
-        let sx = targetX;
-        let sy = targetY;
-        if (targetEntityId !== null) {
-            const te = this.world.getEntity(targetEntityId);
-            const ttr = te?.getComponent(TransformComponent);
-            if (ttr) {
-                sx = ttr.x;
-                sy = ttr.y;
-            }
-        }
-
-        if (Number.isNaN(sx) || Number.isNaN(sy)) {
-            const ctr = entity.getComponent(TransformComponent);
-            sx = ctr?.x ?? 0;
-            sy = ctr?.y ?? 0;
-        }
-
-        // spawn a short-lived melee hitbox entity
-        const hb = this.world.createEntity(`${entity.name}_skill_${configId}_${Date.now()}`);
-        const tr = this.world.acquireComponent(TransformComponent);
-        tr.x = sx;
-        tr.y = sy;
-        hb.addComponent(tr);
-
-        const hit = this.world.acquireComponent(MeleeHitboxComponent);
-        hit.ownerId = entity.id;
-        hit.damage = Math.max(0, power);
-        hit.armorPenPct = 0;
-        hit.skillMultiplier = 1;
-        hit.critChance = 0;
-        hit.lifeRemaining = 0.18; // short-lived
-        hit.followOwner = false;
-        hit.offsetX = 0;
-        hit.offsetY = 0;
-        hit.canHitMultiple = true;
-        hb.addComponent(hit);
-
-        // optional visual: add a temporary render circle if RenderComponent is available
-        try {
-            const render = this.world.acquireComponent(RenderComponent);
-            render.addCircle( (levelCfg && (levelCfg.power ?? 0)) > 0 ? 24 : 12, [255, 120, 60, 180 ], true);
-            hb.addComponent(render);
-        } catch {}
+        const executor = this.executors.get(configId) ?? this.defaultExecutor;
+        executor.execute(ctx);
     }
 }

@@ -1,0 +1,24 @@
+{
+    "id": "SkillUIConfig",
+    "description": "cfg_desc_skill_ui_config",
+    "atlas": "texturePacker/UI",
+    "maxSlots": 6,
+    "levelNumberFramePattern": "pixel_number{level}.png",
+    "skills": [
+        { "id": "Hero_IronGuard", "iconFrame": "HeroSKTJJS.png", "nameKey": "skill_name_iron_guard", "descKey": "skill_desc_iron_guard" },
+        { "id": "Hero_SeismicStomp", "iconFrame": "HeroSKZZJT.png", "nameKey": "skill_name_seismic_stomp", "descKey": "skill_desc_seismic_stomp" },
+        { "id": "Hero_CounterAttack", "iconFrame": "HeroSKJJZJ.png", "nameKey": "skill_name_counter_attack", "descKey": "skill_desc_counter_attack" },
+        { "id": "Hero_DamageAmplification", "iconFrame": "HeroSKBQYZ.png", "nameKey": "skill_name_damage_amplification", "descKey": "skill_desc_damage_amplification" },
+        { "id": "Hero_IronFrenzy", "iconFrame": "HeroSKTBKB.png", "nameKey": "skill_name_iron_frenzy", "descKey": "skill_desc_iron_frenzy" },
+        { "id": "Hero_TacticalRetreat", "iconFrame": "HeroSKJSLY.png", "nameKey": "skill_name_tactical_retreat", "descKey": "skill_desc_tactical_retreat" },
+        { "id": "Hero1_Skill1", "iconFrame": "HeroSKXFLJ.png", "nameKey": "skill_name_whirlwind", "descKey": "skill_desc_whirlwind" },
+        { "id": "Hero_SkySlash", "iconFrame": "HeroSKLKZZ.png", "nameKey": "skill_name_sky_slash", "descKey": "skill_desc_sky_slash" },
+        { "id": "Hero_BladeStorm", "iconFrame": "HeroSKJRFB.png", "nameKey": "skill_name_blade_storm", "descKey": "skill_desc_blade_storm" },
+        { "id": "Hero_Bloodlust", "iconFrame": "HeroSKSXZY.png", "nameKey": "skill_name_bloodlust", "descKey": "skill_desc_bloodlust" },
+        { "id": "Hero_CommanderAura", "iconFrame": "HeroSKTSGH.png", "nameKey": "skill_name_commander_aura", "descKey": "skill_desc_commander_aura" },
+        { "id": "Hero_RallyingCry", "iconFrame": "HeroSKJJZH.png", "nameKey": "skill_name_rallying_cry", "descKey": "skill_desc_rallying_cry" },
+        { "id": "Hero_SupplyMaster", "iconFrame": "HeroSKSCKR.png", "nameKey": "skill_name_supply_master", "descKey": "skill_desc_supply_master" },
+        { "id": "Hero_GroupHeal", "iconFrame": "HeroSKLHLJ.png", "nameKey": "skill_name_group_heal", "descKey": "skill_desc_group_heal" },
+        { "id": "Hero_SoldierRush", "iconFrame": "HeroSKYYCF.png", "nameKey": "skill_name_soldier_rush", "descKey": "skill_desc_soldier_rush" }
+    ]
+}

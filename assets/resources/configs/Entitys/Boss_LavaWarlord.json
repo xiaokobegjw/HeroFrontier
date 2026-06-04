@@ -110,7 +110,7 @@
                 {
                     "id": "Boss_Skill_FlameShock",
                     "name": "烈焰震荡",
-                    "description": "释放大范围震荡伤害，造成高额物理伤害并小幅震退士兵",
+                    "description": "boss_skill_desc_flame_shock",
                     "cooldown": 6.0,
                     "castRange": 100,
                     "effectRadius": 75,

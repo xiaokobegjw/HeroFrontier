@@ -1,6 +1,6 @@
 {
     "id": "WaveConfig",
-    "description": "波次怪物刷新配置",
+    "description": "cfg_desc_wave_config",
     "waves": [
         {
             "waveRange": [1, 20],

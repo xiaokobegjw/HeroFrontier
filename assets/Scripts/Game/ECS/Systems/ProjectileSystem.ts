@@ -23,30 +23,14 @@ export class ProjectileSystem extends ECSSystem {
             const projectile = entity.getComponent(ProjectileComponent);
             if (!transform || !projectile) continue;
 
-            // 记录旧位置用于计算朝向
             const oldX = transform.x;
             const oldY = transform.y;
-            const oldHeight = projectile.height;
 
-            // 更新平面坐标
             transform.x += projectile.vx * deltaTime;
             transform.y += projectile.vy * deltaTime;
 
-            // 处理抛物线高度逻辑
-            if (projectile.isParabola) {
-                projectile.vz -= projectile.gravity * deltaTime;
-                projectile.height += projectile.vz * deltaTime;
-                
-                // 如果落地 (高度小于0)，生命值直接归零
-                if (projectile.height < 0) {
-                    projectile.height = 0;
-                    projectile.lifeRemaining = 0;
-                }
-            }
-
-            // 更新旋转朝向以匹配运动轨迹 (包含高度带来的视觉偏转)
             const dx = transform.x - oldX;
-            const dy = (transform.y + projectile.height) - (oldY + oldHeight);
+            const dy = transform.y - oldY;
             if (dx !== 0 || dy !== 0) {
                 transform.rotation = Math.atan2(dy, dx) * (180 / Math.PI);
             }
@@ -58,4 +42,3 @@ export class ProjectileSystem extends ECSSystem {
         }
     }
 }
-

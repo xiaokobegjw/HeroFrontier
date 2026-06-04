@@ -2,6 +2,7 @@ import { Action } from './Action';
 import { ActionResult } from './ActionResult';
 import { Entity } from '../Core/Entity';
 import { TransformComponent } from '../Components/TransformComponent';
+import { MoveSpeedModifierComponent } from '../Components/MoveSpeedModifierComponent';
 
 export class WalkAction extends Action {
     private maxSpeed: number = 200;
@@ -39,11 +40,17 @@ export class WalkAction extends Action {
             return ActionResult.SUCCESS("Reached target position");
         }
 
-        const stoppingDistance = (this.currentSpeed * this.currentSpeed) / (2 * Math.max(1e-6, this.decel));
+        const speedMod = this.actor.getComponent(MoveSpeedModifierComponent);
+        const mult = speedMod ? Math.max(0.05, Math.min(2, speedMod.multiplier)) : 1;
+        const maxSpeed = this.maxSpeed * mult;
+        const accel = this.accel * mult;
+        const decel = this.decel * mult;
+
+        const stoppingDistance = (this.currentSpeed * this.currentSpeed) / (2 * Math.max(1e-6, decel));
         if (distance <= stoppingDistance) {
-            this.currentSpeed = Math.max(0, this.currentSpeed - this.decel * deltaTime);
+            this.currentSpeed = Math.max(0, this.currentSpeed - decel * deltaTime);
         } else {
-            this.currentSpeed = Math.min(this.maxSpeed, this.currentSpeed + this.accel * deltaTime);
+            this.currentSpeed = Math.min(maxSpeed, this.currentSpeed + accel * deltaTime);
         }
 
         const moveDist = this.currentSpeed * deltaTime;

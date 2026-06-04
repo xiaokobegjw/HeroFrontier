@@ -3,7 +3,7 @@
     "evolutionType": "Arcane",
     "baseTowerId": "MagicTower",
     "evolutionCost": 480,
-    "description": "奥术减防塔：大范围常驻魔防削减，适配法师兵团、法系英雄流派",
+    "description": "upgrade_desc_magic_tower_arcane",
     "fields": {
         "WeaponComponent": {
             "damage": 90,

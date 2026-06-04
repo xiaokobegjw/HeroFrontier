@@ -48,13 +48,22 @@ export class WeaponSystem extends ECSSystem {
             const selfY = transform.y + (selfCollider?.offsetY ?? 0);
             const selfRadius = this.approxRadius(selfCollider);
 
+             if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
+                    if(entity.id === DebugState.selectedEntityId)
+                    {
+                        let adsfasd = 0;
+                        adsfasd++;
+                    }
+                }
+                
             let tx = target.targetX;
             let ty = target.targetY;
             let targetRadius = 0;
             if (target.targetEntityId !== null) {
                 const targetEntity = this.world.getEntity(target.targetEntityId);
-                const tt = targetEntity?.getComponent(TransformComponent);
-                const tc = targetEntity?.getComponent(ColliderComponent);
+                if (!targetEntity) continue;
+                const tt = targetEntity.getComponent(TransformComponent);
+                const tc = targetEntity.getComponent(ColliderComponent);
                 if (tt) {
                     tx = tt.x + (tc?.offsetX ?? 0);
                     ty = tt.y + (tc?.offsetY ?? 0);
@@ -212,34 +221,6 @@ export class WeaponSystem extends ECSSystem {
         projectile.vx = dirX * speed;
         projectile.vy = dirY * speed;
         projectile.lifeRemaining = lifeSeconds;
-
-        // 处理抛物线发射参数
-        if (configId && configId.toLowerCase().includes('arrow')) {
-            projectile.isParabola = true;
-            projectile.gravity = 600; // 模拟重力
-            
-            // 计算飞行时间：T = 距离 / 平面速度
-            // 如果有特定目标，计算到目标的飞行时间以修正落点
-            const targetId = owner.getComponent(TargetComponent)?.targetEntityId;
-            const targetEnt = targetId !== null ? this.world.getEntity(targetId!) : null;
-            const targetTr = targetEnt?.getComponent(TransformComponent);
-            
-            let dist = 300; // 默认距离
-            if (targetTr) {
-                const dx = targetTr.x - x;
-                const dy = targetTr.y - y;
-                dist = Math.sqrt(dx * dx + dy * dy);
-            }
-            
-            const flightTime = Math.max(0.05, dist / Math.max(1, speed));
-            const launchHeight = 10;
-            projectile.height = launchHeight;
-
-            // 让箭在到达目标距离 (t = flightTime) 时落地：0 = h0 + vz*T - 0.5*g*T^2
-            // => vz = 0.5*g*T - h0/T
-            projectile.vz = projectile.gravity * flightTime * 0.5 - launchHeight / flightTime;
-            if (projectile.vz < 0) projectile.vz = 0;
-        }
 
         entity.addComponent(projectile);
 

@@ -1,6 +1,6 @@
 {
     "id": "SlotMachineConfig",
-    "description": "老虎机抽奖配置",
+    "description": "cfg_desc_slot_machine_config",
     "costPerSpin": 120,
     "maxSkillSlots": 6,
     "jackpotMultiplier": 3,
@@ -28,15 +28,15 @@
     "jackpotRewards": {
         "skillSlotNotFull": {
             "type": "instantMaxSkill",
-            "description": "立即获得一个满级技能"
+            "description": "slot_machine_jackpot_instant_max_skill"
         },
         "skillSlotFullNotMaxed": {
             "type": "randomMaxUpgrade",
-            "description": "随机将一个技能升至满级"
+            "description": "slot_machine_jackpot_random_max_upgrade"
         },
         "limitBreakMode": {
             "type": "superBonus",
-            "description": "获得超级属性加成",
+            "description": "slot_machine_jackpot_super_bonus",
             "bonusAmount": 0.25
         }
     },

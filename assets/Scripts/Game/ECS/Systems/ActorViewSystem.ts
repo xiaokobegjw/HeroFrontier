@@ -1,4 +1,4 @@
-import { Animation, AnimationClip, Node, Prefab, Sprite, UITransform, instantiate, resources } from 'cc';
+import { Animation, AnimationClip, Node, Prefab, Sprite, UITransform, Vec3, instantiate, resources } from 'cc';
 import { ECSSystem } from '../../../Shared/ECS/Core/ECSSystem';
 import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 import { Entity } from '../../../Shared/ECS/Core/Entity';
@@ -13,6 +13,7 @@ import { LevelComponent } from '../Components/LevelComponent';
 import { ProjectileComponent } from '../Components/ProjectileComponent';
 import { ProjectileSpecComponent } from '../Components/ProjectileSpecComponent';
 import { TowerComponent } from '../Components/TowerComponent';
+import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
 
 type ViewState = {
     node: Node;
@@ -24,6 +25,11 @@ type ViewState = {
     levelNodes: Node[];
     activeSoldierNode: Node | null;
     activeAttackNode: Node | null;
+    attackAreaNode: Node | null;
+    lastAttackAreaW: number;
+    lastAttackAreaH: number;
+    lastAttackAreaOffX: number;
+    lastAttackAreaOffY: number;
     lastLevelViewIndex: number;
     lastShowDamage: boolean;
     lastHpCurrent: number;
@@ -82,17 +88,17 @@ export class ActorViewSystem extends ECSSystem {
             }
 
             const isProjectile = entity.hasComponent(ProjectileComponent) || entity.hasComponent(ProjectileSpecComponent);
-            const projectileHeight = isProjectile ? (entity.getComponent(ProjectileComponent)?.height ?? 0) : 0;
-            state.node.setPosition(transform.x + view.offsetX, transform.y + view.offsetY + projectileHeight, 0);
+            const isBladeStorm = entity.name.indexOf('Effect_BladeStorm_') !== -1 || (view.prefabPath && view.prefabPath.indexOf('JRFB_Prefab') !== -1);
+            state.node.setPosition(transform.x + view.offsetX, transform.y + view.offsetY, 0);
             this.updateLevelDamageView(entity, view, state);
-            if (!isProjectile) {
+            if (!isProjectile && !isBladeStorm) {
                 this.updateFacing(entity, transform, state);
             }
 
             // 如果不是塔类实体，直接翻转根节点
             if (!view.useLevelDamageView) {
                 const baseScaleX = Math.max(0.0001, Math.abs(transform.scaleX));
-                if (!isProjectile) {
+                if (!isProjectile && !isBladeStorm) {
                     transform.scaleX = baseScaleX * state.facingX;
                 } else {
                     transform.scaleX = baseScaleX;
@@ -105,7 +111,7 @@ export class ActorViewSystem extends ECSSystem {
                 if (flipNode) flipNode.setScale(state.facingX, 1, 1);
             }
 
-            if (isProjectile) {
+            if (isProjectile || isBladeStorm) {
                 state.node.setRotationFromEuler(0, 0, transform.rotation);
             } else {
                 state.node.setRotationFromEuler(0, 0, 0);
@@ -126,6 +132,8 @@ export class ActorViewSystem extends ECSSystem {
                 view.fireOffsetX = 0;
                 view.fireOffsetY = 0;
             }
+
+            this.updateAttackAreaCollider(entity, view, state);
 
             const nextState = this.resolveState(entity, view, transform, state);
             if (state.animation) {
@@ -238,6 +246,11 @@ export class ActorViewSystem extends ECSSystem {
                 levelNodes,
                 activeSoldierNode: null,
                 activeAttackNode: null,
+                attackAreaNode: this.findNodeByName(node, 'attackArea'),
+                lastAttackAreaW: Number.NaN,
+                lastAttackAreaH: Number.NaN,
+                lastAttackAreaOffX: Number.NaN,
+                lastAttackAreaOffY: Number.NaN,
                 lastLevelViewIndex: -1,
                 lastShowDamage: false,
                 lastHpCurrent: Number.NaN,
@@ -253,6 +266,69 @@ export class ActorViewSystem extends ECSSystem {
         } finally {
             this.pendingLoads.delete(entity.id);
         }
+    }
+
+    private updateAttackAreaCollider(entity: Entity, view: ViewComponent, state: ViewState): void {
+        if (!state.attackAreaNode) return;
+        if (entity.name.indexOf('Effect_BladeStorm_') === -1 && view.prefabPath.indexOf('JRFB_Prefab') === -1) return;
+
+        const collider = entity.getComponent(ColliderComponent);
+        const tr = entity.getComponent(TransformComponent);
+        if (!collider) return;
+        if (!tr) return;
+        const ui = state.attackAreaNode.getComponent(UITransform);
+        if (!ui) return;
+
+        const w0 = Math.max(1, ui.contentSize.width);
+        const h0 = Math.max(1, ui.contentSize.height);
+        const left = -ui.anchorX * w0;
+        const bottom = -ui.anchorY * h0;
+        const right = left + w0;
+        const top = bottom + h0;
+
+        const p0 = ui.convertToWorldSpaceAR(new Vec3(left, bottom, 0));
+        const p1 = ui.convertToWorldSpaceAR(new Vec3(right, bottom, 0));
+        const p2 = ui.convertToWorldSpaceAR(new Vec3(right, top, 0));
+        const p3 = ui.convertToWorldSpaceAR(new Vec3(left, top, 0));
+
+        const parent = state.node.parent;
+        const parentUi = parent?.getComponent(UITransform) ?? null;
+        if (!parentUi) return;
+
+        const l0 = parentUi.convertToNodeSpaceAR(p0);
+        const l1 = parentUi.convertToNodeSpaceAR(p1);
+        const l2 = parentUi.convertToNodeSpaceAR(p2);
+        const l3 = parentUi.convertToNodeSpaceAR(p3);
+
+        const minX = Math.min(l0.x, l1.x, l2.x, l3.x);
+        const maxX = Math.max(l0.x, l1.x, l2.x, l3.x);
+        const minY = Math.min(l0.y, l1.y, l2.y, l3.y);
+        const maxY = Math.max(l0.y, l1.y, l2.y, l3.y);
+
+        const w = Math.max(1, Math.round(maxX - minX));
+        const h = Math.max(1, Math.round(maxY - minY));
+        const cx = (minX + maxX) * 0.5;
+        const cy = (minY + maxY) * 0.5;
+
+        const offX = Math.round((cx - tr.x) * 100) / 100;
+        const offY = Math.round((cy - tr.y) * 100) / 100;
+
+        collider.shape = ColliderShapeType.AABB;
+        collider.width = w;
+        collider.height = h;
+        collider.offsetX = offX;
+        collider.offsetY = offY;
+    }
+
+    private findNodeByName(root: Node, name: string): Node | null {
+        if (root.name === name) return root;
+        const stack: Node[] = [root];
+        while (stack.length > 0) {
+            const n = stack.pop()!;
+            if (n.name === name) return n;
+            for (const ch of n.children) stack.push(ch);
+        }
+        return null;
     }
 
     private async instantiateNode(view: ViewComponent, name: string): Promise<Node> {

@@ -20,6 +20,7 @@ import { FactionType } from '../../Data/Faction';
 import { SkillComponent } from '../Components/SkillComponent';
 import { PlaystyleComponent } from '../Components/PlaystyleComponent';
 import { AggroComponent } from '../Components/AggroComponent';
+import { MoveSpeedModifierComponent } from '../../../Shared/ECS/Components/MoveSpeedModifierComponent';
 
 export type DamageType = 'Physical' | 'Magic';
 
@@ -217,12 +218,31 @@ export class DamageSystem extends ECSSystem {
         if (!hitbox || !health) return false;
 
         if (hitbox.ownerId === targetEntity.id) return true;
-        if (hitbox.hitEntityIds.indexOf(targetEntity.id) !== -1) return true;
+        if (hitbox.hitIntervalSeconds > 0) {
+            const idx = hitbox.hitCooldownEntityIds.indexOf(targetEntity.id);
+            if (idx !== -1) {
+                const nextTime = hitbox.hitCooldownNextTimes[idx] ?? 0;
+                if (this.timeSeconds < nextTime) return true;
+            }
+        } else {
+            if (hitbox.hitEntityIds.indexOf(targetEntity.id) !== -1) return true;
+        }
 
         const hitboxFaction = hitboxEntity.getComponent(FactionComponent);
         const targetFaction = targetEntity.getComponent(FactionComponent);
         if (hitboxFaction && targetFaction && hitboxFaction.faction === targetFaction.faction) {
-            hitbox.hitEntityIds.push(targetEntity.id);
+            if (hitbox.hitIntervalSeconds > 0) {
+                const idx = hitbox.hitCooldownEntityIds.indexOf(targetEntity.id);
+                const next = this.timeSeconds + Math.max(0.01, hitbox.hitIntervalSeconds);
+                if (idx === -1) {
+                    hitbox.hitCooldownEntityIds.push(targetEntity.id);
+                    hitbox.hitCooldownNextTimes.push(next);
+                } else {
+                    hitbox.hitCooldownNextTimes[idx] = next;
+                }
+            } else {
+                hitbox.hitEntityIds.push(targetEntity.id);
+            }
             return true;
         }
 
@@ -232,7 +252,30 @@ export class DamageSystem extends ECSSystem {
         const appliedDamage = this.computeDamage(hitbox.damage, source, targetEntity);
         this.applyDamageToTarget(hitbox.ownerId || null, targetEntity, appliedDamage);
 
-        hitbox.hitEntityIds.push(targetEntity.id);
+        if (hitbox.hitIntervalSeconds > 0) {
+            const idx = hitbox.hitCooldownEntityIds.indexOf(targetEntity.id);
+            const next = this.timeSeconds + Math.max(0.01, hitbox.hitIntervalSeconds);
+            if (idx === -1) {
+                hitbox.hitCooldownEntityIds.push(targetEntity.id);
+                hitbox.hitCooldownNextTimes.push(next);
+            } else {
+                hitbox.hitCooldownNextTimes[idx] = next;
+            }
+        } else {
+            hitbox.hitEntityIds.push(targetEntity.id);
+        }
+
+        if (hitbox.slowPct > 0 && hitbox.slowDurationSeconds > 0) {
+            const slowMult = Math.max(0.05, Math.min(1, 1 - hitbox.slowPct));
+            const dur = Math.max(0.05, hitbox.slowDurationSeconds);
+            let mod = targetEntity.getComponent(MoveSpeedModifierComponent);
+            if (!mod) {
+                mod = this.world.acquireComponent(MoveSpeedModifierComponent);
+                targetEntity.addComponent(mod);
+            }
+            mod.multiplier = Math.min(mod.multiplier, slowMult);
+            mod.remainingSeconds = Math.max(mod.remainingSeconds, dur);
+        }
         if (!hitbox.canHitMultiple) {
             this.world.destroyEntity(hitboxEntity);
         }

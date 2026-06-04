@@ -1,4 +1,4 @@
-import { _decorator, Component, Graphics, UITransform, Layers, Node, Label, Color, view, Sprite, Vec3 } from 'cc';
+import { _decorator, Component, Graphics, UITransform, Layers, Node, Label, Color, view, Sprite, Vec3, resources, JsonAsset } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { World } from '../Shared/ECS/Core/World';
@@ -21,6 +21,22 @@ import hero1Upgrade from '../../resources/configs/Upgrade/Hero1Upgrade.json';
 import bow1Upgrade from '../../resources/configs/Upgrade/Bow1Upgrade.json';
 import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
 import hero1Skill1Config from '../../resources/configs/Skills/Hero1_Skill1.json';
+import heroIronGuard from '../../resources/configs/Skills/Hero_IronGuard.json';
+import heroSeismicStomp from '../../resources/configs/Skills/Hero_SeismicStomp.json';
+import heroCounterAttack from '../../resources/configs/Skills/Hero_CounterAttack.json';
+import heroDamageAmplification from '../../resources/configs/Skills/Hero_DamageAmplification.json';
+import heroIronFrenzy from '../../resources/configs/Skills/Hero_IronFrenzy.json';
+import heroTacticalRetreat from '../../resources/configs/Skills/Hero_TacticalRetreat.json';
+import heroSkySlash from '../../resources/configs/Skills/Hero_SkySlash.json';
+import heroBloodlust from '../../resources/configs/Skills/Hero_Bloodlust.json';
+import heroBladeStorm from '../../resources/configs/Skills/Hero_BladeStorm.json';
+import heroCommanderAura from '../../resources/configs/Skills/Hero_CommanderAura.json';
+import heroRallyingCry from '../../resources/configs/Skills/Hero_RallyingCry.json';
+import heroSupplyMaster from '../../resources/configs/Skills/Hero_SupplyMaster.json';
+import heroGroupHeal from '../../resources/configs/Skills/Hero_GroupHeal.json';
+import heroSoldierRush from '../../resources/configs/Skills/Hero_SoldierRush.json';
+import skillPoolConfig from '../../resources/configs/Skills/SkillPool.json';
+import skillUIConfig from '../../resources/configs/Skills/SkillUIConfig.json';
 import { SkillSystem } from './ECS/Systems/SkillSystem';
 import defaultSave from '../../resources/configs/Save/DefaultSave.json';
 import castleConfig from '../../resources/configs/Entitys/Castle.json';
@@ -57,7 +73,7 @@ import { LevelLoader, LevelPoint } from './Managers/LevelLoader';
 import { LoadingScreen } from './UI/LoadingScreen';
 import { ObstacleComponent } from './ECS/Components/ObstacleComponent';
 import { EntityConfigCache } from './Managers/EntityConfigCache';
-import { PathFollowSystem } from './ECS/Systems/PathFollowSystem';
+import { FlowFieldNavigationSystem } from './ECS/Systems/FlowFieldNavigationSystem';
 import { PathFollowComponent } from './ECS/Components/PathFollowComponent';
 import { BaseProductionSystem } from './ECS/Systems/BaseProductionSystem';
 import { SupplySystem } from './ECS/Systems/SupplySystem';
@@ -68,6 +84,7 @@ import { WorldBoundsSystem } from './ECS/Systems/WorldBoundsSystem';
 import { IdleFriendlySpacingSystem } from './ECS/Systems/IdleFriendlySpacingSystem';
 import { ActorViewSystem } from './ECS/Systems/ActorViewSystem';
 import { HealthBarOverlaySystem } from './ECS/Systems/HealthBarOverlaySystem';
+import { TowerInfoOverlaySystem } from './ECS/Systems/TowerInfoOverlaySystem';
 import { ExperienceSystem } from './ECS/Systems/ExperienceSystem';
 import { ExperienceComponent } from './ECS/Components/ExperienceComponent';
 import { PlayerControlSystem } from './ECS/Systems/PlayerControlSystem';
@@ -83,6 +100,7 @@ import { TowerPlacementManager } from './Managers/TowerPlacementManager';
 import { GameUIController } from './UI/GameUIController';
 import { HUDManager } from './UI/HUDManager';
 import { LevelComponent } from './ECS/Components/LevelComponent';
+import { SkillComponent } from './ECS/Components/SkillComponent';
 import { BaseProductionComponent } from './ECS/Components/BaseProductionComponent';
 import { DefenseComponent } from './ECS/Components/DefenseComponent';
 import { LootComponent } from './ECS/Components/LootComponent';
@@ -91,6 +109,10 @@ import { TowerBuildUI } from './UI/TowerBuildUI';
 import { GMPanel } from './Debug/GMPanel';
 import { QuadTreeDebugDrawSystem } from './Debug/QuadTreeDebugDrawSystem';
 import { RenderModeSelectionOverlaySystem } from './Debug/RenderModeSelectionOverlaySystem';
+import { SkillPanelController } from './UI/SkillPanelController';
+import { BladeOrbitSystem } from './ECS/Systems/BladeOrbitSystem';
+import { MoveSpeedModifierSystem } from './ECS/Systems/MoveSpeedModifierSystem';
+import { UIEventBus, UIEvents, type RequestCastSkillPayload } from './UI/UIEventBus';
 
 const CASTLE_UPGRADE_COSTS = [0, 160, 280, 420, 600];
 const STARTING_GOLD = 200;
@@ -108,6 +130,8 @@ export class GameMain extends Component {
     private worldBoundsSystem: WorldBoundsSystem | null = null;
     private idleFriendlySpacingSystem: IdleFriendlySpacingSystem | null = null;
     private healthBarOverlaySystem: HealthBarOverlaySystem | null = null;
+    private flowFieldNavigationSystem: FlowFieldNavigationSystem | null = null;
+    private towerInfoOverlaySystem: TowerInfoOverlaySystem | null = null;
     @property(Node)
     public levelBgNode: Node | null = null;
     @property(Node)
@@ -115,7 +139,11 @@ export class GameMain extends Component {
     @property(Node)
     public effectRootNode: Node | null = null;
     @property(Node)
+    public gmRootNode: Node | null = null;
+    @property(Node)
     public healthBarGfxNode: Node | null = null;
+    @property(Node)
+    public towerInfoGfxNode: Node | null = null;
     @property(TowerBuildUI)
     public towerBuildUI: TowerBuildUI | null = null;
     private debugOverlaySystem: DebugOverlaySystem | null = null;
@@ -146,8 +174,10 @@ export class GameMain extends Component {
     private debugCommandBus: CommandBus | null = null;
     private debugInput: DebugCommandAdapter | null = null;
     private gmPanel: GMPanel | null = null;
+    private skillPanelController: SkillPanelController | null = null;
     private debugShowRender: boolean = false;
     private debugShowQuadTree: boolean = false;
+    private debugShowSkillHitboxes: boolean = false;
     private quadTreeDebugSystem: QuadTreeDebugDrawSystem | null = null;
     private renderModeSelectionOverlaySystem: RenderModeSelectionOverlaySystem | null = null;
     private debugClickMarker: { x: number; y: number; ttl: number; maxTtl: number } | null = null;
@@ -164,6 +194,10 @@ export class GameMain extends Component {
     private currentSpawnWave: number = 1;
     private maxWaves: number = 12; // 默认最大波次
     private selectedTowerSlot: number = 0;
+    private gmSkillOptions: { id: string; name: string }[] = [];
+    private gmSkillConfigById: Record<string, any> = {};
+    private uiEventBusBound: boolean = false;
+    private uiOnRequestCastSkill: ((payload?: RequestCastSkillPayload) => void) | null = null;
 
     onLoad() {
         GameSession.reset();
@@ -174,6 +208,7 @@ export class GameMain extends Component {
         LocalizationManager.instance.setLanguage(LanguageType.ZH);
         console.log(`[GameMain] Current Language: ${LocalizationManager.instance.getLanguage()}`);
         console.log(`[GameMain] Title: ${t('game_title')}`);
+        this.loadGMSkillOptions();
 
         // 确保空节点有 UITransform 组件，否则在 Canvas 下无法渲染
         let uiTransform = this.getComponent(UITransform);
@@ -213,6 +248,7 @@ export class GameMain extends Component {
         this.actionSystem = new ActionSystem(1);
         this.world.registerSystem(this.actionSystem);
 
+        this.world.registerSystem(new MoveSpeedModifierSystem(this.world, 4.84));
         this.world.registerSystem(new MovementBlockSystem(this.world, 4.85));
         this.world.registerSystem(new UnitSeparationSystem(this.world, 4.86));
         this.worldBoundsSystem = new WorldBoundsSystem(4.87);
@@ -236,7 +272,8 @@ export class GameMain extends Component {
         );
         this.world.registerSystem(new SoldierFormationSystem(this.world, this.actionSystem, () => this.playerEntity?.id ?? null, 6.05));
 
-        this.world.registerSystem(new PathFollowSystem(this.world, this.actionSystem, () => this.baseEntityId, 6.1));
+        this.flowFieldNavigationSystem = new FlowFieldNavigationSystem(this.world, this.actionSystem, () => this.baseEntityId, 6.1);
+        this.world.registerSystem(this.flowFieldNavigationSystem);
 
         this.aiSystem = new AISystem(this.world, this.actionSystem, 6.2);
         this.world.registerSystem(this.aiSystem);
@@ -249,8 +286,29 @@ export class GameMain extends Component {
         this.equipmentSystem = new EquipmentSystem(this.world, { Bow1: bowConfig, Sword1: swordConfig }, 6.5);
         this.world.registerSystem(this.equipmentSystem);
 
-        this.skillSystem = new SkillSystem(this.world, { Hero1_Skill1: hero1Skill1Config as any }, 6.45);
+        this.skillSystem = new SkillSystem(
+            this.world,
+            {
+                Hero1_Skill1: hero1Skill1Config as any,
+                Hero_IronGuard: heroIronGuard as any,
+                Hero_SeismicStomp: heroSeismicStomp as any,
+                Hero_CounterAttack: heroCounterAttack as any,
+                Hero_DamageAmplification: heroDamageAmplification as any,
+                Hero_IronFrenzy: heroIronFrenzy as any,
+                Hero_TacticalRetreat: heroTacticalRetreat as any,
+                Hero_SkySlash: heroSkySlash as any,
+                Hero_Bloodlust: heroBloodlust as any,
+                Hero_BladeStorm: heroBladeStorm as any,
+                Hero_CommanderAura: heroCommanderAura as any,
+                Hero_RallyingCry: heroRallyingCry as any,
+                Hero_SupplyMaster: heroSupplyMaster as any,
+                Hero_GroupHeal: heroGroupHeal as any,
+                Hero_SoldierRush: heroSoldierRush as any
+            },
+            6.45
+        );
         this.world.registerSystem(this.skillSystem);
+        this.bindUIEventBus();
 
         this.upgradeSystem = new UpgradeSystem(
             this.world,
@@ -279,6 +337,7 @@ export class GameMain extends Component {
 
         this.meleeHitboxSystem = new MeleeHitboxSystem(this.world, 9);
         this.world.registerSystem(this.meleeHitboxSystem);
+        this.world.registerSystem(new BladeOrbitSystem(this.world, 9.4));
 
         // 3. 初始化并注册 RenderSystem
         this.renderSystem = new RenderSystem(100);
@@ -314,7 +373,25 @@ export class GameMain extends Component {
             this.world.registerSystem(this.healthBarOverlaySystem);
         }
 
-        if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug && entityRootNode) {
+        if (entityRootNode) {
+            const infoGfx = this.towerInfoGfxNode ?? new Node('TowerInfoGfx');
+            infoGfx.layer = Layers.Enum.UI_2D;
+            infoGfx.setPosition(0, 0, 0);
+            infoGfx.getComponent(UITransform) ?? infoGfx.addComponent(UITransform);
+            if (!infoGfx.parent) {
+                const parent = this.effectRootNode ?? entityRootNode;
+                parent.addChild(infoGfx);
+                infoGfx.setSiblingIndex(parent.children.length - 1);
+            }
+            this.towerInfoGfxNode = infoGfx;
+
+            const infoGraphics = infoGfx.getComponent(Graphics) ?? infoGfx.addComponent(Graphics);
+            this.towerInfoOverlaySystem = new TowerInfoOverlaySystem(this.world, () => this.debugSelectedEntityId, 101.15);
+            this.towerInfoOverlaySystem.setContext(infoGraphics as any);
+            this.world.registerSystem(this.towerInfoOverlaySystem);
+        }
+
+        if (GameConfigManager.instance.isPC && entityRootNode) {
             const overlayGfx = new Node('DebugOverlayGfx');
             overlayGfx.layer = Layers.Enum.UI_2D;
             overlayGfx.setPosition(0, 0, 0);
@@ -379,8 +456,8 @@ export class GameMain extends Component {
             this.towerBuildUI.init(this.world, this.currencySystem, this.towerManager);
         }
 
-        if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug) {
-            DebugState.enabled = true;
+        if (GameConfigManager.instance.isPC) {
+            DebugState.enabled = GameConfigManager.instance.isDebug;
             this.debugCommandBus = new CommandBus();
             const ctx: DebugCommandContext = {
                 togglePause: () => this.togglePause(),
@@ -427,8 +504,41 @@ export class GameMain extends Component {
         const hudNode = this.node.getComponent(HUDManager) ?? this.node.addComponent(HUDManager);
         this.hudManager = hudNode;
 
+        const skillUi = (this.node.getComponent(SkillPanelController) ?? this.node.addComponent(SkillPanelController)) as SkillPanelController;
+        this.skillPanelController = skillUi;
+        skillUi.init({
+            getWorld: () => this.world,
+            getHeroEntityId: () => this.playerEntity?.id ?? null,
+            setPaused: (paused: boolean) => this.setPaused(paused),
+            skillPool: skillPoolConfig as any,
+            uiConfig: skillUIConfig as any
+        });
+
         // 4. 监听全局点击事件，用于塔防坑位触发
         this.levelBgNode.on(Node.EventType.TOUCH_END, this.onSceneTouched, this);
+    }
+
+    private bindUIEventBus(): void {
+        if (this.uiEventBusBound) return;
+        this.uiEventBusBound = true;
+        this.uiOnRequestCastSkill = (payload?: RequestCastSkillPayload) => {
+            if (!this.playerEntity) return;
+            const idx = Math.floor(payload?.skillIndex ?? -1);
+            if (idx < 0) return;
+            const targetEntityId = payload?.targetEntityId ?? null;
+            const targetX = typeof payload?.targetX === 'number' ? payload!.targetX! : 0;
+            const targetY = typeof payload?.targetY === 'number' ? payload!.targetY! : 0;
+            this.skillSystem.requestCast(this.playerEntity.id, idx, targetEntityId, targetX, targetY);
+        };
+        UIEventBus.on(UIEvents.RequestCastSkill, this.uiOnRequestCastSkill, this);
+    }
+
+    public setPaused(paused: boolean): void {
+        if (GameSession.instance.isGameOver) {
+            this.isPaused = true;
+            return;
+        }
+        this.isPaused = !!paused;
     }
 
     private onSceneTouched(event: any) {
@@ -539,6 +649,11 @@ export class GameMain extends Component {
                 hb.setContentSize(levelW, levelH);
                 hb.setAnchorPoint(0.5, 0.5);
             }
+            const ti = this.towerInfoGfxNode?.getComponent(UITransform);
+            if (ti) {
+                ti.setContentSize(levelW, levelH);
+                ti.setAnchorPoint(0.5, 0.5);
+            }
 
             const ui = bgNode.getComponent(UITransform) ?? bgNode.addComponent(UITransform);
             ui.setContentSize(levelW, levelH);
@@ -564,6 +679,15 @@ export class GameMain extends Component {
         }
 
         const legacyTopLeft = Math.floor((level as any).version ?? 1) < 4;
+        this.flowFieldNavigationSystem?.configureGrid({
+            cellSize,
+            gridW,
+            gridH,
+            levelW,
+            levelH,
+            legacyTopLeft,
+            walkable: Array.isArray((level as any).walkable) ? ((level as any).walkable as number[]) : null
+        });
 
         const toWorldPos = (p: LevelPoint | null | undefined): { x: number; y: number } => {
             if (!p) return { x: 0, y: 0 };
@@ -667,6 +791,7 @@ export class GameMain extends Component {
         const baseEntity = EntityFactory.createEntityFromConfig(this.world, castleConfig as any, basePos);
         baseEntity.name = 'Base';
         this.baseEntityId = baseEntity.id;
+        this.flowFieldNavigationSystem?.markDirty();
 
         const rawTowerSlots: any[] | null = Array.isArray((level as any).towerSlots) ? (level as any).towerSlots : null;
         if (rawTowerSlots && rawTowerSlots.length > 0) {
@@ -904,7 +1029,8 @@ export class GameMain extends Component {
     private async tryBuildTower(slotIndex: number, configId: string): Promise<void> {
         if (GameSession.instance.isGameOver) return;
         await EntityConfigCache.loadEntityConfig(configId);
-        await this.towerManager.buildTower(this.world, this.currencySystem, slotIndex, configId);
+        const built = await this.towerManager.buildTower(this.world, this.currencySystem, slotIndex, configId);
+        if (built) this.flowFieldNavigationSystem?.markDirty();
     }
 
     private tryUpgradeSelectedTower(): boolean {
@@ -914,7 +1040,9 @@ export class GameMain extends Component {
     }
 
     private trySellSelectedTower(): boolean {
-        return this.towerManager.sellTower(this.world, this.currencySystem, this.selectedTowerSlot) > 0;
+        const refunded = this.towerManager.sellTower(this.world, this.currencySystem, this.selectedTowerSlot);
+        if (refunded > 0) this.flowFieldNavigationSystem?.markDirty();
+        return refunded > 0;
     }
 
     private restartGame(): void {
@@ -998,6 +1126,10 @@ export class GameMain extends Component {
         this.playerMoveInput?.disable();
         this.debugInput?.disable();
         this.debugCommandBus?.clear();
+        if (this.uiOnRequestCastSkill) {
+            UIEventBus.off(UIEvents.RequestCastSkill, this.uiOnRequestCastSkill, this);
+        }
+        this.uiOnRequestCastSkill = null;
         this.debugInput = null;
         this.debugCommandBus = null;
         this.playerMoveInput = null;
@@ -1058,6 +1190,9 @@ export class GameMain extends Component {
         if (bestId !== null) {
             this.debugSelectedEntityId = bestId;
             DebugState.selectedEntityId = bestId;
+        } else {
+            this.debugSelectedEntityId = null;
+            DebugState.selectedEntityId = null;
         }
         this.updateDebugLabel();
     }
@@ -1099,18 +1234,140 @@ export class GameMain extends Component {
 
     private initGMPanel(): void {
         if (this.gmPanel) return;
-        const gm = this.node.getComponent(GMPanel) ?? this.node.addComponent(GMPanel);
+        const host =
+            this.gmRootNode ??
+            this.node.getChildByName('UINode')?.getChildByName('GMRoot') ??
+            this.node.getChildByName('GMRoot') ??
+            this.node;
+        const gm = host.getComponent(GMPanel) ?? host.addComponent(GMPanel);
         this.gmPanel = gm;
         gm.init({
             getModeLabel: () => (this.debugShowRender ? 'Render' : 'Sprite'),
             getGoldLabel: () => `${Math.floor(this.currencySystem?.getGold?.() ?? 0)}`,
             getQuadTreeLabel: () => (this.debugShowQuadTree ? 'ON' : 'OFF'),
+            getSkillHitboxLabel: () => (this.debugShowSkillHitboxes ? 'ON' : 'OFF'),
             toggleMode: () => this.setDebugViewMode(!this.debugShowRender),
             toggleQuadTree: () => this.setQuadTreeDebugEnabled(!this.debugShowQuadTree),
+            toggleSkillHitboxes: () => this.setSkillHitboxDebugEnabled(!this.debugShowSkillHitboxes),
             addGold: (amount: number) => {
                 this.currencySystem?.addGold(amount);
+            },
+            openSkillSelect: () => {
+                this.skillPanelController?.openSkillSelect();
+            },
+            removeLastSkill: () => {
+                const hero = this.playerEntity;
+                if (!hero) return;
+                const sc = hero.getComponent(SkillComponent);
+                if (!sc || sc.skillConfigIds.length === 0) return;
+                sc.skillConfigIds.pop();
+                sc.skillLevels.pop();
+                sc.autoCastEnabled.pop();
+                UIEventBus.emit(UIEvents.HeroSkillsChanged, { heroEntityId: hero.id });
+            },
+            upgradeLastSkill: () => {
+                const hero = this.playerEntity;
+                if (!hero) return;
+                const sc = hero.getComponent(SkillComponent);
+                if (!sc || sc.skillConfigIds.length === 0) return;
+                const idx = sc.skillConfigIds.length - 1;
+                const id = sc.skillConfigIds[idx] ?? '';
+                if (!id) return;
+                const current = Math.max(1, Math.floor(sc.skillLevels[idx] ?? 1));
+                const poolMax = Math.max(1, Math.floor((skillPoolConfig as any)?.maxSkillLevel ?? 6));
+                const cfgMax = this.skillSystem ? this.skillSystem.getMaxLevel(id) : poolMax;
+                const max = Math.max(1, Math.min(poolMax, cfgMax));
+                sc.skillLevels[idx] = Math.min(max, current + 1);
+                UIEventBus.emit(UIEvents.HeroSkillsChanged, { heroEntityId: hero.id });
+            },
+            getAllSkills: () => this.gmSkillOptions.slice(),
+            getHeroSkills: () => {
+                const hero = this.playerEntity;
+                if (!hero) return [];
+                const sc = hero.getComponent(SkillComponent);
+                if (!sc) return [];
+                const result: { id: string; level: number }[] = [];
+                for (let i = 0; i < sc.skillConfigIds.length; i++) {
+                    const id = sc.skillConfigIds[i] ?? '';
+                    if (!id) continue;
+                    result.push({ id, level: Math.max(1, Math.floor(sc.skillLevels[i] ?? 1)) });
+                }
+                return result;
+            },
+            addHeroSkill: (skillId: string) => {
+                const hero = this.playerEntity;
+                if (!hero) return;
+                const id = (skillId ?? '').trim();
+                if (!id) return;
+                const sc = hero.getComponent(SkillComponent);
+                if (!sc) return;
+                const maxSlots = Math.max(1, Math.floor((skillPoolConfig as any)?.maxSkillSlots ?? 6));
+                if (sc.skillConfigIds.length >= maxSlots) return;
+                if (sc.skillConfigIds.indexOf(id) !== -1) return;
+                const cfg = this.gmSkillConfigById[id];
+                if (cfg && this.skillSystem && !this.skillSystem.hasConfig(id)) {
+                    this.skillSystem.registerConfig(cfg as any);
+                }
+                sc.skillConfigIds.push(id);
+                sc.skillLevels.push(1);
+                sc.autoCastEnabled.push(true);
+                UIEventBus.emit(UIEvents.HeroSkillsChanged, { heroEntityId: hero.id });
+            },
+            removeHeroSkillAt: (index: number) => {
+                const hero = this.playerEntity;
+                if (!hero) return;
+                const sc = hero.getComponent(SkillComponent);
+                if (!sc) return;
+                const idx = Math.floor(index);
+                if (idx < 0 || idx >= sc.skillConfigIds.length) return;
+                sc.skillConfigIds.splice(idx, 1);
+                sc.skillLevels.splice(idx, 1);
+                sc.autoCastEnabled.splice(idx, 1);
+                UIEventBus.emit(UIEvents.HeroSkillsChanged, { heroEntityId: hero.id });
             }
         });
+    }
+
+    private loadGMSkillOptions(): void {
+        if (this.gmSkillOptions.length > 0) return;
+        resources.loadDir('configs/Skills', JsonAsset, (err, assets) => {
+            if (err || !Array.isArray(assets)) {
+                this.gmSkillOptions = this.buildFallbackGMSkillOptions();
+                return;
+            }
+            const items: { id: string; name: string }[] = [];
+            const map: Record<string, any> = {};
+            for (const a of assets) {
+                const json = (a as any)?.json;
+                const id = typeof json?.id === 'string' ? json.id.trim() : '';
+                if (!id) continue;
+                const isSkill = typeof json?.castType === 'string' && Array.isArray(json?.levels);
+                if (!isSkill) continue;
+                const nameKey = typeof json?.name === 'string' ? json.name.trim() : '';
+                const name = nameKey ? t(nameKey) : id;
+                items.push({ id, name: `${name} (${id})` });
+                map[id] = json;
+            }
+            items.sort((a, b) => a.id.localeCompare(b.id));
+            this.gmSkillOptions = items.length > 0 ? items : this.buildFallbackGMSkillOptions();
+            this.gmSkillConfigById = map;
+        });
+    }
+
+    private buildFallbackGMSkillOptions(): { id: string; name: string }[] {
+        const items: { id: string; name: string }[] = [];
+        const skills = (skillUIConfig as any)?.skills;
+        if (Array.isArray(skills)) {
+            for (const s of skills) {
+                const id = typeof s?.id === 'string' ? s.id.trim() : '';
+                if (!id) continue;
+                const key = typeof s?.nameKey === 'string' ? s.nameKey.trim() : '';
+                const name = key ? t(key) : id;
+                items.push({ id, name: `${name} (${id})` });
+            }
+        }
+        items.sort((a, b) => a.id.localeCompare(b.id));
+        return items;
     }
 
     private setDebugViewMode(showRender: boolean): void {
@@ -1127,6 +1384,11 @@ export class GameMain extends Component {
     private setQuadTreeDebugEnabled(enabled: boolean): void {
         this.debugShowQuadTree = enabled;
         this.quadTreeDebugSystem?.setEnabled(enabled);
+    }
+
+    private setSkillHitboxDebugEnabled(enabled: boolean): void {
+        this.debugShowSkillHitboxes = enabled;
+        this.debugOverlaySystem?.setShowSkillHitboxes(enabled);
     }
 
     private pointInCollider(px: number, py: number, cx: number, cy: number, c: ColliderComponent, padding: number = 0): boolean {

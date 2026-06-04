@@ -3,7 +3,7 @@
     "evolutionType": "Ballista",
     "baseTowerId": "ArrowTower",
     "evolutionCost": 500,
-    "description": "重弩破甲炮塔：大幅单体伤害、破甲上限额外+5%（仍不超49%）、克制精英BOSS",
+    "description": "upgrade_desc_arrow_tower_ballista",
     "fields": {
         "WeaponComponent": {
             "damage": 180,

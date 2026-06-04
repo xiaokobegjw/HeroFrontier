@@ -1,7 +1,7 @@
 {
     "id": "EnemyCorrosiveBat",
     "name": "enemy_corrosive_bat",
-    "description": "腐蚀蝙蝠：飞行单位，魔抗较高",
+    "description": "enemy_desc_corrosive_bat",
     "type": "LightArmor",
     "ComponentsList": [
         { "id": "FactionComponent", "faction": "Enemy" },

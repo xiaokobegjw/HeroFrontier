@@ -1,7 +1,7 @@
 {
     "id": "EnemyRottenPeasant",
     "name": "enemy_rotten_peasant",
-    "description": "腐烂流民：基础人海杂兵，刷新数量最多",
+    "description": "enemy_desc_rotten_peasant",
     "type": "LightArmor",
     "ComponentsList": [
         { "id": "FactionComponent", "faction": "Enemy" },

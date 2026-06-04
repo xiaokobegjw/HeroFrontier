@@ -108,7 +108,7 @@
                 {
                     "id": "Boss_Skill_NetherBreath",
                     "name": "幽冥吐息",
-                    "description": "远程扇形法术AOE，附带5秒持续凋零掉血效果",
+                    "description": "boss_skill_desc_nether_breath",
                     "cooldown": 4.5,
                     "castRange": 200,
                     "effectRadius": 90,

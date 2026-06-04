@@ -1,7 +1,7 @@
 {
     "id": "EnemyWildWolf",
     "name": "enemy_wild_wolf",
-    "description": "狂暴野狼：高速近战单位，攻速快、身板脆",
+    "description": "enemy_desc_wild_wolf",
     "type": "LightArmor",
     "ComponentsList": [
         { "id": "FactionComponent", "faction": "Enemy" },

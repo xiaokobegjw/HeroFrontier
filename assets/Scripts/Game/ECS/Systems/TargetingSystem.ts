@@ -9,6 +9,11 @@ import { TargetingComponent } from '../Components/TargetingComponent';
 import { FactionComponent } from '../Components/FactionComponent';
 import { AggroComponent } from 'db://assets/Scripts/Game/ECS/Components/AggroComponent';
 import { FactionType } from '../../Data/Faction';
+import { TowerComponent } from '../Components/TowerComponent';
+import { HealthComponent } from '../Components/HealthComponent';
+import { ProjectileComponent } from '../Components/ProjectileComponent';
+import { ProjectileSpecComponent } from '../Components/ProjectileSpecComponent';
+import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
 
 export class TargetingSystem extends ECSSystem {
     private world: World;
@@ -47,6 +52,8 @@ export class TargetingSystem extends ECSSystem {
 
             targeting.timeSinceRetarget += deltaTime;
 
+            const records = memory.records.filter(r => this.isAllowedTarget(faction.faction, r.entityId));
+
             const retargetJitter = 0.85 + this.rand01(entity.id, 101) * 0.3;
             const lockJitter = 0.85 + this.rand01(entity.id, 102) * 0.3;
             const effectiveRetargetInterval = targeting.retargetInterval * retargetJitter;
@@ -55,7 +62,15 @@ export class TargetingSystem extends ECSSystem {
             const counts = this.getOrCreateCountMap(assignedCountsByFaction, faction.faction);
             const currentId = target.targetEntityId;
             const currentExists = currentId !== null && !!this.world.getEntity(currentId);
-            const stillKnown = currentId !== null && currentExists && memory.records.some(r => r.entityId === currentId);
+            const stillKnown = currentId !== null && currentExists && records.some(r => r.entityId === currentId);
+
+            if (currentId !== null && !currentExists) {
+                counts.set(currentId, Math.max(0, (counts.get(currentId) ?? 1) - 1));
+                target.targetEntityId = null;
+                target.targetX = Number.NaN;
+                target.targetY = Number.NaN;
+                target.lockedUntilTime = 0;
+            }
 
             const threatRadius = 40;
             const threatSq = threatRadius * threatRadius;
@@ -64,7 +79,10 @@ export class TargetingSystem extends ECSSystem {
             const attackerId = aggro?.lastAttackerId ?? null;
             const hasAggro = attackerId !== null && (aggro?.aggroUntilTime ?? 0) > this.timeSeconds;
             if (hasAggro && attackerId !== currentId) {
-                const attackerRec = memory.records.find(r => r.entityId === attackerId) ?? null;
+                if (!this.isAllowedTarget(faction.faction, attackerId!)) {
+                    // ignore
+                } else {
+                    const attackerRec = records.find(r => r.entityId === attackerId) ?? null;
                 if (attackerRec) {
                     const adx = attackerRec.lastSeenX - transform.x;
                     const ady = attackerRec.lastSeenY - transform.y;
@@ -79,15 +97,16 @@ export class TargetingSystem extends ECSSystem {
                         continue;
                     }
                 }
+                }
             }
 
             if (currentId !== null && stillKnown) {
-                const currentRec = memory.records.find(r => r.entityId === currentId) ?? null;
+                const currentRec = records.find(r => r.entityId === currentId) ?? null;
                 const cdx = (currentRec?.lastSeenX ?? transform.x) - transform.x;
                 const cdy = (currentRec?.lastSeenY ?? transform.y) - transform.y;
                 const currentDistSq = cdx * cdx + cdy * cdy;
 
-                const nearest = this.chooseNearestRaw(transform.x, transform.y, memory.records);
+                const nearest = this.chooseNearestRaw(transform.x, transform.y, records);
                 const ndx = nearest.lastSeenX - transform.x;
                 const ndy = nearest.lastSeenY - transform.y;
                 const nearestDistSq = ndx * ndx + ndy * ndy;
@@ -117,7 +136,7 @@ export class TargetingSystem extends ECSSystem {
 
             const prevId = target.targetEntityId;
 
-            if (memory.records.length === 0) {
+            if (records.length === 0) {
                 if (prevId !== null) counts.set(prevId, Math.max(0, (counts.get(prevId) ?? 1) - 1));
                 target.targetEntityId = null;
                 target.targetX = Number.NaN;
@@ -132,8 +151,8 @@ export class TargetingSystem extends ECSSystem {
             const spreadWeight = 2500;
             const chosen =
                 targeting.strategy === 'Nearest'
-                    ? this.chooseNearestWithSpread(transform.x, transform.y, memory.records, counts, spreadWeight)
-                    : this.chooseMostRecent(memory.records);
+                    ? this.chooseNearestWithSpread(transform.x, transform.y, records, counts, spreadWeight)
+                    : this.chooseMostRecent(records);
 
             if (prevId !== null) counts.set(prevId, Math.max(0, (counts.get(prevId) ?? 1) - 1));
             counts.set(chosen.entityId, (counts.get(chosen.entityId) ?? 0) + 1);
@@ -216,5 +235,16 @@ export class TargetingSystem extends ECSSystem {
         const m = new Map<number, number>();
         store.set(faction, m);
         return m;
+    }
+
+    private isAllowedTarget(attackerFaction: FactionType, targetId: number): boolean {
+        const ent = this.world.getEntity(targetId);
+        if (!ent || !ent.active) return false;
+        if (!ent.hasComponent(HealthComponent)) return false;
+        const hp = ent.getComponent(HealthComponent);
+        if (!hp || hp.isDead) return false;
+        if (ent.hasComponent(ProjectileComponent) || ent.hasComponent(ProjectileSpecComponent) || ent.hasComponent(MeleeHitboxComponent)) return false;
+        if (attackerFaction === FactionType.Enemy && ent.hasComponent(TowerComponent)) return false;
+        return true;
     }
 }

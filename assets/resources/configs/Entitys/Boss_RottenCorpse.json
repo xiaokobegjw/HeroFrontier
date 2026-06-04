@@ -106,7 +106,7 @@
                 {
                     "id": "Boss_Skill_CorrosiveShock",
                     "name": "腐毒冲击",
-                    "description": "释放范围毒素伤害，命中范围内所有单位降低20%移速，持续3秒",
+                    "description": "boss_skill_desc_corrosive_shock",
                     "cooldown": 5.0,
                     "castRange": 80,
                     "effectRadius": 60,

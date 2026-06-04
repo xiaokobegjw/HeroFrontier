@@ -8,11 +8,14 @@ import { TransformComponent } from '../../../Shared/ECS/Components/TransformComp
 import { PerceptionComponent } from '../Components/PerceptionComponent';
 import { TargetComponent } from '../Components/TargetComponent';
 import { AIComponent } from '../Components/AIComponent';
+import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
+import { ViewComponent } from '../Components/ViewComponent';
 
 export class DebugOverlaySystem extends ECSSystem {
     private world: World;
     private ctx: IGraphicsContext | null = null;
     private getSelectedEntityId: () => number | null;
+    private showSkillHitboxes: boolean = false;
 
     constructor(world: World, getSelectedEntityId: () => number | null, priority: number = 101) {
         super('DebugOverlaySystem', priority);
@@ -24,8 +27,12 @@ export class DebugOverlaySystem extends ECSSystem {
         this.ctx = ctx;
     }
 
+    public setShowSkillHitboxes(show: boolean): void {
+        this.showSkillHitboxes = !!show;
+    }
+
     public getRequiredComponents(): (new (...args: any[]) => ECSComponent)[] {
-        return [];
+        return [TransformComponent, ColliderComponent];
     }
 
     public update(entities: Entity[], deltaTime: number): void {
@@ -35,6 +42,10 @@ export class DebugOverlaySystem extends ECSSystem {
 
         const ctx = this.ctx;
         ctx.clear();
+
+        if (this.showSkillHitboxes) {
+            this.drawBladeStormHitboxes(entities);
+        }
 
         const id = this.getSelectedEntityId();
         if (id === null) return;
@@ -55,6 +66,43 @@ export class DebugOverlaySystem extends ECSSystem {
 
         const ai = selected.getComponent(AIComponent);
         if (ai) this.drawGoalMarker(transform, ai);
+    }
+
+    private drawBladeStormHitboxes(entities: Entity[]): void {
+        const ctx = this.ctx!;
+        ctx.strokeColor = new Color(120, 255, 120, 220);
+        ctx.lineWidth = 2;
+
+        for (const ent of entities) {
+            if (!ent.active) continue;
+            if (!this.isBladeStormEffect(ent)) continue;
+            const tr = ent.getComponent(TransformComponent);
+            const col = ent.getComponent(ColliderComponent);
+            if (!tr || !col) continue;
+            this.drawCollider(tr, col);
+        }
+    }
+
+    private isBladeStormEffect(ent: Entity): boolean {
+        if (ent.name.indexOf('Effect_BladeStorm_') !== -1) return true;
+        const view = ent.getComponent(ViewComponent);
+        if (view && typeof view.prefabPath === 'string' && view.prefabPath.indexOf('JRFB_Prefab') !== -1) return true;
+        return false;
+    }
+
+    private drawCollider(tr: TransformComponent, col: ColliderComponent): void {
+        const ctx = this.ctx!;
+        const cx = tr.x + (col.offsetX ?? 0);
+        const cy = tr.y + (col.offsetY ?? 0);
+        if (col.shape === ColliderShapeType.Circle) {
+            ctx.circle(cx, cy, Math.max(0, col.radius));
+            ctx.stroke();
+            return;
+        }
+        const w = Math.max(0, col.width);
+        const h = Math.max(0, col.height);
+        ctx.rect(cx - w * 0.5, cy - h * 0.5, w, h);
+        ctx.stroke();
     }
 
     private drawSelection(x: number, y: number): void {
@@ -134,4 +182,3 @@ export class DebugOverlaySystem extends ECSSystem {
         ctx.stroke();
     }
 }
-

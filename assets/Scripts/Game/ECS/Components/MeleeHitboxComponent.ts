@@ -15,11 +15,17 @@ export class MeleeHitboxComponent extends ECSComponent {
     public offsetY: number = 0;
     public canHitMultiple: boolean = true;
     public hitEntityIds: number[] = [];
+    public hitIntervalSeconds: number = 0;
+    public hitCooldownEntityIds: number[] = [];
+    public hitCooldownNextTimes: number[] = [];
+    public slowPct: number = 0;
+    public slowDurationSeconds: number = 0;
 
     reset(): void {
         super.reset();
         this.ownerId = 0;
         this.damage = 0;
+        this.damageType = 'Physical';
         this.armorPenPct = 0;
         this.skillMultiplier = 1;
         this.critChance = 0;
@@ -31,5 +37,10 @@ export class MeleeHitboxComponent extends ECSComponent {
         this.offsetY = 0;
         this.canHitMultiple = true;
         this.hitEntityIds = [];
+        this.hitIntervalSeconds = 0;
+        this.hitCooldownEntityIds = [];
+        this.hitCooldownNextTimes = [];
+        this.slowPct = 0;
+        this.slowDurationSeconds = 0;
     }
 }

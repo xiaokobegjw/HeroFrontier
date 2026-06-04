@@ -108,7 +108,7 @@
                 {
                     "id": "Boss_Skill_AbyssDescend",
                     "name": "深渊降临",
-                    "description": "进场全屏震荡，对所有士兵、英雄造成高额范围伤害，小幅击退全场单位",
+                    "description": "boss_skill_desc_abyss_descend",
                     "cooldown": 0,
                     "isEnterSkill": true,
                     "effectRadius": 500,

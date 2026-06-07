@@ -23,13 +23,12 @@ import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
 import hero1Skill1Config from '../../resources/configs/Skills/Hero1_Skill1.json';
 import heroIronGuard from '../../resources/configs/Skills/Hero_IronGuard.json';
 import heroSeismicStomp from '../../resources/configs/Skills/Hero_SeismicStomp.json';
-import heroCounterAttack from '../../resources/configs/Skills/Hero_CounterAttack.json';
 import heroDamageAmplification from '../../resources/configs/Skills/Hero_DamageAmplification.json';
 import heroIronFrenzy from '../../resources/configs/Skills/Hero_IronFrenzy.json';
-import heroTacticalRetreat from '../../resources/configs/Skills/Hero_TacticalRetreat.json';
 import heroSkySlash from '../../resources/configs/Skills/Hero_SkySlash.json';
 import heroBloodlust from '../../resources/configs/Skills/Hero_Bloodlust.json';
 import heroBladeStorm from '../../resources/configs/Skills/Hero_BladeStorm.json';
+import heroSkyfallArrow from '../../resources/configs/Skills/Hero_SkyfallArrow.json';
 import heroCommanderAura from '../../resources/configs/Skills/Hero_CommanderAura.json';
 import heroRallyingCry from '../../resources/configs/Skills/Hero_RallyingCry.json';
 import heroSupplyMaster from '../../resources/configs/Skills/Hero_SupplyMaster.json';
@@ -112,6 +111,7 @@ import { RenderModeSelectionOverlaySystem } from './Debug/RenderModeSelectionOve
 import { SkillPanelController } from './UI/SkillPanelController';
 import { BladeOrbitSystem } from './ECS/Systems/BladeOrbitSystem';
 import { MoveSpeedModifierSystem } from './ECS/Systems/MoveSpeedModifierSystem';
+import { ArrowRainSystem } from './ECS/Systems/ArrowRainSystem';
 import { UIEventBus, UIEvents, type RequestCastSkillPayload } from './UI/UIEventBus';
 
 const CASTLE_UPGRADE_COSTS = [0, 160, 280, 420, 600];
@@ -292,13 +292,12 @@ export class GameMain extends Component {
                 Hero1_Skill1: hero1Skill1Config as any,
                 Hero_IronGuard: heroIronGuard as any,
                 Hero_SeismicStomp: heroSeismicStomp as any,
-                Hero_CounterAttack: heroCounterAttack as any,
                 Hero_DamageAmplification: heroDamageAmplification as any,
                 Hero_IronFrenzy: heroIronFrenzy as any,
-                Hero_TacticalRetreat: heroTacticalRetreat as any,
                 Hero_SkySlash: heroSkySlash as any,
                 Hero_Bloodlust: heroBloodlust as any,
                 Hero_BladeStorm: heroBladeStorm as any,
+                Hero_SkyfallArrow: heroSkyfallArrow as any,
                 Hero_CommanderAura: heroCommanderAura as any,
                 Hero_RallyingCry: heroRallyingCry as any,
                 Hero_SupplyMaster: heroSupplyMaster as any,
@@ -332,6 +331,7 @@ export class GameMain extends Component {
         }, 7);
         this.world.registerSystem(this.weaponSystem);
 
+        this.world.registerSystem(new ArrowRainSystem(this.world, 7.8));
         this.projectileSystem = new ProjectileSystem(this.world, 8);
         this.world.registerSystem(this.projectileSystem);
 

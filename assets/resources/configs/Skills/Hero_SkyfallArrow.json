@@ -1,0 +1,79 @@
+{
+    "id": "Hero_SkyfallArrow",
+    "name": "skill_name_skyfall_arrow",
+    "description": "skill_desc_skyfall_arrow",
+    "castType": "Active",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 60,
+    "category": "Slash",
+    "levels": [
+        {
+            "level": 1,
+            "cooldownSeconds": 10,
+            "arrowsPerWave": 10,
+            "damageCoeffPerArrow": 0.4,
+            "durationSeconds": 3,
+            "waveCount": 4,
+            "pierceTargets": 0,
+            "radius": 120,
+            "prefabPath": "prefabs/ArcherArrowPrefab"
+        },
+        {
+            "level": 2,
+            "cooldownSeconds": 58,
+            "arrowsPerWave": 12,
+            "damageCoeffPerArrow": 0.55,
+            "durationSeconds": 3,
+            "waveCount": 4,
+            "pierceTargets": 0,
+            "radius": 120,
+            "prefabPath": "prefabs/ArcherArrowPrefab"
+        },
+        {
+            "level": 3,
+            "cooldownSeconds": 56,
+            "arrowsPerWave": 15,
+            "damageCoeffPerArrow": 0.7,
+            "durationSeconds": 4,
+            "waveCount": 5,
+            "pierceTargets": 1,
+            "radius": 120,
+            "prefabPath": "prefabs/HeroSkillArrowLv2"
+        },
+        {
+            "level": 4,
+            "cooldownSeconds": 54,
+            "arrowsPerWave": 18,
+            "damageCoeffPerArrow": 0.9,
+            "durationSeconds": 4,
+            "waveCount": 5,
+            "pierceTargets": 2,
+            "radius": 120,
+            "prefabPath": "prefabs/HeroSkillArrowLv2"
+        },
+        {
+            "level": 5,
+            "cooldownSeconds": 52,
+            "arrowsPerWave": 22,
+            "damageCoeffPerArrow": 1.15,
+            "durationSeconds": 5,
+            "waveCount": 6,
+            "pierceTargets": 3,
+            "radius": 120,
+            "prefabPath": "prefabs/HeroSkillArrowLv3"
+        },
+        {
+            "level": 6,
+            "cooldownSeconds": 50,
+            "arrowsPerWave": 28,
+            "damageCoeffPerArrow": 1.5,
+            "durationSeconds": 6,
+            "waveCount": 8,
+            "pierceTargets": 999,
+            "radius": 120,
+            "prefabPath": "prefabs/HeroSkillArrowLv3"
+        }
+    ]
+}
+

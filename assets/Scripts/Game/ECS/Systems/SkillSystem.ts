@@ -8,6 +8,7 @@ import { TargetComponent } from '../Components/TargetComponent';
 import { SkillExecutor, SkillExecuteContext } from '../Skills/SkillExecutor';
 import { DefaultSkillExecutor } from '../Skills/DefaultSkillExecutor';
 import { BladeStormSkillExecutor } from '../Skills/BladeStormSkillExecutor';
+import { SkyfallArrowSkillExecutor } from '../Skills/SkyfallArrowSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
@@ -24,6 +25,7 @@ export class SkillSystem extends ECSSystem {
         this.configs = configs;
         this.defaultExecutor = new DefaultSkillExecutor();
         this.registerExecutor(new BladeStormSkillExecutor());
+        this.registerExecutor(new SkyfallArrowSkillExecutor());
     }
 
     public getMaxLevel(configId: string): number {
@@ -42,6 +44,17 @@ export class SkillSystem extends ECSSystem {
 
     public hasConfig(configId: string): boolean {
         return !!this.configs[configId];
+    }
+
+    public getCooldownSeconds(configId: string, level: number): number {
+        const cfg = this.configs[configId];
+        if (!cfg) return 0;
+        const lv = Math.max(1, Math.floor(level || 1));
+        const levelConfig = this.resolveLevelConfig(cfg, lv);
+        if (levelConfig && typeof levelConfig.cooldownSeconds === 'number') {
+            return Math.max(0.01, levelConfig.cooldownSeconds);
+        }
+        return Math.max(0.01, cfg.defaultCooldownSeconds ?? 1);
     }
 
     public registerConfig(config: SkillConfig): void {

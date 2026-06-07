@@ -2,6 +2,8 @@ import { _decorator, Button, Component, Label, Node, RichText, Sprite, SpriteFra
 import { World } from '../../Shared/ECS/Core/World';
 import { t } from '../I18n/LocalizationManager';
 import { SkillComponent } from '../ECS/Components/SkillComponent';
+import { SkillStateComponent } from '../ECS/Components/SkillStateComponent';
+import { SkillSystem } from '../ECS/Systems/SkillSystem';
 import { UIEventBus, UIEvents, type HeroSkillsChangedPayload } from './UIEventBus';
 
 const { ccclass } = _decorator;
@@ -41,6 +43,7 @@ export class SkillPanelController extends Component {
     private skillSlotNodes: (Node | null)[] = [];
     private skillSlotIconSprites: (Sprite | null)[] = [];
     private skillSlotLevelSprites: (Sprite | null)[] = [];
+    private skillSlotCdSprites: (Sprite | null)[] = [];
 
     private cardSelectNode: Node | null = null;
     private splashNode: Node | null = null;
@@ -76,6 +79,10 @@ export class SkillPanelController extends Component {
 
     protected onDisable(): void {
         UIEventBus.off(UIEvents.HeroSkillsChanged, this.onHeroSkillsChanged, this);
+    }
+
+    update(): void {
+        this.refreshSkillCooldownFills();
     }
 
     public openSkillSelect(): void {
@@ -147,6 +154,7 @@ export class SkillPanelController extends Component {
         this.skillSlotNodes = new Array(max).fill(null);
         this.skillSlotIconSprites = new Array(max).fill(null);
         this.skillSlotLevelSprites = new Array(max).fill(null);
+        this.skillSlotCdSprites = new Array(max).fill(null);
 
         for (let i = 1; i <= max; i++) {
             const slot =
@@ -157,10 +165,15 @@ export class SkillPanelController extends Component {
             this.skillSlotNodes[i - 1] = slot;
             const iconNode = slot.getChildByName('SkillIcon');
             const levelNode = slot.getChildByName('SkillLevel');
+            const cdNode = slot.getChildByName('SkillCD');
             this.skillSlotIconSprites[i - 1] = iconNode ? iconNode.getComponent(Sprite) : null;
             this.skillSlotLevelSprites[i - 1] = levelNode ? levelNode.getComponent(Sprite) : null;
-
-
+            const cdSprite = cdNode ? cdNode.getComponent(Sprite) : null;
+            if (cdSprite) {
+                cdSprite.fillRange = 0;
+                cdSprite.node.active = false;
+            }
+            this.skillSlotCdSprites[i - 1] = cdSprite;
         }
     }
 
@@ -209,7 +222,9 @@ export class SkillPanelController extends Component {
         if (!world || heroId === null) return;
         const hero = world.getEntity(heroId);
         const skill = hero?.getComponent(SkillComponent);
+        const state = hero?.getComponent(SkillStateComponent);
         if (!hero || !skill) return;
+        const sys = world.getSystem(SkillSystem);
 
         for (let i = 0; i < this.skillSlotNodes.length; i++) {
             const slotNode = this.skillSlotNodes[i];
@@ -218,6 +233,8 @@ export class SkillPanelController extends Component {
             const level = Math.max(0, Math.floor(skill.skillLevels[i] ?? 0));
             if (!configId) {
                 slotNode.active = false;
+                const cd = this.skillSlotCdSprites[i];
+                if (cd) cd.node.active = false;
                 continue;
             }
             slotNode.active = true;
@@ -236,6 +253,53 @@ export class SkillPanelController extends Component {
                 const sf = this.getSpriteFrame(name);
                 if (sf) lvlSprite.spriteFrame = sf;
             }
+
+            const cdSprite = this.skillSlotCdSprites[i];
+            if (cdSprite && state && sys) {
+                const cooldown = sys.getCooldownSeconds(configId, level);
+                const remaining = Math.max(0, Number(state.skillCooldownRemaining[i] ?? 0));
+                const ratio = cooldown > 0 ? Math.max(0, Math.min(1, remaining / cooldown)) : 0;
+                cdSprite.fillRange = ratio;
+                cdSprite.node.active = ratio > 0.0001;
+            } else if (cdSprite) {
+                cdSprite.fillRange = 0;
+                cdSprite.node.active = false;
+            }
+        }
+    }
+
+    private refreshSkillCooldownFills(): void {
+        if (!this.opts) return;
+        if (this.skillSlotNodes.length === 0) return;
+        const world = this.opts.getWorld();
+        const heroId = this.opts.getHeroEntityId();
+        if (!world || heroId === null) return;
+        const hero = world.getEntity(heroId);
+        const skill = hero?.getComponent(SkillComponent);
+        const state = hero?.getComponent(SkillStateComponent);
+        if (!hero || !skill || !state) return;
+        const sys = world.getSystem(SkillSystem);
+        if (!sys) return;
+
+        for (let i = 0; i < this.skillSlotNodes.length; i++) {
+            const slotNode = this.skillSlotNodes[i];
+            const cdSprite = this.skillSlotCdSprites[i];
+            if (!slotNode || !cdSprite) continue;
+            if (!slotNode.active) {
+                cdSprite.node.active = false;
+                continue;
+            }
+            const configId = skill.skillConfigIds[i] ?? '';
+            if (!configId) {
+                cdSprite.node.active = false;
+                continue;
+            }
+            const level = Math.max(0, Math.floor(skill.skillLevels[i] ?? 0));
+            const cooldown = sys.getCooldownSeconds(configId, level);
+            const remaining = Math.max(0, Number(state.skillCooldownRemaining[i] ?? 0));
+            const ratio = cooldown > 0 ? Math.max(0, Math.min(1, remaining / cooldown)) : 0;
+            cdSprite.fillRange = ratio;
+            cdSprite.node.active = ratio > 0.0001;
         }
     }
 

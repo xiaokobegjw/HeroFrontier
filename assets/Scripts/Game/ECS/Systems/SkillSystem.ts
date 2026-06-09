@@ -9,6 +9,7 @@ import { SkillExecutor, SkillExecuteContext } from '../Skills/SkillExecutor';
 import { DefaultSkillExecutor } from '../Skills/DefaultSkillExecutor';
 import { BladeStormSkillExecutor } from '../Skills/BladeStormSkillExecutor';
 import { SkyfallArrowSkillExecutor } from '../Skills/SkyfallArrowSkillExecutor';
+import { SkyShockwaveSkillExecutor } from '../Skills/SkyShockwaveSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
@@ -26,6 +27,7 @@ export class SkillSystem extends ECSSystem {
         this.defaultExecutor = new DefaultSkillExecutor();
         this.registerExecutor(new BladeStormSkillExecutor());
         this.registerExecutor(new SkyfallArrowSkillExecutor());
+        this.registerExecutor(new SkyShockwaveSkillExecutor());
     }
 
     public getMaxLevel(configId: string): number {

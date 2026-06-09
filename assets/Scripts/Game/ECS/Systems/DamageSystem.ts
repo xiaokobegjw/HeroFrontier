@@ -21,6 +21,8 @@ import { SkillComponent } from '../Components/SkillComponent';
 import { PlaystyleComponent } from '../Components/PlaystyleComponent';
 import { AggroComponent } from '../Components/AggroComponent';
 import { MoveSpeedModifierComponent } from '../../../Shared/ECS/Components/MoveSpeedModifierComponent';
+import { StunOnHitComponent } from '../Components/StunOnHitComponent';
+import { StunComponent } from '../../../Shared/ECS/Components/StunComponent';
 
 export type DamageType = 'Physical' | 'Magic';
 
@@ -56,6 +58,12 @@ export class DamageSystem extends ECSSystem {
             const a = this.world.getEntity(ev.aId);
             const b = this.world.getEntity(ev.bId);
             if (!a || !b) continue;
+
+            const isSkyShockwave = alert.name.includes('SkyShockwave') || b.name.includes('SkyShockwave');
+            if (isSkyShockwave) {
+                let fdasfd = 0
+                fdasfd++;
+            }
 
             const applied =
                 this.tryApplyProjectileHit(a, b) ||
@@ -111,6 +119,12 @@ export class DamageSystem extends ECSSystem {
         }
 
         projectile.hitEntityIds.push(targetEntity.id);
+
+        // 检查眩晕效果（投射物也可能带有眩晕，如裂空震慑）
+        const stunOnHit = projectileEntity.getComponent(StunOnHitComponent);
+        if (stunOnHit && stunOnHit.stunSeconds > 0) {
+            this.applyStun(targetEntity, stunOnHit.stunSeconds);
+        }
 
         if (projectile.pierceRemaining > 0) {
             projectile.pierceRemaining--;
@@ -276,11 +290,49 @@ export class DamageSystem extends ECSSystem {
             mod.multiplier = Math.min(mod.multiplier, slowMult);
             mod.remainingSeconds = Math.max(mod.remainingSeconds, dur);
         }
+
+        const stunOnHit = hitboxEntity.getComponent(StunOnHitComponent);
+        if (stunOnHit && stunOnHit.stunSeconds > 0) {
+            this.applyStun(targetEntity, stunOnHit.stunSeconds);
+        }
         if (!hitbox.canHitMultiple) {
             this.world.destroyEntity(hitboxEntity);
         }
 
         return true;
+    }
+
+    private applyStun(targetEntity: Entity, seconds: number): void {
+        const dur = Math.max(0, seconds);
+        if (dur <= 0) return;
+
+        let stun = targetEntity.getComponent(StunComponent);
+        if (!stun) {
+            stun = this.world.acquireComponent(StunComponent);
+            targetEntity.addComponent(stun);
+        }
+        stun.remainingSeconds = Math.max(stun.remainingSeconds, dur);
+
+        const tr = targetEntity.getComponent(TransformComponent);
+        if (!tr) return;
+
+        const fx = this.world.createEntity(`Effect_Dizzy_${targetEntity.id}_${Date.now()}`);
+        const ftr = this.world.acquireComponent(TransformComponent);
+        ftr.x = tr.x;
+        ftr.y = tr.y + 42;  // 在敌人头部位置
+        fx.addComponent(ftr);
+
+        const view = this.world.acquireComponent(ViewComponent);
+        view.prefabPath = 'prefabs/dizzyEffect';
+        fx.addComponent(view);
+
+        const proj = this.world.acquireComponent(ProjectileComponent);
+        proj.vx = 0;
+        proj.vy = 0;
+        proj.lifeRemaining = dur;
+        proj.followEntityId = targetEntity.id;  // 让特效跟随敌人移动
+        proj.followOffsetY = 42;  // 保持在敌人上方42像素
+        fx.addComponent(proj);
     }
 
     private getProjectileDamageSource(projectile: ProjectileComponent): DamageSource {

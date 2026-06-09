@@ -38,6 +38,7 @@ export class SkyfallArrowSkillExecutor implements SkillExecutor {
         rain.arrowSpeed = Math.max(1, Number(levelCfgAny?.arrowSpeed ?? 900));
         rain.spawnExtraHeight = Math.max(0, Number(levelCfgAny?.spawnExtraHeight ?? 90));
         rain.colliderRadius = Math.max(1, Number(levelCfgAny?.colliderRadius ?? 12));
+        rain.stickSeconds = Math.max(0, Number(levelCfgAny?.stickSeconds ?? 0.6));
         rain.waveInterval = waveCount > 0 ? durationSeconds / waveCount : durationSeconds;
         rain.nextWaveIn = 0;
         rain.arrowSpawnRemaining = 0;

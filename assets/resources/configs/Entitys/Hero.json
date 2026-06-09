@@ -79,7 +79,7 @@
             "id": "SkillComponent",
             "skillConfigIds": ["Hero1_Skill1"],
             "skillLevels": [1],
-            "autoCastEnabled": [false]
+            "autoCastEnabled": [true]
         },
         {
             "id": "WeaponComponent",

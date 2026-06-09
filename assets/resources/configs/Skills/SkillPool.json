@@ -3,7 +3,7 @@
     "description": "cfg_desc_skill_pool",
     "maxSkillSlots": 6,
     "maxSkillLevel": 6,
-    "totalSkills": 14,
+    "totalSkills": 15,
     "exileCost": 200,
     "replaceCost": 500,
     "skills": [
@@ -14,6 +14,7 @@
         { "id": "Hero_SkySlash", "category": "Slash", "weight": 1 },
         { "id": "Hero_BladeStorm", "category": "Slash", "weight": 1 },
         { "id": "Hero_SkyfallArrow", "category": "Slash", "weight": 1 },
+        { "id": "Hero_SkyShockwave", "category": "Slash", "weight": 1 },
         { "id": "Hero_DamageAmplification", "category": "Slash", "weight": 1 },
         { "id": "Hero_CommanderAura", "category": "Commander", "weight": 1 },
         { "id": "Hero_RallyingCry", "category": "Commander", "weight": 1 },

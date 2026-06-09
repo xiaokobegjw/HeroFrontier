@@ -19,6 +19,7 @@ import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
 import { GameConfigManager } from '../../../Shared/Managers/GameConfigManager';
 import { DebugState } from '../../Debug/DebugState';
 import { ShapeType } from '../../../Shared/Data/ShapeData';
+import { StunComponent } from '../../../Shared/ECS/Components/StunComponent';
 
 export class WeaponSystem extends ECSSystem {
     private world: World;
@@ -40,6 +41,9 @@ export class WeaponSystem extends ECSSystem {
             const faction = entity.getComponent(FactionComponent);
             const target = entity.getComponent(TargetComponent);
             if (!transform || !faction || !target) continue;
+
+            const stun = entity.getComponent(StunComponent);
+            if (stun && stun.remainingSeconds > 0) continue;
 
             if (target.targetEntityId === null) continue;
 

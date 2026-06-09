@@ -18,6 +18,12 @@ export class ProjectileComponent extends ECSComponent {
     public lifeRemaining: number = 0;
     public pierceRemaining: number = 0;
     public hitEntityIds: number[] = [];
+    public stopY: number = 0;
+    public stickSeconds: number = 0;
+    public landed: boolean = false;
+    public followEntityId: number | null = null;
+    public followOffsetX: number = 0;
+    public followOffsetY: number = 0;
 
     reset(): void {
         super.reset();
@@ -38,5 +44,11 @@ export class ProjectileComponent extends ECSComponent {
         this.lifeRemaining = 0;
         this.pierceRemaining = 0;
         this.hitEntityIds = [];
+        this.stopY = 0;
+        this.stickSeconds = 0;
+        this.landed = false;
+        this.followEntityId = null;
+        this.followOffsetX = 0;
+        this.followOffsetY = 0;
     }
 }

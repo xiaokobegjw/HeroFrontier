@@ -15,6 +15,7 @@ import { HealthComponent } from '../Components/HealthComponent';
 import { FactionComponent } from '../Components/FactionComponent';
 import { FactionType } from '../../Data/Faction';
 import { SoldierComponent } from '../Components/SoldierComponent';
+import { StunComponent } from '../../../Shared/ECS/Components/StunComponent';
 import { GameConfigManager } from '../../../Shared/Managers/GameConfigManager';
 import { DebugState } from '../../Debug/DebugState';
 
@@ -58,6 +59,10 @@ export class AISystem extends ECSSystem {
 
             const health = entity.getComponent(HealthComponent);
             if (health && health.isDead) continue;
+
+            // 检查眩晕状态，如果被眩晕则跳过 AI 处理
+            const stun = entity.getComponent(StunComponent);
+            if (stun && stun.remainingSeconds > 0) continue;
 
             const soldier = entity.getComponent(SoldierComponent);
             if (soldier && !soldier.deployed) continue;

@@ -3,6 +3,7 @@ import { ActionResult } from './ActionResult';
 import { Entity } from '../Core/Entity';
 import { TransformComponent } from '../Components/TransformComponent';
 import { MoveSpeedModifierComponent } from '../Components/MoveSpeedModifierComponent';
+import { StunComponent } from '../Components/StunComponent';
 
 export class WalkAction extends Action {
     private maxSpeed: number = 200;
@@ -29,6 +30,12 @@ export class WalkAction extends Action {
             return ActionResult.FAILURE("No TransformComponent or target position");
         }
 
+        const stun = this.actor.getComponent(StunComponent);
+        if (stun && stun.remainingSeconds > 0) {
+            this.currentSpeed = 0;
+            return ActionResult.RUNNING("Stunned");
+        }
+
         const dx = this.pos.x - transform.x;
         const dy = this.pos.y - transform.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -41,7 +48,7 @@ export class WalkAction extends Action {
         }
 
         const speedMod = this.actor.getComponent(MoveSpeedModifierComponent);
-        const mult = speedMod ? Math.max(0.05, Math.min(2, speedMod.multiplier)) : 1;
+        const mult = speedMod ? Math.max(0, Math.min(2, speedMod.multiplier)) : 1;
         const maxSpeed = this.maxSpeed * mult;
         const accel = this.accel * mult;
         const decel = this.decel * mult;

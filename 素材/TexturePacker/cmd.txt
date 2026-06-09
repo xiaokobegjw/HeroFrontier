@@ -73,3 +73,17 @@ TexturePacker \
 --shape-padding 1 \
 --pack-mode Best \
 Projectile/*.png
+
+TexturePacker \
+--sheet dizzyEffects.png \
+--data dizzyEffects.plist \
+--format cocos2d \
+--max-size 2048 \
+--no-trim \
+--padding 2 \
+--enable-rotation \
+--algorithm MaxRects \
+--border-padding 0 \
+--shape-padding 1 \
+--pack-mode Best \
+Effects/dizzy/*.png

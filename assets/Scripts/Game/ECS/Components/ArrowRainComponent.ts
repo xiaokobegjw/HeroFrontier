@@ -12,11 +12,15 @@ export class ArrowRainComponent extends ECSComponent {
     public arrowSpeed: number = 0;
     public spawnExtraHeight: number = 0;
     public colliderRadius: number = 0;
+    public stickSeconds: number = 0;
     public timeRemaining: number = 0;
     public nextWaveIn: number = 0;
     public waveInterval: number = 0;
     public arrowSpawnRemaining: number = 0;
     public nextArrowIn: number = 0;
+    public targetXs: number[] = [];
+    public targetYs: number[] = [];
+    public targetIndex: number = 0;
 
     reset(): void {
         super.reset();
@@ -31,10 +35,14 @@ export class ArrowRainComponent extends ECSComponent {
         this.arrowSpeed = 0;
         this.spawnExtraHeight = 0;
         this.colliderRadius = 0;
+        this.stickSeconds = 0;
         this.timeRemaining = 0;
         this.nextWaveIn = 0;
         this.waveInterval = 0;
         this.arrowSpawnRemaining = 0;
         this.nextArrowIn = 0;
+        this.targetXs = [];
+        this.targetYs = [];
+        this.targetIndex = 0;
     }
 }

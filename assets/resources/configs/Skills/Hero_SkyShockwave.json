@@ -1,0 +1,19 @@
+{
+    "id": "Hero_SkyShockwave",
+    "name": "skill_name_sky_shockwave",
+    "description": "skill_desc_sky_shockwave",
+    "castType": "Active",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 15,
+    "category": "Slash",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 15, "damageCoeff": 0.6, "stunSeconds": 2, "radius": 30, "prefabPath": "prefabs/HeroSkillLHZZLV1" },
+        { "level": 2, "cooldownSeconds": 14, "damageCoeff": 0.8, "stunSeconds": 2.5, "radius": 35, "prefabPath": "prefabs/HeroSkillLHZZLV1" },
+        { "level": 3, "cooldownSeconds": 13, "damageCoeff": 1.1, "stunSeconds": 3, "radius": 40, "prefabPath": "prefabs/HeroSkillLHZZLV2" },
+        { "level": 4, "cooldownSeconds": 12, "damageCoeff": 1.45, "stunSeconds": 3.5, "radius": 45, "prefabPath": "prefabs/HeroSkillLHZZLV2" },
+        { "level": 5, "cooldownSeconds": 11, "damageCoeff": 1.85, "stunSeconds": 4, "radius": 50, "prefabPath": "prefabs/HeroSkillLHZZLV3" },
+        { "level": 6, "cooldownSeconds": 10, "damageCoeff": 2.4, "stunSeconds": 5, "radius": 60, "prefabPath": "prefabs/HeroSkillLHZZLV3" }
+    ]
+}
+

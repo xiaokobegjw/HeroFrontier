@@ -1,0 +1,7 @@
+mkdir -p resized
+for f in *.png; do
+  read w h <<< $(sips -g pixelWidth -g pixelHeight "$f" | awk '/pixelWidth/{w=$2}/pixelHeight/{h=$2}END{print w,h}')
+  max=$(( w > h ? w : h ))
+  new_max=$(( max / 2 ))
+  sips -Z $new_max "$f" --out resized/"$f"
+done

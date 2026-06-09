@@ -61,9 +61,23 @@ export class CollisionSystem extends ECSSystem {
         for (const item of indexed) {
             const candidates = this.index.query(item.bounds);
             for (const other of candidates) {
+
+                const isSkyShockwave = item.entity.name.includes('SkyShockwave') || other.entity.name.includes('SkyShockwave');
+                if (isSkyShockwave) {
+                    let fdasfd = 0
+                    fdasfd++;
+                }
+
                 if (other.id <= item.id) continue;
                 if (!this.layerPass(item.entity, other.entity)) continue;
                 if (this.intersects(item.entity, other.entity)) {
+
+                    const isSkyShockwave = item.entity.name.includes('SkyShockwave') || other.entity.name.includes('SkyShockwave');
+                    if (isSkyShockwave) {
+                        let fdasfd = 0
+                        fdasfd++;
+                    }
+
                     this.events.push({ aId: item.id, bId: other.id });
                 }
             }

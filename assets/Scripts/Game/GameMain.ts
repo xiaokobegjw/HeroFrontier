@@ -29,6 +29,7 @@ import heroSkySlash from '../../resources/configs/Skills/Hero_SkySlash.json';
 import heroBloodlust from '../../resources/configs/Skills/Hero_Bloodlust.json';
 import heroBladeStorm from '../../resources/configs/Skills/Hero_BladeStorm.json';
 import heroSkyfallArrow from '../../resources/configs/Skills/Hero_SkyfallArrow.json';
+import heroSkyShockwave from '../../resources/configs/Skills/Hero_SkyShockwave.json';
 import heroCommanderAura from '../../resources/configs/Skills/Hero_CommanderAura.json';
 import heroRallyingCry from '../../resources/configs/Skills/Hero_RallyingCry.json';
 import heroSupplyMaster from '../../resources/configs/Skills/Hero_SupplyMaster.json';
@@ -112,6 +113,7 @@ import { SkillPanelController } from './UI/SkillPanelController';
 import { BladeOrbitSystem } from './ECS/Systems/BladeOrbitSystem';
 import { MoveSpeedModifierSystem } from './ECS/Systems/MoveSpeedModifierSystem';
 import { ArrowRainSystem } from './ECS/Systems/ArrowRainSystem';
+import { StunSystem } from './ECS/Systems/StunSystem';
 import { UIEventBus, UIEvents, type RequestCastSkillPayload } from './UI/UIEventBus';
 
 const CASTLE_UPGRADE_COSTS = [0, 160, 280, 420, 600];
@@ -249,6 +251,7 @@ export class GameMain extends Component {
         this.world.registerSystem(this.actionSystem);
 
         this.world.registerSystem(new MoveSpeedModifierSystem(this.world, 4.84));
+        this.world.registerSystem(new StunSystem(this.world, this.actionSystem, 4.83));
         this.world.registerSystem(new MovementBlockSystem(this.world, 4.85));
         this.world.registerSystem(new UnitSeparationSystem(this.world, 4.86));
         this.worldBoundsSystem = new WorldBoundsSystem(4.87);
@@ -298,6 +301,7 @@ export class GameMain extends Component {
                 Hero_Bloodlust: heroBloodlust as any,
                 Hero_BladeStorm: heroBladeStorm as any,
                 Hero_SkyfallArrow: heroSkyfallArrow as any,
+                Hero_SkyShockwave: heroSkyShockwave as any,
                 Hero_CommanderAura: heroCommanderAura as any,
                 Hero_RallyingCry: heroRallyingCry as any,
                 Hero_SupplyMaster: heroSupplyMaster as any,

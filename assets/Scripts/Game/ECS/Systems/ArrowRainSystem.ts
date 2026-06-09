@@ -10,6 +10,8 @@ import { FactionComponent } from '../Components/FactionComponent';
 import { FactionType } from '../../Data/Faction';
 import { ViewComponent } from '../Components/ViewComponent';
 import { ArrowRainComponent } from '../Components/ArrowRainComponent';
+import { SpatialIndexSystem } from './SpatialIndexSystem';
+import { HealthComponent } from '../Components/HealthComponent';
 
 export class ArrowRainSystem extends ECSSystem {
     private world: World;
@@ -46,6 +48,7 @@ export class ArrowRainSystem extends ECSSystem {
                 rain.waveCount--;
                 rain.arrowSpawnRemaining = Math.max(0, Math.floor(rain.arrowsPerWave));
                 rain.nextArrowIn = 0;
+                this.prepareTargetsForWave(rain, ownerTr, ownerFaction);
                 rain.nextWaveIn += rain.waveInterval > 0 ? rain.waveInterval : 0.2;
             }
 
@@ -69,17 +72,26 @@ export class ArrowRainSystem extends ECSSystem {
         const spawnH = Math.max(0, rain.spawnExtraHeight);
         const speed = Math.max(1, rain.arrowSpeed);
         const lifeSeconds = Math.max(0.05, spawnH / speed);
+        const stickSeconds = Math.max(0, rain.stickSeconds);
 
         const pierce = Math.max(0, Math.floor(rain.pierceTargets));
         const pierceRemaining = pierce >= 999 ? 999999 : pierce;
         const damageCoeff = Math.max(0, rain.damageCoeffPerArrow);
 
-        const u = Math.random();
-        const v = Math.random();
-        const rr = Math.sqrt(u) * radius;
-        const ang = v * Math.PI * 2;
-        const landX = ownerTr.x + Math.cos(ang) * rr;
-        const landY = ownerTr.y + Math.sin(ang) * rr;
+        let landX: number;
+        let landY: number;
+        if (rain.targetIndex < rain.targetXs.length) {
+            landX = rain.targetXs[rain.targetIndex];
+            landY = rain.targetYs[rain.targetIndex];
+            rain.targetIndex++;
+        } else {
+            const u = Math.random();
+            const v = Math.random();
+            const rr = Math.sqrt(u) * radius;
+            const ang = v * Math.PI * 2;
+            landX = ownerTr.x + Math.cos(ang) * rr;
+            landY = ownerTr.y + Math.sin(ang) * rr;
+        }
         const startY = landY + spawnH;
 
         const projEnt = this.world.createEntity(`Effect_SkyfallArrow_${rain.ownerId}_${Date.now()}`);
@@ -103,6 +115,9 @@ export class ArrowRainSystem extends ECSSystem {
         proj.vy = -speed;
         proj.lifeRemaining = lifeSeconds;
         proj.pierceRemaining = pierceRemaining;
+        proj.stopY = landY;
+        proj.stickSeconds = stickSeconds;
+        proj.landed = false;
         projEnt.addComponent(proj);
 
         const faction = this.world.acquireComponent(FactionComponent);
@@ -123,6 +138,38 @@ export class ArrowRainSystem extends ECSSystem {
             const view = this.world.acquireComponent(ViewComponent);
             view.prefabPath = rain.prefabPath;
             projEnt.addComponent(view);
+        }
+    }
+
+    private prepareTargetsForWave(rain: ArrowRainComponent, ownerTr: TransformComponent, ownerFaction: FactionType): void {
+        const radius = Math.max(0, rain.radius);
+        rain.targetXs = [];
+        rain.targetYs = [];
+        rain.targetIndex = 0;
+        if (radius <= 0) return;
+        const arrows = Math.max(0, Math.floor(rain.arrowsPerWave));
+        if (arrows <= 0) return;
+
+        const spatial = this.world.getSystem(SpatialIndexSystem);
+        if (!spatial) return;
+        const ids = spatial.queryOpponents(ownerFaction, {
+            x: ownerTr.x - radius,
+            y: ownerTr.y - radius,
+            width: radius * 2,
+            height: radius * 2
+        });
+
+        for (const id of ids) {
+            if (rain.targetXs.length >= arrows) break;
+            const ent = this.world.getEntity(id);
+            const hp = ent?.getComponent(HealthComponent);
+            const tr = ent?.getComponent(TransformComponent);
+            if (!ent || !ent.active || !hp || hp.isDead || !tr) continue;
+            const dx = tr.x - ownerTr.x;
+            const dy = tr.y - ownerTr.y;
+            if (dx * dx + dy * dy > radius * radius) continue;
+            rain.targetXs.push(tr.x);
+            rain.targetYs.push(tr.y);
         }
     }
 }

@@ -30,6 +30,8 @@
     ,"skill_desc_whirlwind": "<color=#66ccff>Deals</color><color=#ffffff> </color><color=#ffd700>80</color><color=#ffffff> damage to the target, cooldown</color><color=#ffffff> </color><color=#ffd700>8</color><color=#ffffff>s (scales with level)</color>"
     ,"skill_name_sky_slash": "Rift Cleave"
     ,"skill_desc_sky_slash": "<color=#66ccff>Deals</color><color=#ffffff> </color><color=#ffd700>120</color><color=#ffffff> damage</color><color=#66ccff>, range</color><color=#ffffff> </color><color=#ffd700>200</color><color=#ffffff>, cooldown</color><color=#ffffff> </color><color=#ffd700>5</color><color=#ffffff>s (scales with level)</color>"
+    ,"skill_name_sky_shockwave": "Sky Shatter Stun"
+    ,"skill_desc_sky_shockwave": "<color=#66ccff>Deals</color><color=#ffffff> </color><color=#66ccff>Physical damage</color><color=#ffffff> in a small area and applies</color><color=#ffffff> </color><color=#ffd700>Stun</color><color=#ffffff> (scales with level)</color>"
     ,"skill_name_blade_storm": "Blade Storm"
     ,"skill_desc_blade_storm": "<color=#66ccff>Summons rotating blades around the hero for</color><color=#ffffff> </color><color=#ffd700>5</color><color=#ffffff>s</color><color=#66ccff>, each hit deals</color><color=#ffffff> </color><color=#ffd700>80%</color><color=#ffffff> ATK damage</color><color=#ffffff> (scales with level; Lv.6 adds</color><color=#ffffff> </color><color=#ffd700>10%</color><color=#ffffff> </color><color=#66ccff>slow</color><color=#ffffff>)</color>"
     ,"skill_name_skyfall_arrow": "Skyfall Arrows"

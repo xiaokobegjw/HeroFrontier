@@ -3,6 +3,7 @@ import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 import { World } from '../../../Shared/ECS/Core/World';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
+import { ColliderComponent } from '../../../Shared/ECS/Components/ColliderComponent';
 import { ProjectileComponent } from '../Components/ProjectileComponent';
 
 export class ProjectileSystem extends ECSSystem {
@@ -26,8 +27,31 @@ export class ProjectileSystem extends ECSSystem {
             const oldX = transform.x;
             const oldY = transform.y;
 
-            transform.x += projectile.vx * deltaTime;
-            transform.y += projectile.vy * deltaTime;
+            // 如果设置了跟随实体，跟随目标移动
+            if (projectile.followEntityId !== null) {
+                const targetEnt = this.world.getEntity(projectile.followEntityId);
+                if (targetEnt) {
+                    const targetTr = targetEnt.getComponent(TransformComponent);
+                    if (targetTr) {
+                        transform.x = targetTr.x + projectile.followOffsetX;
+                        transform.y = targetTr.y + projectile.followOffsetY;
+                    }
+                }
+            } else if (!projectile.landed) {
+                transform.x += projectile.vx * deltaTime;
+                transform.y += projectile.vy * deltaTime;
+                if (projectile.vy < 0 && transform.y <= projectile.stopY) {
+                    transform.y = projectile.stopY;
+                    projectile.landed = true;
+                    projectile.vx = 0;
+                    projectile.vy = 0;
+                    projectile.lifeRemaining = Math.max(0.01, projectile.stickSeconds || projectile.lifeRemaining);
+                    const col = entity.getComponent(ColliderComponent);
+                    if (col) {
+                        col.mask = 0;
+                    }
+                }
+            }
 
             const dx = transform.x - oldX;
             const dy = transform.y - oldY;

@@ -16,7 +16,7 @@
             "durationSeconds": 3,
             "waveCount": 4,
             "pierceTargets": 0,
-            "radius": 120,
+            "radius": 80,
             "prefabPath": "prefabs/ArcherArrowPrefab"
         },
         {
@@ -27,7 +27,7 @@
             "durationSeconds": 3,
             "waveCount": 4,
             "pierceTargets": 0,
-            "radius": 120,
+            "radius": 80,
             "prefabPath": "prefabs/ArcherArrowPrefab"
         },
         {
@@ -38,7 +38,7 @@
             "durationSeconds": 4,
             "waveCount": 5,
             "pierceTargets": 1,
-            "radius": 120,
+            "radius": 80,
             "prefabPath": "prefabs/HeroSkillArrowLv2"
         },
         {
@@ -49,7 +49,7 @@
             "durationSeconds": 4,
             "waveCount": 5,
             "pierceTargets": 2,
-            "radius": 120,
+            "radius": 80,
             "prefabPath": "prefabs/HeroSkillArrowLv2"
         },
         {
@@ -60,7 +60,7 @@
             "durationSeconds": 5,
             "waveCount": 6,
             "pierceTargets": 3,
-            "radius": 120,
+            "radius": 80,   
             "prefabPath": "prefabs/HeroSkillArrowLv3"
         },
         {
@@ -71,7 +71,7 @@
             "durationSeconds": 6,
             "waveCount": 8,
             "pierceTargets": 999,
-            "radius": 120,
+            "radius": 80,
             "prefabPath": "prefabs/HeroSkillArrowLv3"
         }
     ]

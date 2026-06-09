@@ -158,7 +158,7 @@ export class SlotMachineSystem extends ECSSystem {
         
         skillComponent.skillConfigIds.push(randomSkill.id);
         skillComponent.skillLevels.push(1);
-        skillComponent.autoCastEnabled.push(false);
+        skillComponent.autoCastEnabled.push(true);  // 默认启用自动释放
 
         return { type: 'newSkill', value: 1, description: `获得新技能: ${randomSkill.id}` };
     }

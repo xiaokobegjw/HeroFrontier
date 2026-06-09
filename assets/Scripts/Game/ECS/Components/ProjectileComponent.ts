@@ -24,6 +24,16 @@ export class ProjectileComponent extends ECSComponent {
     public followEntityId: number | null = null;
     public followOffsetX: number = 0;
     public followOffsetY: number = 0;
+    public bounceCount: number = 0;
+    public bounceDamageMultiplier: number = 0.5;
+    public critChanceBonus: number = 0;
+    public executeThreshold: number = 0;
+    public executeMultiplier: number = 2;
+    public trackTargetId: number | null = null;
+    public maxFlightDistance: number = 0;
+    public currentFlightDistance: number = 0;
+    public homingEnabled: boolean = false;
+    public homingFactor: number = 0.1;
 
     reset(): void {
         super.reset();
@@ -50,5 +60,15 @@ export class ProjectileComponent extends ECSComponent {
         this.followEntityId = null;
         this.followOffsetX = 0;
         this.followOffsetY = 0;
+        this.bounceCount = 0;
+        this.bounceDamageMultiplier = 0.5;
+        this.critChanceBonus = 0;
+        this.executeThreshold = 0;
+        this.executeMultiplier = 2;
+        this.trackTargetId = null;
+        this.maxFlightDistance = 0;
+        this.currentFlightDistance = 0;
+        this.homingEnabled = false;
+        this.homingFactor = 0.1;
     }
 }

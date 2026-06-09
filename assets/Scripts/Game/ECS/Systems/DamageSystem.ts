@@ -91,7 +91,16 @@ export class DamageSystem extends ECSSystem {
         const pt = targetEntity.getComponent(TransformComponent);
         const splashRadius = projectile.splashRadius;
         const source = this.getProjectileDamageSource(projectile);
-        const primaryDamage = this.computeDamage(projectile.damage, source, targetEntity);
+        
+        let primaryDamage = this.computeDamage(projectile.damage, source, targetEntity);
+        
+        // 斩杀逻辑：血量低于阈值时伤害加倍
+        if (projectile.executeThreshold > 0 && health.maxHealth > 0) {
+            const healthPercent = health.currentHealth / health.maxHealth;
+            if (healthPercent <= projectile.executeThreshold) {
+                primaryDamage *= projectile.executeMultiplier;
+            }
+        }
 
         this.applyDamageToTarget(projectile.ownerId || null, targetEntity, primaryDamage);
 
@@ -126,13 +135,81 @@ export class DamageSystem extends ECSSystem {
             this.applyStun(targetEntity, stunOnHit.stunSeconds);
         }
 
+        // 弹跳逻辑
+        if (projectile.bounceCount > 0 && pt) {
+            const nextTarget = this.findNextBounceTarget(projectileEntity, projFaction?.faction ?? FactionType.Player, pt);
+            if (nextTarget) {
+                const nextTr = nextTarget.getComponent(TransformComponent);
+                if (nextTr) {
+                    const dx = nextTr.x - pt.x;
+                    const dy = nextTr.y - pt.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    projectile.vx = (dx / dist) * 600;
+                    projectile.vy = (dy / dist) * 600;
+                    projectile.damage *= projectile.bounceDamageMultiplier;
+                    projectile.bounceCount--;
+                    
+                    const projTr = projectileEntity.getComponent(TransformComponent);
+                    if (projTr) {
+                        projTr.x = pt.x;
+                        projTr.y = pt.y;
+                    }
+                    return true;
+                }
+            }
+        }
+
         if (projectile.pierceRemaining > 0) {
             projectile.pierceRemaining--;
             return true;
         }
 
+        // 追踪飞剑（有最大飞行距离）不销毁，继续飞行直到距离结束
+        if (projectile.maxFlightDistance > 0) {
+            return true;
+        }
+
         this.world.destroyEntity(projectileEntity);
         return true;
+    }
+
+    private findNextBounceTarget(projectileEntity: Entity, faction: FactionType, currentPos: { x: number; y: number }): Entity | null {
+        const projectile = projectileEntity.getComponent(ProjectileComponent);
+        if (!projectile) return null;
+
+        const spatial = this.world.getSystem(SpatialIndexSystem);
+        if (!spatial) return null;
+
+        const searchR = 400;
+        const ids = spatial.queryOpponents(faction, {
+            x: currentPos.x - searchR,
+            y: currentPos.y - searchR,
+            width: searchR * 2,
+            height: searchR * 2
+        });
+
+        let closestTarget: Entity | null = null;
+        let closestDist = Infinity;
+
+        for (const id of ids) {
+            if (projectile.hitEntityIds.indexOf(id) !== -1) continue;
+
+            const ent = this.world.getEntity(id);
+            const hp = ent?.getComponent(HealthComponent);
+            const tr = ent?.getComponent(TransformComponent);
+            if (!ent || !ent.active || !hp || hp.isDead || !tr) continue;
+
+            const dx = tr.x - currentPos.x;
+            const dy = tr.y - currentPos.y;
+            const dist = dx * dx + dy * dy;
+
+            if (dist < closestDist) {
+                closestDist = dist;
+                closestTarget = ent;
+            }
+        }
+
+        return closestTarget;
     }
 
     private applySplashDamage(
@@ -339,7 +416,7 @@ export class DamageSystem extends ECSSystem {
         return {
             armorPenPct: projectile.armorPenPct,
             skillMultiplier: projectile.skillMultiplier,
-            critChance: projectile.critChance,
+            critChance: projectile.critChance + projectile.critChanceBonus,
             critMultiplier: projectile.critMultiplier,
             finalDamageBonusPct: projectile.finalDamageBonusPct,
             damageType: projectile.damageType,

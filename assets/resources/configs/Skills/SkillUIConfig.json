@@ -19,6 +19,7 @@
         { "id": "Hero_RallyingCry", "iconFrame": "HeroSKJJZH.png", "nameKey": "skill_name_rallying_cry", "descKey": "skill_desc_rallying_cry" },
         { "id": "Hero_SupplyMaster", "iconFrame": "HeroSKSCKR.png", "nameKey": "skill_name_supply_master", "descKey": "skill_desc_supply_master" },
         { "id": "Hero_GroupHeal", "iconFrame": "HeroSKLHLJ.png", "nameKey": "skill_name_group_heal", "descKey": "skill_desc_group_heal" },
-        { "id": "Hero_SoldierRush", "iconFrame": "HeroSKYYCF.png", "nameKey": "skill_name_soldier_rush", "descKey": "skill_desc_soldier_rush" }
+        { "id": "Hero_SoldierRush", "iconFrame": "HeroSKYYCF.png", "nameKey": "skill_name_soldier_rush", "descKey": "skill_desc_soldier_rush" },
+        { "id": "Hero_PoKongZhuiJian", "iconFrame": "HeroSkillPKZJ.png", "nameKey": "skill_name_pokongzhuijian", "descKey": "skill_desc_pokongzhuijian" }
     ]
 }

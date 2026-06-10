@@ -72,6 +72,10 @@
     ],
     "_values": [
       {
+        "__uuid__": "0a0175a8-bccb-471f-8ebc-f5180f125505@26afd",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
         "__uuid__": "0a0175a8-bccb-471f-8ebc-f5180f125505@9b04b",
         "__expectedType__": "cc.SpriteFrame"
       },
@@ -97,10 +101,6 @@
       },
       {
         "__uuid__": "0a0175a8-bccb-471f-8ebc-f5180f125505@293ad",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "0a0175a8-bccb-471f-8ebc-f5180f125505@26afd",
         "__expectedType__": "cc.SpriteFrame"
       }
     ]

@@ -54,6 +54,8 @@ import { WeaponSystem } from './ECS/Systems/WeaponSystem';
 import { ProjectileSystem } from './ECS/Systems/ProjectileSystem';
 import { MeleeHitboxSystem } from './ECS/Systems/MeleeHitboxSystem';
 import { DamageSystem } from './ECS/Systems/DamageSystem';
+import { AbyssalBlazeSystem } from './ECS/Systems/AbyssalBlazeSystem';
+import { AbyssalBlazeFireSystem } from './ECS/Systems/AbyssalBlazeFireSystem';
 import { CurrencySystem } from './ECS/Systems/CurrencySystem';
 import { SaveManager, SaveData } from './Managers/SaveManager';
 import { Entity } from '../Shared/ECS/Core/Entity';
@@ -311,6 +313,8 @@ export class GameMain extends Component {
             6.45
         );
         this.world.registerSystem(this.skillSystem);
+        this.world.registerSystem(new AbyssalBlazeSystem(this.world, 6.5));
+        this.world.registerSystem(new AbyssalBlazeFireSystem(this.world, 6.6));
         this.bindUIEventBus();
 
         this.upgradeSystem = new UpgradeSystem(

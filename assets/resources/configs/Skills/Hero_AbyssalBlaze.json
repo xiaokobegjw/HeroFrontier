@@ -1,0 +1,24 @@
+{
+    "id": "Hero_AbyssalBlaze",
+    "name": "skill_name_abyssalblaze",
+    "description": "skill_desc_abyssalblaze",
+    "castType": "Active",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 15,
+    "category": "Magic",
+    "durationSeconds": 3,
+    "tickIntervalSeconds": 0.5,
+    "circlePrefabPath": "prefabs/HeroSkillSYZR_Circle",
+    "circleBaseRadius": 75,
+    "firePrefabPath": "prefabs/HeroSkillSYZR_Fire",
+    "fireScale": 0.5,
+    "levels": [
+        { "level": 1, "damageCoeff": 0.35, "radius": 32, "slowPct": 0, "lifestealPct": 0, "cooldownSeconds": 15 },
+        { "level": 2, "damageCoeff": 0.45, "radius": 40, "slowPct": 5, "lifestealPct": 0, "cooldownSeconds": 14 },
+        { "level": 3, "damageCoeff": 0.58, "radius": 48, "slowPct": 8, "lifestealPct": 0, "cooldownSeconds": 13 },
+        { "level": 4, "damageCoeff": 0.75, "radius": 56, "slowPct": 12, "lifestealPct": 0, "cooldownSeconds": 12 },
+        { "level": 5, "damageCoeff": 0.95, "radius": 64, "slowPct": 15, "lifestealPct": 0, "cooldownSeconds": 11 },
+        { "level": 6, "damageCoeff": 1.2, "radius": 80, "slowPct": 20, "lifestealPct": 5, "cooldownSeconds": 10 }
+    ]
+}

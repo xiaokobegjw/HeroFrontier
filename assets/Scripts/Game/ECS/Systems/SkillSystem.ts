@@ -12,6 +12,7 @@ import { SkyfallArrowSkillExecutor } from '../Skills/SkyfallArrowSkillExecutor';
 import { SkyShockwaveSkillExecutor } from '../Skills/SkyShockwaveSkillExecutor';
 import { PoKongZhuiJianSkillExecutor } from '../Skills/PoKongZhuiJianSkillExecutor';
 import { AbyssalBlazeSkillExecutor } from '../Skills/AbyssalBlazeSkillExecutor';
+import { SkySlashSkillExecutor } from '../Skills/SkySlashSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
@@ -32,6 +33,7 @@ export class SkillSystem extends ECSSystem {
         this.registerExecutor(new SkyShockwaveSkillExecutor());
         this.registerExecutor(new PoKongZhuiJianSkillExecutor());
         this.registerExecutor(new AbyssalBlazeSkillExecutor());
+        this.registerExecutor(new SkySlashSkillExecutor());
     }
 
     public getMaxLevel(configId: string): number {
@@ -158,7 +160,16 @@ export class SkillSystem extends ECSSystem {
     private ensureSkillState(skill: SkillComponent, state: SkillStateComponent): void {
         const count = skill.skillConfigIds.length;
         while (state.skillCooldownRemaining.length < count) {
-            state.skillCooldownRemaining.push(0);
+            const index = state.skillCooldownRemaining.length;
+            const configId = skill.skillConfigIds[index];
+            const config = this.configs[configId];
+            if (config) {
+                const level = skill.skillLevels[index] ?? 1;
+                const cooldown = this.getCooldown(config, level);
+                state.skillCooldownRemaining.push(cooldown);
+            } else {
+                state.skillCooldownRemaining.push(0);
+            }
         }
         while (state.skillCooldownRemaining.length > count) {
             state.skillCooldownRemaining.pop();

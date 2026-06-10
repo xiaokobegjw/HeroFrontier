@@ -9,6 +9,7 @@ import { FactionComponent } from '../Components/FactionComponent';
 import { MeleeHitboxComponent } from '../Components/MeleeHitboxComponent';
 import { DebugState } from '../../Debug/DebugState';
 import { DefenseComponent } from '../Components/DefenseComponent';
+import { ArmorReductionComponent } from '../Components/ArmorReductionComponent';
 import { LootComponent } from '../Components/LootComponent';
 import { emitDeathViewEvent, emitExpEvent, emitKillEvent } from '../GameEvents';
 import { ExperienceRewardComponent } from '../Components/ExperienceRewardComponent';
@@ -440,7 +441,12 @@ export class DamageSystem extends ECSSystem {
         const defense = targetEntity.getComponent(DefenseComponent)?.defense ?? 0;
         const magicResist = targetEntity.getComponent(DefenseComponent)?.magicResist ?? 0;
         
-        const pen = Math.max(0, Math.min(0.49, source.armorPenPct));
+        // 获取目标身上的破甲效果
+        const armorReduction = targetEntity.getComponent(ArmorReductionComponent);
+        const armorReductionPct = armorReduction?.armorPenPct ?? 0;
+        
+        // 破甲百分比取来源和效果的最大值，但不超过49%
+        const pen = Math.max(0, Math.min(0.49, Math.max(source.armorPenPct, armorReductionPct)));
         
         let defenseMult: number;
         if (source.damageType === 'Magic') {

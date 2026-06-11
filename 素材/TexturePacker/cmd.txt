@@ -75,8 +75,8 @@ TexturePacker \
 Projectile/*.png
 
 TexturePacker \
---sheet dizzyEffects.png \
---data dizzyEffects.plist \
+--sheet HeroSKillSYZR.png \
+--data HeroSKillSYZR.plist \
 --format cocos2d \
 --max-size 2048 \
 --no-trim \
@@ -86,4 +86,4 @@ TexturePacker \
 --border-padding 0 \
 --shape-padding 1 \
 --pack-mode Best \
-Effects/dizzy/*.png
+Effects/HeroSkillLKZZ/*.png

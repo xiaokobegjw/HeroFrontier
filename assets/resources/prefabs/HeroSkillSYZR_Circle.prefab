@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "HeroSkillSYZR_Circle",
+    "_name": "HeroSKillSYZR_Circle",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "HeroSkillSYZR_Circle",
+    "_name": "HeroSKillSYZR_Circle",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -123,8 +123,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 176,
-      "height": 64
+      "width": 138,
+      "height": 66
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -135,7 +135,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "84PAdzBYFDhp6I61536Bkb"
+    "fileId": "61f1sDAJFFI6q3sTSiA+oD"
   },
   {
     "__type__": "cc.Sprite",
@@ -160,7 +160,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@f65e7",
+      "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@4ee48",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -176,14 +176,14 @@
     "_isTrimmedMode": true,
     "_useGrayscale": false,
     "_atlas": {
-      "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e",
+      "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251",
       "__expectedType__": "cc.SpriteAtlas"
     },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "d0IYL6NONBEK8xZdNigjtO"
+    "fileId": "b7iDVW3vRPM5TPM2Q09/2Q"
   },
   {
     "__type__": "cc.Animation",
@@ -200,19 +200,19 @@
     "playOnLoad": true,
     "_clips": [
       {
-        "__uuid__": "c4740fb4-8412-4339-8408-df88161bcd38",
+        "__uuid__": "f1d6c928-31df-4b6c-8c86-7e30e4d1b9e5",
         "__expectedType__": "cc.AnimationClip"
       }
     ],
     "_defaultClip": {
-      "__uuid__": "c4740fb4-8412-4339-8408-df88161bcd38",
+      "__uuid__": "f1d6c928-31df-4b6c-8c86-7e30e4d1b9e5",
       "__expectedType__": "cc.AnimationClip"
     },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "64TYBWk3xNx7D9VYd+Br0s"
+    "fileId": "3e+4sn0xdIKrktz1IH6O/T"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -222,7 +222,7 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "fcqtx4qB5ECog7AsBWltGQ",
+    "fileId": "c4L423fzpL6416Tg1h80jo",
     "instance": null,
     "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
@@ -235,7 +235,8 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "81Q+o9DmZM+6Izximkt5Au",
+    "fileId": "acxutpgTdAm43VUQexCXm+",
+    "instance": null,
     "targetOverrides": null
   }
 ]

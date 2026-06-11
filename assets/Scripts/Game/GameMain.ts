@@ -57,6 +57,7 @@ import { DamageSystem } from './ECS/Systems/DamageSystem';
 import { AbyssalBlazeSystem } from './ECS/Systems/AbyssalBlazeSystem';
 import { AbyssalBlazeFireSystem } from './ECS/Systems/AbyssalBlazeFireSystem';
 import { ArmorReductionSystem } from './ECS/Systems/ArmorReductionSystem';
+import { AbyssalCrackSystem } from './ECS/Systems/AbyssalCrackSystem';
 import { CurrencySystem } from './ECS/Systems/CurrencySystem';
 import { SaveManager, SaveData } from './Managers/SaveManager';
 import { Entity } from '../Shared/ECS/Core/Entity';
@@ -317,6 +318,7 @@ export class GameMain extends Component {
         this.world.registerSystem(new ArmorReductionSystem(this.world, 4.9));
         this.world.registerSystem(new AbyssalBlazeSystem(this.world, 6.5));
         this.world.registerSystem(new AbyssalBlazeFireSystem(this.world, 6.6));
+        this.world.registerSystem(new AbyssalCrackSystem(this.world, 5.0));
         this.bindUIEventBus();
 
         this.upgradeSystem = new UpgradeSystem(
@@ -1256,6 +1258,12 @@ export class GameMain extends Component {
             getGoldLabel: () => `${Math.floor(this.currencySystem?.getGold?.() ?? 0)}`,
             getQuadTreeLabel: () => (this.debugShowQuadTree ? 'ON' : 'OFF'),
             getSkillHitboxLabel: () => (this.debugShowSkillHitboxes ? 'ON' : 'OFF'),
+            getCastleLevelLabel: () => {
+                if (this.baseEntityId === null) return '-';
+                const base = this.world.getEntity(this.baseEntityId);
+                const level = base?.getComponent(LevelComponent);
+                return level ? `${Math.floor(level.level)}` : '-';
+            },
             toggleMode: () => this.setDebugViewMode(!this.debugShowRender),
             toggleQuadTree: () => this.setQuadTreeDebugEnabled(!this.debugShowQuadTree),
             toggleSkillHitboxes: () => this.setSkillHitboxDebugEnabled(!this.debugShowSkillHitboxes),
@@ -1289,6 +1297,9 @@ export class GameMain extends Component {
                 const max = Math.max(1, Math.min(poolMax, cfgMax));
                 sc.skillLevels[idx] = Math.min(max, current + 1);
                 UIEventBus.emit(UIEvents.HeroSkillsChanged, { heroEntityId: hero.id });
+            },
+            upgradeCastle: () => {
+                this.tryUpgradeCastle();
             },
             getAllSkills: () => this.gmSkillOptions.slice(),
             getHeroSkills: () => {

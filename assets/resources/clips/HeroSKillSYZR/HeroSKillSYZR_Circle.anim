@@ -11,7 +11,7 @@
     "speed": 1,
     "wrapMode": 1,
     "enableTrsBlending": false,
-    "_duration": 1.7666666666666666,
+    "_duration": 0.6,
     "_hash": 500763545,
     "_tracks": [
       {
@@ -68,109 +68,39 @@
       0.3333333333333333,
       0.4166666666666667,
       0.5,
-      0.5833333333333334,
-      0.6666666666666666,
-      0.75,
-      0.8333333333333334,
-      0.9166666666666666,
-      1,
-      1.0833333333333333,
-      1.1666666666666667,
-      1.25,
-      1.3333333333333333,
-      1.4166666666666667,
-      1.5,
-      1.5833333333333333,
-      1.6666666666666667,
-      1.75
+      0.5833333333333334
     ],
     "_values": [
       {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@f65e7",
+        "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@4ee48",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@c63e9",
+        "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@18561",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@8a22a",
+        "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@c6107",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@9a77d",
+        "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@791eb",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@5c1a0",
+        "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@a4cbe",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@1fad4",
+        "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@dcb10",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@cc51c",
+        "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@cb5c1",
         "__expectedType__": "cc.SpriteFrame"
       },
       {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@01d0a",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@7f447",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@89c40",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@1b273",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@566e8",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@2379d",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@8cc41",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@b20ce",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@46979",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@6a29e",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@750fc",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@8057b",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@50a3d",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@f7cdc",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "5f21dd99-949e-454f-ba45-9964b79c5b2e@013fa",
+        "__uuid__": "a2208d44-0b26-471e-a8d2-19b8f81f8251@ba364",
         "__expectedType__": "cc.SpriteFrame"
       }
     ]

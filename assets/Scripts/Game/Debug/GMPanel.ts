@@ -10,6 +10,7 @@ export type GMPanelHandlers = {
     getGoldLabel: () => string;
     getQuadTreeLabel: () => string;
     getSkillHitboxLabel: () => string;
+    getCastleLevelLabel: () => string;
     toggleMode: () => void;
     toggleQuadTree: () => void;
     toggleSkillHitboxes: () => void;
@@ -17,6 +18,7 @@ export type GMPanelHandlers = {
     openSkillSelect: () => void;
     removeLastSkill: () => void;
     upgradeLastSkill: () => void;
+    upgradeCastle: () => void;
     getAllSkills: () => GMSkillOption[];
     getHeroSkills: () => GMHeroSkillOption[];
     addHeroSkill: (skillId: string) => void;
@@ -37,6 +39,7 @@ export class GMPanel extends Component {
     private selectedSkillLabel: Label | null = null;
     private skillOptionsContainer: Node | null = null;
     private heroSkillsContainer: Node | null = null;
+    private castleLevelLabel: Label | null = null;
     private selectedSkillId: string = '';
     private skillPage: number = 0;
 
@@ -131,6 +134,11 @@ export class GMPanel extends Component {
         panel.addChild(hb.node);
         this.skillHitboxLabel = hb;
 
+        const cl = this.createLabel('', 14, new Color(255, 200, 255, 255), 300, 24);
+        cl.node.setPosition(0, -22, 0);
+        panel.addChild(cl.node);
+        this.castleLevelLabel = cl;
+
         this.createButton(panel, '切换显示', -100, -40, () => {
             this.handlers?.toggleMode();
             this.refresh();
@@ -160,6 +168,10 @@ export class GMPanel extends Component {
         });
         this.createButton(panel, '升最后技能', 100, -160, () => {
             this.handlers?.upgradeLastSkill();
+            this.refresh();
+        });
+        this.createButton(panel, '升级主塔', 0, -200, () => {
+            this.handlers?.upgradeCastle();
             this.refresh();
         });
 
@@ -231,6 +243,7 @@ export class GMPanel extends Component {
         if (this.goldLabel) this.goldLabel.string = `金币: ${this.handlers?.getGoldLabel() ?? '-'}`;
         if (this.quadTreeLabel) this.quadTreeLabel.string = `四叉树: ${this.handlers?.getQuadTreeLabel() ?? '-'}`;
         if (this.skillHitboxLabel) this.skillHitboxLabel.string = `技能碰撞: ${this.handlers?.getSkillHitboxLabel() ?? '-'}`;
+        if (this.castleLevelLabel) this.castleLevelLabel.string = `主塔等级: ${this.handlers?.getCastleLevelLabel() ?? '-'}`;
         if (this.skillManagePanel?.active) this.refreshSkillManager();
     }
 

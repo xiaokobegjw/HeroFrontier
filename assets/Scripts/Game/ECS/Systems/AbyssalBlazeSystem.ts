@@ -10,10 +10,12 @@ import { FactionType } from '../../Data/Faction';
 import { SpatialIndexSystem } from './SpatialIndexSystem';
 import { ViewComponent } from '../Components/ViewComponent';
 import { BurnComponent } from '../Components/BurnComponent';
+import { DamageSystem } from './DamageSystem';
 
 export class AbyssalBlazeSystem extends ECSSystem {
     private world: World;
     private spatial: SpatialIndexSystem | null = null;
+    private damageSystem: DamageSystem | null = null;
 
     constructor(world: World, priority: number = 6.5) {
         super('AbyssalBlazeSystem', priority);
@@ -25,19 +27,19 @@ export class AbyssalBlazeSystem extends ECSSystem {
     }
 
     onInitialize(): void {
-        // 不在初始化时获取，改为在update时懒加载
         console.log(`[AbyssalBlazeSystem] Initialized`);
     }
 
     public update(entities: Entity[], deltaTime: number): void {   
-        // 懒加载spatial系统
         if (!this.spatial) {
             this.spatial = this.world.getSystem(SpatialIndexSystem);
-            console.log(`[AbyssalBlazeSystem] spatial loaded: ${this.spatial ? 'found' : 'not found'}`);
+        }
+        
+        if (!this.damageSystem) {
+            this.damageSystem = this.world.getSystem(DamageSystem);
         }
         
         if (!this.spatial) {
-            console.log(`[AbyssalBlazeSystem] spatial is null, skipping update`);
             return;
         }
 
@@ -47,10 +49,8 @@ export class AbyssalBlazeSystem extends ECSSystem {
             
             if (!aura || !auraTr) continue;
 
-            // 获取施法者
             const caster = this.world.getEntity(aura.casterId);
             if (!caster || !caster.active) {
-                console.log(`[AbyssalBlaze] Destroying aura ${entity.id} - caster not found or inactive`);
                 entity.destroy();
                 continue;
             }
@@ -59,36 +59,23 @@ export class AbyssalBlazeSystem extends ECSSystem {
             const casterHp = caster.getComponent(HealthComponent);
             
             if (!casterTr) {
-                console.log(`[AbyssalBlaze] Destroying aura ${entity.id} - caster has no transform`);
                 entity.destroy();
                 continue;
             }
 
-            // 跟随施法者移动
-            const oldX = auraTr.x;
-            const oldY = auraTr.y;
             auraTr.x = casterTr.x;
             auraTr.y = casterTr.y;
-            
-            if (oldX !== casterTr.x || oldY !== casterTr.y) {
-                console.log(`[AbyssalBlaze] Aura ${entity.id} moved from (${oldX.toFixed(1)}, ${oldY.toFixed(1)}) to (${casterTr.x.toFixed(1)}, ${casterTr.y.toFixed(1)})`);
-            }
 
-            // 更新持续时间
             aura.durationRemaining -= deltaTime;
-            console.log(`[AbyssalBlaze] Aura ${entity.id} duration remaining: ${aura.durationRemaining.toFixed(2)}s`);
             if (aura.durationRemaining <= 0) {
-                console.log(`[AbyssalBlaze] Destroying aura ${entity.id} - duration expired`);
                 entity.destroy();
                 continue;
             }
 
-            // 更新tick
             aura.tickAccumulator += deltaTime;
             if (aura.tickAccumulator >= aura.tickInterval) {
                 aura.tickAccumulator -= aura.tickInterval;
 
-                // 查询范围内的敌人
                 const ids = this.spatial.queryOpponents(
                     FactionType.Player,
                     {
@@ -109,20 +96,24 @@ export class AbyssalBlazeSystem extends ECSSystem {
 
                     if (!targetTr || !targetHp || targetHp.isDead) continue;
 
-                    // 精确距离检查
                     const dx = targetTr.x - auraTr.x;
                     const dy = targetTr.y - auraTr.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
                     if (dist > aura.radius) continue;
 
-                    // 造成伤害
+                    // 造成伤害（使用统一的伤害处理方法）
                     const damage = Math.floor(aura.damagePerTick);
                     if (damage > 0) {
-                        targetHp.currentHealth = Math.max(0, targetHp.currentHealth - damage);
+                        if (this.damageSystem) {
+                            this.damageSystem.applyDamageToTarget(aura.casterId, target, damage);
+                        } else {
+                            // 降级处理：直接扣血
+                            targetHp.currentHealth = Math.max(0, targetHp.currentHealth - damage);
+                        }
                         
-                        // 吸血效果
-                        if (aura.lifestealPct > 0 && casterHp) {
+                        // 吸血效果（只在使用统一伤害系统时生效）
+                        if (aura.lifestealPct > 0 && casterHp && this.damageSystem) {
                             const lifesteal = Math.floor(damage * (aura.lifestealPct / 100));
                             casterHp.currentHealth = Math.min(casterHp.maxHealth, casterHp.currentHealth + lifesteal);
                         }
@@ -170,12 +161,9 @@ export class AbyssalBlazeSystem extends ECSSystem {
         view.prefabPath = firePrefabPath;
         fireEntity.addComponent(view);
 
-        // 创建燃烧组件，用于追踪目标
         const burn = this.world.acquireComponent(BurnComponent);
         burn.targetId = target.id;
-        burn.duration = 2; // 燃烧持续2秒
+        burn.duration = 2;
         fireEntity.addComponent(burn);
-
-        console.log(`[AbyssalBlaze] Created fire effect on entity ${target.id} with scale ${fireScale}`);
     }
 }

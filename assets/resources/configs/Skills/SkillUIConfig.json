@@ -21,6 +21,7 @@
         { "id": "Hero_GroupHeal", "iconFrame": "HeroSKLHLJ.png", "nameKey": "skill_name_group_heal", "descKey": "skill_desc_group_heal" },
         { "id": "Hero_SoldierRush", "iconFrame": "HeroSKYYCF.png", "nameKey": "skill_name_soldier_rush", "descKey": "skill_desc_soldier_rush" },
         { "id": "Hero_PoKongZhuiJian", "iconFrame": "HeroSkillPKZJ.png", "nameKey": "skill_name_pokongzhuijian", "descKey": "skill_desc_pokongzhuijian" },
-        { "id": "Hero_AbyssalBlaze", "iconFrame": "HeroSkillSYZY.png", "nameKey": "skill_name_abyssalblaze", "descKey": "skill_desc_abyssalblaze" }
+        { "id": "Hero_AbyssalBlaze", "iconFrame": "HeroSkillSYZY.png", "nameKey": "skill_name_abyssalblaze", "descKey": "skill_desc_abyssalblaze" },
+        { "id": "Hero_AbyssalCrack", "iconFrame": "HeroSkillSYBL.png", "nameKey": "skill_name_abyssal_crack", "descKey": "skill_desc_abyssal_crack" }
     ]
 }

@@ -13,6 +13,7 @@ import { SkyShockwaveSkillExecutor } from '../Skills/SkyShockwaveSkillExecutor';
 import { PoKongZhuiJianSkillExecutor } from '../Skills/PoKongZhuiJianSkillExecutor';
 import { AbyssalBlazeSkillExecutor } from '../Skills/AbyssalBlazeSkillExecutor';
 import { SkySlashSkillExecutor } from '../Skills/SkySlashSkillExecutor';
+import { AbyssalCrackSkillExecutor } from '../Skills/AbyssalCrackSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
@@ -34,6 +35,7 @@ export class SkillSystem extends ECSSystem {
         this.registerExecutor(new PoKongZhuiJianSkillExecutor());
         this.registerExecutor(new AbyssalBlazeSkillExecutor());
         this.registerExecutor(new SkySlashSkillExecutor());
+        this.registerExecutor(new AbyssalCrackSkillExecutor());
     }
 
     public getMaxLevel(configId: string): number {

@@ -1,0 +1,20 @@
+{
+    "id": "Hero_TieJiaJianShou",
+    "name": "skill_name_tie_jia_jian_shou",
+    "description": "skill_desc_tie_jia_jian_shou",
+    "icon": "HeroSkillTJJS.png",
+    "skillType": "Passive",
+    "castType": "Passive",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 0,
+    "category": "Tank",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 0, "damageReductionPct": 0.04, "defenseBonus": 5, "debuffResistancePct": 0, "prefab": "prefabs/HeroSkillTJJS_LV1" },
+        { "level": 2, "cooldownSeconds": 0, "damageReductionPct": 0.06, "defenseBonus": 8, "debuffResistancePct": 0, "prefab": "prefabs/HeroSkillTJJS_LV1" },
+        { "level": 3, "cooldownSeconds": 0, "damageReductionPct": 0.08, "defenseBonus": 12, "debuffResistancePct": 0.3, "prefab": "prefabs/HeroSkillTJJS_LV2" },
+        { "level": 4, "cooldownSeconds": 0, "damageReductionPct": 0.11, "defenseBonus": 16, "debuffResistancePct": 0.35, "prefab": "prefabs/HeroSkillTJJS_LV2" },
+        { "level": 5, "cooldownSeconds": 0, "damageReductionPct": 0.14, "defenseBonus": 22, "debuffResistancePct": 0.4, "prefab": "prefabs/HeroSkillTJJS_LV3" },
+        { "level": 6, "cooldownSeconds": 0, "damageReductionPct": 0.15, "defenseBonus": 24, "debuffResistancePct": 0.45, "prefab": "prefabs/HeroSkillTJJS_LV3" }
+    ]
+}

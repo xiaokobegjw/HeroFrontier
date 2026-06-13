@@ -83,7 +83,8 @@ export class ProjectileSystem extends ECSSystem {
                 continue;
             }
 
-            if (projectile.lifeRemaining <= 0) {
+            // lifeRemaining < 0 表示永久存在（如被动技能特效），不销毁
+            if (projectile.lifeRemaining > 0 && projectile.lifeRemaining <= deltaTime) {
                 this.world.destroyEntity(entity);
             }
         }

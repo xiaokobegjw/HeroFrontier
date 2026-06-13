@@ -1,0 +1,20 @@
+{
+    "id": "Hero_BuQuYiZhi",
+    "name": "skill_name_bu_qu_yi_zhi",
+    "description": "skill_desc_bu_qu_yi_zhi",
+    "icon": "HeroSkillBQYZ.png",
+    "skillType": "Passive",
+    "castType": "Passive",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 0,
+    "category": "Tank",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 0, "thresholdPct": 0.3, "healPerSecondPct": 0.05, "defenseBonus": 8, "moveSpeedBonusPct": 0, "prefab": "prefabs/HeroSkillBQYZ_LV1" },
+        { "level": 2, "cooldownSeconds": 0, "thresholdPct": 0.33, "healPerSecondPct": 0.065, "defenseBonus": 12, "moveSpeedBonusPct": 0, "prefab": "prefabs/HeroSkillBQYZ_LV1" },
+        { "level": 3, "cooldownSeconds": 0, "thresholdPct": 0.35, "healPerSecondPct": 0.08, "defenseBonus": 18, "moveSpeedBonusPct": 0.1, "prefab": "prefabs/HeroSkillBQYZ_LV2" },
+        { "level": 4, "cooldownSeconds": 0, "thresholdPct": 0.38, "healPerSecondPct": 0.1, "defenseBonus": 24, "moveSpeedBonusPct": 0.12, "prefab": "prefabs/HeroSkillBQYZ_LV2" },
+        { "level": 5, "cooldownSeconds": 0, "thresholdPct": 0.4, "healPerSecondPct": 0.125, "defenseBonus": 32, "moveSpeedBonusPct": 0.15, "prefab": "prefabs/HeroSkillBQYZ_LV3" },  
+        { "level": 6, "cooldownSeconds": 0, "thresholdPct": 0.45, "healPerSecondPct": 0.1, "defenseBonus": 42, "moveSpeedBonusPct": 0.18, "prefab": "prefabs/HeroSkillBQYZ_LV3" }
+    ]
+}

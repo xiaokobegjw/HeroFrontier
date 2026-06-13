@@ -26,6 +26,7 @@ import heroSeismicStomp from '../../resources/configs/Skills/Hero_SeismicStomp.j
 import heroDamageAmplification from '../../resources/configs/Skills/Hero_DamageAmplification.json';
 import heroIronFrenzy from '../../resources/configs/Skills/Hero_IronFrenzy.json';
 import heroSkySlash from '../../resources/configs/Skills/Hero_SkySlash.json';
+import heroBuQuYiZhi from '../../resources/configs/Skills/Hero_BuQuYiZhi.json';
 import heroBloodlust from '../../resources/configs/Skills/Hero_Bloodlust.json';
 import heroBladeStorm from '../../resources/configs/Skills/Hero_BladeStorm.json';
 import heroSkyfallArrow from '../../resources/configs/Skills/Hero_SkyfallArrow.json';
@@ -58,6 +59,8 @@ import { AbyssalBlazeSystem } from './ECS/Systems/AbyssalBlazeSystem';
 import { AbyssalBlazeFireSystem } from './ECS/Systems/AbyssalBlazeFireSystem';
 import { ArmorReductionSystem } from './ECS/Systems/ArmorReductionSystem';
 import { AbyssalCrackSystem } from './ECS/Systems/AbyssalCrackSystem';
+import { BuQuYiZhiSystem } from './ECS/Systems/BuQuYiZhiSystem';
+import { TieJiaJianShouSystem } from './ECS/Systems/TieJiaJianShouSystem';
 import { CurrencySystem } from './ECS/Systems/CurrencySystem';
 import { SaveManager, SaveData } from './Managers/SaveManager';
 import { Entity } from '../Shared/ECS/Core/Entity';
@@ -301,6 +304,7 @@ export class GameMain extends Component {
                 Hero_SeismicStomp: heroSeismicStomp as any,
                 Hero_DamageAmplification: heroDamageAmplification as any,
                 Hero_IronFrenzy: heroIronFrenzy as any,
+                Hero_BuQuYiZhi: heroBuQuYiZhi as any,
                 Hero_SkySlash: heroSkySlash as any,
                 Hero_Bloodlust: heroBloodlust as any,
                 Hero_BladeStorm: heroBladeStorm as any,
@@ -319,6 +323,8 @@ export class GameMain extends Component {
         this.world.registerSystem(new AbyssalBlazeSystem(this.world, 6.5));
         this.world.registerSystem(new AbyssalBlazeFireSystem(this.world, 6.6));
         this.world.registerSystem(new AbyssalCrackSystem(this.world, 5.0));
+        this.world.registerSystem(new BuQuYiZhiSystem(this.world, 6.0));
+        this.world.registerSystem(new TieJiaJianShouSystem(this.world, 6.1));
         this.bindUIEventBus();
 
         this.upgradeSystem = new UpgradeSystem(

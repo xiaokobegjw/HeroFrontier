@@ -24,6 +24,7 @@ import { AggroComponent } from '../Components/AggroComponent';
 import { MoveSpeedModifierComponent } from '../../../Shared/ECS/Components/MoveSpeedModifierComponent';
 import { StunOnHitComponent } from '../Components/StunOnHitComponent';
 import { StunComponent } from '../../../Shared/ECS/Components/StunComponent';
+import { TieJiaJianShouComponent } from '../Components/TieJiaJianShouComponent';
 
 export type DamageType = 'Physical' | 'Magic';
 
@@ -271,6 +272,12 @@ export class DamageSystem extends ECSSystem {
         this.recordAggro(targetEntity, killerId);
         health.lastDamagedTime = this.timeSeconds;
 
+        // 应用铁甲坚守伤害减免
+        const tieJiaComponent = targetEntity.getComponent(TieJiaJianShouComponent);
+        if (tieJiaComponent && tieJiaComponent.isActive && tieJiaComponent.damageReductionPct > 0) {
+            appliedDamage *= (1 - tieJiaComponent.damageReductionPct);
+        }
+
         health.current -= appliedDamage;
         if (health.current <= 0) {
             health.current = 0;
@@ -383,6 +390,15 @@ export class DamageSystem extends ECSSystem {
     private applyStun(targetEntity: Entity, seconds: number): void {
         const dur = Math.max(0, seconds);
         if (dur <= 0) return;
+
+        // 检查铁甲坚守的debuff抵抗
+        const tieJiaComponent = targetEntity.getComponent(TieJiaJianShouComponent);
+        if (tieJiaComponent && tieJiaComponent.isActive && tieJiaComponent.debuffResistancePct > 0) {
+            // 根据抵抗概率判断是否抵抗眩晕效果
+            if (Math.random() < tieJiaComponent.debuffResistancePct) {
+                return;  // 抵抗成功，不应用眩晕
+            }
+        }
 
         let stun = targetEntity.getComponent(StunComponent);
         if (!stun) {

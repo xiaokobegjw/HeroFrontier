@@ -1,6 +1,7 @@
 import { ECSSystem } from '../../../Shared/ECS/Core/ECSSystem';
 import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { World } from '../../../Shared/ECS/Core/World';
+import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { SkillComponent } from '../Components/SkillComponent';
 import { SkillStateComponent } from '../Components/SkillStateComponent';
 import { PlaystyleComponent } from '../Components/PlaystyleComponent';
@@ -14,6 +15,8 @@ import { PoKongZhuiJianSkillExecutor } from '../Skills/PoKongZhuiJianSkillExecut
 import { AbyssalBlazeSkillExecutor } from '../Skills/AbyssalBlazeSkillExecutor';
 import { SkySlashSkillExecutor } from '../Skills/SkySlashSkillExecutor';
 import { AbyssalCrackSkillExecutor } from '../Skills/AbyssalCrackSkillExecutor';
+import { BuQuYiZhiSkillExecutor } from '../Skills/BuQuYiZhiSkillExecutor';
+import { TieJiaJianShouSkillExecutor } from '../Skills/TieJiaJianShouSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
@@ -36,6 +39,8 @@ export class SkillSystem extends ECSSystem {
         this.registerExecutor(new AbyssalBlazeSkillExecutor());
         this.registerExecutor(new SkySlashSkillExecutor());
         this.registerExecutor(new AbyssalCrackSkillExecutor());
+        this.registerExecutor(new BuQuYiZhiSkillExecutor());
+        this.registerExecutor(new TieJiaJianShouSkillExecutor());
     }
 
     public getMaxLevel(configId: string): number {
@@ -209,6 +214,7 @@ export class SkillSystem extends ECSSystem {
 
             const configId = skill.skillConfigIds[i] ?? '';
             if (!configId) continue;
+            
             const cfg = this.configs[configId];
             if (!cfg) continue;
 
@@ -229,6 +235,13 @@ export class SkillSystem extends ECSSystem {
                     targetX = x;
                     targetY = y;
                 }
+            } else if (tt === 'Self') {
+                // Self类型使用自己作为目标
+                const transform = entity.getComponent(TransformComponent);
+                if (transform) {
+                    targetX = transform.x;
+                    targetY = transform.y;
+                }
             }
 
             this.requestCast(entity.id, i, targetEntityId, targetX, targetY);
@@ -243,6 +256,7 @@ export class SkillSystem extends ECSSystem {
         }
 
         const configId = skill.skillConfigIds[requestedIndex];
+        
         const config = this.configs[configId];
         if (!config) {
             console.warn(`[SkillSystem] Skill config not found: ${configId}`);

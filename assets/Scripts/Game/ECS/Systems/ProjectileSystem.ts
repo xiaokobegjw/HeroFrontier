@@ -41,6 +41,12 @@ export class ProjectileSystem extends ECSSystem {
                     }
                 }
             } else if (!projectile.landed) {
+                // 抛物线运动处理
+                if (projectile.isParabola) {
+                    // 应用重力
+                    projectile.vy -= projectile.gravity * deltaTime;
+                }
+                
                 // 追踪逻辑
                 if (projectile.homingEnabled && projectile.trackTargetId !== null) {
                     this.updateHomingTarget(entity, projectile, transform);

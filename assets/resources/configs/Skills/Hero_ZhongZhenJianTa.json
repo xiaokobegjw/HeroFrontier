@@ -1,0 +1,20 @@
+{
+    "id": "Hero_ZhongZhenJianTa",
+    "name": "skill_name_zhong_zhen_jian_ta",
+    "description": "skill_desc_zhong_zhen_jian_ta",
+    "icon": "HeroSkillZZJT.png",
+    "skillType": "Active",
+    "castType": "Directional",
+    "targetType": "Ground",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 6,
+    "category": "Mage",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 6, "maxSwampCount": 1, "duration": 3, "damageInterval": 0.5, "damagePerSecondPct": 0.30, "radius": 30, "throwDistance": 150, "bulletPrefab": "prefabs/HeroSkillZZJT_Bullet", "swampPrefab": "prefabs/HeroSkillZZJT_Poison", "hitEffect": "prefabs/HeroSkillZZJT_Attacked" },
+        { "level": 2, "cooldownSeconds": 6, "maxSwampCount": 1, "duration": 4, "damageInterval": 0.5, "damagePerSecondPct": 0.40, "radius": 35, "throwDistance": 180, "bulletPrefab": "prefabs/HeroSkillZZJT_Bullet", "swampPrefab": "prefabs/HeroSkillZZJT_Poison", "hitEffect": "prefabs/HeroSkillZZJT_Attacked" },
+        { "level": 3, "cooldownSeconds": 6, "maxSwampCount": 2, "duration": 5, "damageInterval": 0.5, "damagePerSecondPct": 0.55, "radius": 40, "throwDistance": 210, "bulletPrefab": "prefabs/HeroSkillZZJT_Bullet", "swampPrefab": "prefabs/HeroSkillZZJT_Poison", "hitEffect": "prefabs/HeroSkillZZJT_Attacked" },
+        { "level": 4, "cooldownSeconds": 6, "maxSwampCount": 2, "duration": 6, "damageInterval": 0.5, "damagePerSecondPct": 0.70, "radius": 45, "throwDistance": 240, "bulletPrefab": "prefabs/HeroSkillZZJT_Bullet", "swampPrefab": "prefabs/HeroSkillZZJT_Poison", "hitEffect": "prefabs/HeroSkillZZJT_Attacked" },
+        { "level": 5, "cooldownSeconds": 6, "maxSwampCount": 3, "duration": 7, "damageInterval": 0.5, "damagePerSecondPct": 0.90, "radius": 50, "throwDistance": 270, "bulletPrefab": "prefabs/HeroSkillZZJT_Bullet", "swampPrefab": "prefabs/HeroSkillZZJT_Poison", "hitEffect": "prefabs/HeroSkillZZJT_Attacked" },
+        { "level": 6, "cooldownSeconds": 6, "maxSwampCount": 3, "duration": 8, "damageInterval": 0.5, "damagePerSecondPct": 1.20, "radius": 60, "throwDistance": 320, "bulletPrefab": "prefabs/HeroSkillZZJT_Bullet", "swampPrefab": "prefabs/HeroSkillZZJT_Poison", "hitEffect": "prefabs/HeroSkillZZJT_Attacked" }
+    ]
+}

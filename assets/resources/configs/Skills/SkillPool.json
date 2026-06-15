@@ -8,10 +8,10 @@
     "replaceCost": 500,
     "skills": [
         { "id": "Hero_IronGuard", "category": "Tank", "weight": 1 },
-        { "id": "Hero_SeismicStomp", "category": "Tank", "weight": 1 },
         { "id": "Hero_IronFrenzy", "category": "Tank", "weight": 1 },
         { "id": "Hero_BuQuYiZhi", "category": "Tank", "weight": 1 },
         { "id": "Hero_TieJiaJianShou", "category": "Tank", "weight": 1 },
+        { "id": "Hero_ZhongZhenJianTa", "category": "Tank", "weight": 1 },
         { "id": "Hero_Bloodlust", "category": "Slash", "weight": 1 },
         { "id": "Hero_SkySlash", "category": "Slash", "weight": 1 },
         { "id": "Hero_BladeStorm", "category": "Slash", "weight": 1 },

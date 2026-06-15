@@ -22,7 +22,6 @@ import bow1Upgrade from '../../resources/configs/Upgrade/Bow1Upgrade.json';
 import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
 import hero1Skill1Config from '../../resources/configs/Skills/Hero1_Skill1.json';
 import heroIronGuard from '../../resources/configs/Skills/Hero_IronGuard.json';
-import heroSeismicStomp from '../../resources/configs/Skills/Hero_SeismicStomp.json';
 import heroDamageAmplification from '../../resources/configs/Skills/Hero_DamageAmplification.json';
 import heroIronFrenzy from '../../resources/configs/Skills/Hero_IronFrenzy.json';
 import heroSkySlash from '../../resources/configs/Skills/Hero_SkySlash.json';
@@ -61,6 +60,7 @@ import { ArmorReductionSystem } from './ECS/Systems/ArmorReductionSystem';
 import { AbyssalCrackSystem } from './ECS/Systems/AbyssalCrackSystem';
 import { BuQuYiZhiSystem } from './ECS/Systems/BuQuYiZhiSystem';
 import { TieJiaJianShouSystem } from './ECS/Systems/TieJiaJianShouSystem';
+import { ZhongZhenJianTaSystem } from './ECS/Systems/ZhongZhenJianTaSystem';
 import { CurrencySystem } from './ECS/Systems/CurrencySystem';
 import { SaveManager, SaveData } from './Managers/SaveManager';
 import { Entity } from '../Shared/ECS/Core/Entity';
@@ -145,6 +145,8 @@ export class GameMain extends Component {
     public levelBgNode: Node | null = null;
     @property(Node)
     public entityRootNode: Node | null = null;
+    @property(Node)
+    public groundEffectRootNode: Node | null = null;
     @property(Node)
     public effectRootNode: Node | null = null;
     @property(Node)
@@ -251,7 +253,7 @@ export class GameMain extends Component {
         effectRoot.setSiblingIndex(entityRoot.getSiblingIndex() + 1);
 
         // 1. 初始化 ECS 世界
-        this.world = new World();
+        this.world = new World(this);
 
         // 2. 初始化并注册 ActionSystem
         this.actionSystem = new ActionSystem(1);
@@ -301,7 +303,6 @@ export class GameMain extends Component {
             {
                 Hero1_Skill1: hero1Skill1Config as any,
                 Hero_IronGuard: heroIronGuard as any,
-                Hero_SeismicStomp: heroSeismicStomp as any,
                 Hero_DamageAmplification: heroDamageAmplification as any,
                 Hero_IronFrenzy: heroIronFrenzy as any,
                 Hero_BuQuYiZhi: heroBuQuYiZhi as any,
@@ -325,6 +326,7 @@ export class GameMain extends Component {
         this.world.registerSystem(new AbyssalCrackSystem(this.world, 5.0));
         this.world.registerSystem(new BuQuYiZhiSystem(this.world, 6.0));
         this.world.registerSystem(new TieJiaJianShouSystem(this.world, 6.1));
+        this.world.registerSystem(new ZhongZhenJianTaSystem(this.world, 6.1));
         this.bindUIEventBus();
 
         this.upgradeSystem = new UpgradeSystem(

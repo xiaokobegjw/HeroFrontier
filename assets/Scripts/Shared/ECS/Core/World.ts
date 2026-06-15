@@ -7,6 +7,13 @@ export class World {
     private entities: Map<number, Entity> = new Map();
     private systems: ECSSystem[] = [];
     private componentPools: Map<string, ComponentPool<ECSComponent>> = new Map();
+    
+    // 引用 GameMain，方便系统访问
+    public gameMain: any;
+    
+    constructor(gameMain: any) {
+        this.gameMain = gameMain;
+    }
 
     createEntity(name?: string): Entity {
         const entity = new Entity(name);

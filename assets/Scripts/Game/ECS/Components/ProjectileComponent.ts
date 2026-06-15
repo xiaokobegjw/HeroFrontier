@@ -15,6 +15,7 @@ export class ProjectileComponent extends ECSComponent {
     public burnMaxStacks: number = 0;
     public vx: number = 0;
     public vy: number = 0;
+    public gravity: number = 0;
     public lifeRemaining: number = 0;
     public pierceRemaining: number = 0;
     public hitEntityIds: number[] = [];
@@ -34,6 +35,10 @@ export class ProjectileComponent extends ECSComponent {
     public currentFlightDistance: number = 0;
     public homingEnabled: boolean = false;
     public homingFactor: number = 0.1;
+    public isParabola: boolean = false;
+    public parabolaHeight: number = 100;
+    public targetX: number = 0;
+    public targetY: number = 0;
 
     reset(): void {
         super.reset();
@@ -51,6 +56,7 @@ export class ProjectileComponent extends ECSComponent {
         this.burnMaxStacks = 0;
         this.vx = 0;
         this.vy = 0;
+        this.gravity = 0;
         this.lifeRemaining = 0;
         this.pierceRemaining = 0;
         this.hitEntityIds = [];
@@ -70,5 +76,9 @@ export class ProjectileComponent extends ECSComponent {
         this.currentFlightDistance = 0;
         this.homingEnabled = false;
         this.homingFactor = 0.1;
+        this.isParabola = false;
+        this.parabolaHeight = 100;
+        this.targetX = 0;
+        this.targetY = 0;
     }
 }

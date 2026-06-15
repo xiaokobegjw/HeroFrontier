@@ -17,6 +17,7 @@ import { SkySlashSkillExecutor } from '../Skills/SkySlashSkillExecutor';
 import { AbyssalCrackSkillExecutor } from '../Skills/AbyssalCrackSkillExecutor';
 import { BuQuYiZhiSkillExecutor } from '../Skills/BuQuYiZhiSkillExecutor';
 import { TieJiaJianShouSkillExecutor } from '../Skills/TieJiaJianShouSkillExecutor';
+import { ZhongZhenJianTaSkillExecutor } from '../Skills/ZhongZhenJianTaSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
@@ -41,6 +42,7 @@ export class SkillSystem extends ECSSystem {
         this.registerExecutor(new AbyssalCrackSkillExecutor());
         this.registerExecutor(new BuQuYiZhiSkillExecutor());
         this.registerExecutor(new TieJiaJianShouSkillExecutor());
+        this.registerExecutor(new ZhongZhenJianTaSkillExecutor());
     }
 
     public getMaxLevel(configId: string): number {

@@ -35,6 +35,7 @@ import heroRallyingCry from '../../resources/configs/Skills/Hero_RallyingCry.jso
 import heroSupplyMaster from '../../resources/configs/Skills/Hero_SupplyMaster.json';
 import heroGroupHeal from '../../resources/configs/Skills/Hero_GroupHeal.json';
 import heroSoldierRush from '../../resources/configs/Skills/Hero_SoldierRush.json';
+import heroXuanFengLieJi from '../../resources/configs/Skills/Hero_XuanFengLieJi.json';
 import skillPoolConfig from '../../resources/configs/Skills/SkillPool.json';
 import skillUIConfig from '../../resources/configs/Skills/SkillUIConfig.json';
 import { SkillSystem } from './ECS/Systems/SkillSystem';
@@ -61,6 +62,7 @@ import { AbyssalCrackSystem } from './ECS/Systems/AbyssalCrackSystem';
 import { BuQuYiZhiSystem } from './ECS/Systems/BuQuYiZhiSystem';
 import { TieJiaJianShouSystem } from './ECS/Systems/TieJiaJianShouSystem';
 import { ZhongZhenJianTaSystem } from './ECS/Systems/ZhongZhenJianTaSystem';
+import { XuanFengLieJiSystem } from './ECS/Systems/XuanFengLieJiSystem';
 import { CurrencySystem } from './ECS/Systems/CurrencySystem';
 import { SaveManager, SaveData } from './Managers/SaveManager';
 import { Entity } from '../Shared/ECS/Core/Entity';
@@ -315,7 +317,8 @@ export class GameMain extends Component {
                 Hero_RallyingCry: heroRallyingCry as any,
                 Hero_SupplyMaster: heroSupplyMaster as any,
                 Hero_GroupHeal: heroGroupHeal as any,
-                Hero_SoldierRush: heroSoldierRush as any
+                Hero_SoldierRush: heroSoldierRush as any,
+                Hero_XuanFengLieJi: heroXuanFengLieJi as any
             },
             6.45
         );
@@ -327,6 +330,7 @@ export class GameMain extends Component {
         this.world.registerSystem(new BuQuYiZhiSystem(this.world, 6.0));
         this.world.registerSystem(new TieJiaJianShouSystem(this.world, 6.1));
         this.world.registerSystem(new ZhongZhenJianTaSystem(this.world, 6.1));
+        this.world.registerSystem(new XuanFengLieJiSystem(this.world, 6.2));
         this.bindUIEventBus();
 
         this.upgradeSystem = new UpgradeSystem(

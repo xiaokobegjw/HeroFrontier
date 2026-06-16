@@ -58,6 +58,8 @@
     ,"skill_desc_tie_jia_jian_shou": "<color=#66ccff>坦流核心生存被动，</color><color=#ffffff>逐级提升全额免伤、双防属性与异常debuff抵抗能力，大幅提升英雄站场承伤能力，减少被控时长（随等级提升）</color>"
     ,"skill_name_zhong_zhen_jian_ta": "重震践踏"
     ,"skill_desc_zhong_zhen_jian_ta": "<color=#66ccff>投掷妖光球落地形成沼泽，</color><color=#ffffff>进入区域内的敌人受到持续物理伤害并被减速。技能冷却时间固定为6秒。沼泽数量上限自动更替，保证前线始终存在沼泽（随等级提升）</color>"
+    ,"skill_name_xuanfeng_lieji": "旋风裂击"
+    ,"skill_desc_xuanfeng_lieji": "<color=#66ccff>发射龙卷风缓慢移动并旋转，</color><color=#ffffff>对接触到的敌方单位造成持续物理伤害。停留越久伤害越高，完美契合割草流玩法（随等级提升）</color>"
     ,"enemy_desc_wild_wolf": "狂暴野狼：高速近战单位，攻速快、身板脆"
     ,"enemy_desc_corrosive_bat": "腐蚀蝙蝠：飞行单位，魔抗较高"
     ,"enemy_desc_rotten_peasant": "腐烂流民：基础人海杂兵，刷新数量最多"

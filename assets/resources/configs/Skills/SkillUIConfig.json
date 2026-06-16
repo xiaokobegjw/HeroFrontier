@@ -22,6 +22,8 @@
         { "id": "Hero_SoldierRush", "iconFrame": "HeroSKYYCF.png", "nameKey": "skill_name_soldier_rush", "descKey": "skill_desc_soldier_rush" },
         { "id": "Hero_PoKongZhuiJian", "iconFrame": "HeroSkillPKZJ.png", "nameKey": "skill_name_pokongzhuijian", "descKey": "skill_desc_pokongzhuijian" },
         { "id": "Hero_AbyssalBlaze", "iconFrame": "HeroSkillSYZY.png", "nameKey": "skill_name_abyssalblaze", "descKey": "skill_desc_abyssalblaze" },
-        { "id": "Hero_AbyssalCrack", "iconFrame": "HeroSkillSYBL.png", "nameKey": "skill_name_abyssal_crack", "descKey": "skill_desc_abyssal_crack" }
+        { "id": "Hero_AbyssalCrack", "iconFrame": "HeroSkillSYBL.png", "nameKey": "skill_name_abyssal_crack", "descKey": "skill_desc_abyssal_crack" },
+        { "id": "Hero_XuanFengLieJi", "iconFrame": "HeroSKXFLJ.png", "nameKey": "skill_name_xuanfeng_lieji", "descKey": "skill_desc_xuanfeng_lieji" },
+        { "id": "Hero_ZhongZhenJianTa", "iconFrame": "HeroSKZZJT.png", "nameKey": "skill_name_zhong_zhen_jian_ta", "descKey": "skill_desc_zhong_zhen_jian_ta" }
     ]
 }

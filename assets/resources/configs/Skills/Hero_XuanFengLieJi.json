@@ -1,0 +1,19 @@
+{
+    "id": "Hero_XuanFengLieJi",
+    "name": "skill_name_xuanfeng_lieji",
+    "description": "skill_desc_xuanfeng_lieji",
+    "castType": "Active",
+    "targetType": "Enemy",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 8,
+    "category": "Slash",
+    "prefabPath": "prefabs/HeroSkillXFLJ",
+    "levels": [
+        { "level": 1, "tornadoCount": 1, "damagePerSecondPct": 0.40, "radius": 20, "duration": 2.0, "cooldownSeconds": 8 },
+        { "level": 2, "tornadoCount": 1, "damagePerSecondPct": 0.55, "radius": 25, "duration": 2.5, "cooldownSeconds": 8 },
+        { "level": 3, "tornadoCount": 2, "damagePerSecondPct": 0.75, "radius": 30, "duration": 3.0, "cooldownSeconds": 8 },
+        { "level": 4, "tornadoCount": 2, "damagePerSecondPct": 0.95, "radius": 35, "duration": 3.5, "cooldownSeconds": 8 },
+        { "level": 5, "tornadoCount": 3, "damagePerSecondPct": 1.20, "radius": 40, "duration": 4.5, "cooldownSeconds": 8 },
+        { "level": 6, "tornadoCount": 3, "damagePerSecondPct": 1.60, "radius": 55, "duration": 6.0, "cooldownSeconds": 8 }
+    ]
+}

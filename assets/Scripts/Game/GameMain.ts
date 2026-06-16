@@ -36,6 +36,7 @@ import heroSupplyMaster from '../../resources/configs/Skills/Hero_SupplyMaster.j
 import heroGroupHeal from '../../resources/configs/Skills/Hero_GroupHeal.json';
 import heroSoldierRush from '../../resources/configs/Skills/Hero_SoldierRush.json';
 import heroXuanFengLieJi from '../../resources/configs/Skills/Hero_XuanFengLieJi.json';
+import heroXingGuiLingZhen from '../../resources/configs/Skills/Hero_XingGuiLingZhen.json';
 import skillPoolConfig from '../../resources/configs/Skills/SkillPool.json';
 import skillUIConfig from '../../resources/configs/Skills/SkillUIConfig.json';
 import { SkillSystem } from './ECS/Systems/SkillSystem';
@@ -63,6 +64,7 @@ import { BuQuYiZhiSystem } from './ECS/Systems/BuQuYiZhiSystem';
 import { TieJiaJianShouSystem } from './ECS/Systems/TieJiaJianShouSystem';
 import { ZhongZhenJianTaSystem } from './ECS/Systems/ZhongZhenJianTaSystem';
 import { XuanFengLieJiSystem } from './ECS/Systems/XuanFengLieJiSystem';
+import { XingGuiLingZhenSystem } from './ECS/Systems/XingGuiLingZhenSystem';
 import { CurrencySystem } from './ECS/Systems/CurrencySystem';
 import { SaveManager, SaveData } from './Managers/SaveManager';
 import { Entity } from '../Shared/ECS/Core/Entity';
@@ -318,7 +320,8 @@ export class GameMain extends Component {
                 Hero_SupplyMaster: heroSupplyMaster as any,
                 Hero_GroupHeal: heroGroupHeal as any,
                 Hero_SoldierRush: heroSoldierRush as any,
-                Hero_XuanFengLieJi: heroXuanFengLieJi as any
+                Hero_XuanFengLieJi: heroXuanFengLieJi as any,
+                Hero_XingGuiLingZhen: heroXingGuiLingZhen as any
             },
             6.45
         );
@@ -331,6 +334,7 @@ export class GameMain extends Component {
         this.world.registerSystem(new TieJiaJianShouSystem(this.world, 6.1));
         this.world.registerSystem(new ZhongZhenJianTaSystem(this.world, 6.1));
         this.world.registerSystem(new XuanFengLieJiSystem(this.world, 6.2));
+        this.world.registerSystem(new XingGuiLingZhenSystem(this.world, 6.3));
         this.bindUIEventBus();
 
         this.upgradeSystem = new UpgradeSystem(

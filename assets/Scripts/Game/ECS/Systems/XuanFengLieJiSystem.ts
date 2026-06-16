@@ -58,6 +58,7 @@ export class XuanFengLieJiSystem extends ECSSystem {
             tornadoData.lastDamageTime += deltaTime;
             if (tornadoData.lastDamageTime >= 0.5) {
                 tornadoData.lastDamageTime = 0;
+                tornadoData.damagedEntities.clear();
                 this.checkAndApplyDamage(tornadoEntity);
             }
         }
@@ -98,10 +99,11 @@ export class XuanFengLieJiSystem extends ECSSystem {
             const dy = targetTransform.y - transform.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance <= tornadoData.radius) {
+            if (distance <= tornadoData.radius && !tornadoData.damagedEntities.has(entity.id)) {
                 const damage = attackPower * tornadoData.damagePerSecondPct * 0.5;
                 const current = healthComp.current;
                 healthComp.current = Math.max(0, current - damage);
+                tornadoData.damagedEntities.add(entity.id);
             }
         }
     }

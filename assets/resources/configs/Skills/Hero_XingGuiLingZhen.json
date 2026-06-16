@@ -1,0 +1,19 @@
+{
+    "id": "Hero_XingGuiLingZhen",
+    "name": "skill_name_xing_gui_ling_zhen",
+    "description": "skill_desc_xing_gui_ling_zhen",
+    "skillType": "active",
+    "castType": "Active",
+    "targetType": "Self",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 20,
+    "category": "Slash",
+    "levels": [
+        { "level": 1, "cooldownSeconds": 10, "coreBallCount": 1, "damagePerShotPct": 0.40, "attackRange": 80, "fireInterval": 1.5, "duration": 8, "orbitSpeed": 3, "orbitRadius": 40, "magicBallPrefab": "prefabs/HeroSkillXLZ", "bulletPrefab": "prefabs/HeroSkillBallBullet" },
+        { "level": 2, "cooldownSeconds": 18, "coreBallCount": 1, "damagePerShotPct": 0.55, "attackRange": 90, "fireInterval": 1.4, "duration": 9, "orbitSpeed": 3.2, "orbitRadius": 45, "magicBallPrefab": "prefabs/HeroSkillXLZ", "bulletPrefab": "prefabs/HeroSkillBallBullet" },
+        { "level": 3, "cooldownSeconds": 16, "coreBallCount": 2, "damagePerShotPct": 0.75, "attackRange": 100, "fireInterval": 1.2, "duration": 10, "orbitSpeed": 3.5, "orbitRadius": 50, "magicBallPrefab": "prefabs/HeroSkillXLZ", "bulletPrefab": "prefabs/HeroSkillBallBullet" },
+        { "level": 4, "cooldownSeconds": 14, "coreBallCount": 2, "damagePerShotPct": 0.95, "attackRange": 110, "fireInterval": 1.0, "duration": 11, "orbitSpeed": 3.8, "orbitRadius": 55, "magicBallPrefab": "prefabs/HeroSkillXLZ", "bulletPrefab": "prefabs/HeroSkillBallBullet" },
+        { "level": 5, "cooldownSeconds": 12, "coreBallCount": 3, "damagePerShotPct": 1.20, "attackRange": 130, "fireInterval": 0.8, "duration": 12, "orbitSpeed": 4.2, "orbitRadius": 60, "magicBallPrefab": "prefabs/HeroSkillXLZ", "bulletPrefab": "prefabs/HeroSkillBallBullet" },
+        { "level": 6, "cooldownSeconds": 10, "coreBallCount": 4, "damagePerShotPct": 1.50, "attackRange": 160, "fireInterval": 0.6, "duration": 15, "orbitSpeed": 4.5, "orbitRadius": 70, "magicBallPrefab": "prefabs/HeroSkillXLZ", "bulletPrefab": "prefabs/HeroSkillBallBullet" }
+    ]
+}

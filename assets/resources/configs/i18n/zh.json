@@ -62,6 +62,8 @@
     ,"skill_desc_xuanfeng_lieji": "<color=#66ccff>发射龙卷风缓慢移动并旋转，</color><color=#ffffff>对接触到的敌方单位造成持续物理伤害。停留越久伤害越高，完美契合割草流玩法（随等级提升）</color>"
     ,"skill_name_xing_gui_ling_zhen": "星轨灵阵"
     ,"skill_desc_xing_gui_ling_zhen": "<color=#66ccff>召唤高能魔力球环绕自身高速旋转，</color><color=#ffffff>当范围内有敌人时自动发射魔法弹进行打击。魔力球数量随等级提升，发射间隔缩短，攻击范围扩大（随等级提升）</color>"
+    ,"skill_name_zhandi_chiyuan": "战地驰援"
+    ,"skill_desc_zhandi_chiyuan": "<color=#66ccff>瞬间为全场己方单位恢复生命值，</color><color=#ffffff>低等级小幅抬血缓解小额消耗，高等级高额群体回血并附加持续回血buff。满级强力续航，避免士兵、防御塔被消耗猝死（随等级提升）</color>"
     ,"enemy_desc_wild_wolf": "狂暴野狼：高速近战单位，攻速快、身板脆"
     ,"enemy_desc_corrosive_bat": "腐蚀蝙蝠：飞行单位，魔抗较高"
     ,"enemy_desc_rotten_peasant": "腐烂流民：基础人海杂兵，刷新数量最多"

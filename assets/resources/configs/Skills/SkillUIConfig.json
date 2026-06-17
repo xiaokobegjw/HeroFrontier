@@ -25,6 +25,7 @@
         { "id": "Hero_AbyssalCrack", "iconFrame": "HeroSkillSYBL.png", "nameKey": "skill_name_abyssal_crack", "descKey": "skill_desc_abyssal_crack" },
         { "id": "Hero_XuanFengLieJi", "iconFrame": "HeroSKXFLJ.png", "nameKey": "skill_name_xuanfeng_lieji", "descKey": "skill_desc_xuanfeng_lieji" },
         { "id": "Hero_ZhongZhenJianTa", "iconFrame": "HeroSKZZJT.png", "nameKey": "skill_name_zhong_zhen_jian_ta", "descKey": "skill_desc_zhong_zhen_jian_ta" },
-        { "id": "Hero_XingGuiLingZhen", "iconFrame": "HeroSKXGLZ.png", "nameKey": "skill_name_xing_gui_ling_zhen", "descKey": "skill_desc_xing_gui_ling_zhen" }
+        { "id": "Hero_XingGuiLingZhen", "iconFrame": "HeroSKXGLZ.png", "nameKey": "skill_name_xing_gui_ling_zhen", "descKey": "skill_desc_xing_gui_ling_zhen" },
+        { "id": "Hero_ZhanDiChiYuan", "iconFrame": "HeroSKZDCY.png", "nameKey": "skill_name_zhandi_chiyuan", "descKey": "skill_desc_zhandi_chiyuan" }
     ]
 }

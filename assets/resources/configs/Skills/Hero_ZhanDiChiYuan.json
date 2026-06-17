@@ -1,0 +1,18 @@
+{
+    "id": "Hero_ZhanDiChiYuan",
+    "name": "skill_name_zhandi_chiyuan",
+    "description": "skill_desc_zhandi_chiyuan",
+    "castType": "Active",
+    "targetType": "Ally",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 12,
+    "category": "Commander",
+    "levels": [
+        { "level": 1, "instantHealPct": 0.04, "hotPct": 0,    "hotDuration": 0, "cooldownSeconds": 14, "heroEffect": "prefabs/HeroSkillZDCY_Hero_LV1",  "soldierEffect": "prefabs/HeroSkillZDCY_Soldier_LV1" },
+        { "level": 2, "instantHealPct": 0.06, "hotPct": 0,    "hotDuration": 0, "cooldownSeconds": 13, "heroEffect": "prefabs/HeroSkillZDCY_Hero_LV1",  "soldierEffect": "prefabs/HeroSkillZDCY_Soldier_LV1" },
+        { "level": 3, "instantHealPct": 0.08, "hotPct": 0.02, "hotDuration": 2, "cooldownSeconds": 12, "heroEffect": "prefabs/HeroSkillZDCY_Hero_LV2",  "soldierEffect": "prefabs/HeroSkillZDCY_Soldier_LV2" },
+        { "level": 4, "instantHealPct": 0.10, "hotPct": 0.03, "hotDuration": 2, "cooldownSeconds": 11, "heroEffect": "prefabs/HeroSkillZDCY_Hero_LV2",  "soldierEffect": "prefabs/HeroSkillZDCY_Soldier_LV2" },
+        { "level": 5, "instantHealPct": 0.13, "hotPct": 0.04, "hotDuration": 3, "cooldownSeconds": 10, "heroEffect": "prefabs/HeroSkillZDCY_Hero_LV3",  "soldierEffect": "prefabs/HeroSkillZDCY_Soldier_LV3" },
+        { "level": 6, "instantHealPct": 0.16, "hotPct": 0.05, "hotDuration": 4, "cooldownSeconds": 9,  "heroEffect": "prefabs/HeroSkillZDCY_Hero_LV3",  "soldierEffect": "prefabs/HeroSkillZDCY_Soldier_LV3" }
+    ]
+}

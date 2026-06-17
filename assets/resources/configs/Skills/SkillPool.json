@@ -3,7 +3,7 @@
     "description": "cfg_desc_skill_pool",
     "maxSkillSlots": 6,
     "maxSkillLevel": 6,
-    "totalSkills": 21,
+    "totalSkills": 22,
     "exileCost": 200,
     "replaceCost": 500,
     "skills": [
@@ -27,6 +27,7 @@
         { "id": "Hero_SoldierRush", "category": "Commander", "weight": 1 },
         { "id": "Hero_ZhanDiChiYuan", "category": "Commander", "weight": 1 },
         { "id": "Hero_CongFengJiJie", "category": "Commander", "weight": 1 },
+        { "id": "Hero_BiLeiShouHu", "category": "Commander", "weight": 1 },
         { "id": "Hero1_Skill1", "category": "Universal", "weight": 1 }
     ],
     "factions": {

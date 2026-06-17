@@ -1,0 +1,78 @@
+{
+    "id": "Hero_BiLeiShouHu",
+    "name": "skill_name_bilei_shouhu",
+    "description": "skill_desc_bilei_shouhu",
+    "castType": "Active",
+    "targetType": "Ally",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 18,
+    "category": "Commander",
+    "levels": [
+        {
+            "level": 1,
+            "damageReductionPct": 0.02,
+            "duration": 8,
+            "cooldownSeconds": 18,
+            "heroEffect": "prefabs/HeroSillBLSH_Hero",
+            "allyEffect": "prefabs/HeroSillBLSH_LV1",
+            "extraEffectType": "None",
+            "dotReductionPct": 0,
+            "statusResistPct": 0
+        },
+        {
+            "level": 2,
+            "damageReductionPct": 0.03,
+            "duration": 8,
+            "cooldownSeconds": 17,
+            "heroEffect": "prefabs/HeroSillBLSH_Hero",
+            "allyEffect": "prefabs/HeroSillBLSH_LV1",
+            "extraEffectType": "None",
+            "dotReductionPct": 0,
+            "statusResistPct": 0
+        },
+        {
+            "level": 3,
+            "damageReductionPct": 0.05,
+            "duration": 9,
+            "cooldownSeconds": 16,
+            "heroEffect": "prefabs/HeroSillBLSH_Hero",
+            "allyEffect": "prefabs/HeroSillBLSH_LV2",
+            "extraEffectType": "DotReduction",
+            "dotReductionPct": 0.15,
+            "statusResistPct": 0
+        },
+        {
+            "level": 4,
+            "damageReductionPct": 0.07,
+            "duration": 9,
+            "cooldownSeconds": 15,
+            "heroEffect": "prefabs/HeroSillBLSH_Hero",
+            "allyEffect": "prefabs/HeroSillBLSH_LV2",
+            "extraEffectType": "DotReduction",
+            "dotReductionPct": 0.20,
+            "statusResistPct": 0
+        },
+        {
+            "level": 5,
+            "damageReductionPct": 0.09,
+            "duration": 10,
+            "cooldownSeconds": 14,
+            "heroEffect": "prefabs/HeroSillBLSH_Hero",
+            "allyEffect": "prefabs/HeroSillBLSH_LV3",
+            "extraEffectType": "StatusResist",
+            "dotReductionPct": 0,
+            "statusResistPct": 0.10
+        },
+        {
+            "level": 6,
+            "damageReductionPct": 0.12,
+            "duration": 10,
+            "cooldownSeconds": 13,
+            "heroEffect": "prefabs/HeroSillBLSH_Hero",
+            "allyEffect": "prefabs/HeroSillBLSH_LV3",
+            "extraEffectType": "StatusResist",
+            "dotReductionPct": 0,
+            "statusResistPct": 0.20
+        }
+    ]
+}

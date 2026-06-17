@@ -1,0 +1,163 @@
+[
+  {
+    "__type__": "cc.AnimationClip",
+    "_name": "HeroSkillBLSH_LV3",
+    "_objFlags": 0,
+    "__editorExtras__": {
+      "embeddedPlayerGroups": []
+    },
+    "_native": "",
+    "sample": 60,
+    "speed": 1,
+    "wrapMode": 1,
+    "enableTrsBlending": false,
+    "_duration": 1.4333333333333333,
+    "_hash": 500763545,
+    "_tracks": [
+      {
+        "__id__": 1
+      }
+    ],
+    "_exoticAnimation": null,
+    "_events": [],
+    "_embeddedPlayers": [],
+    "_additiveSettings": {
+      "__id__": 6
+    },
+    "_auxiliaryCurveEntries": []
+  },
+  {
+    "__type__": "cc.animation.ObjectTrack",
+    "_binding": {
+      "__type__": "cc.animation.TrackBinding",
+      "path": {
+        "__id__": 2
+      },
+      "proxy": null
+    },
+    "_channel": {
+      "__id__": 4
+    }
+  },
+  {
+    "__type__": "cc.animation.TrackPath",
+    "_paths": [
+      {
+        "__id__": 3
+      },
+      "spriteFrame"
+    ]
+  },
+  {
+    "__type__": "cc.animation.ComponentPath",
+    "component": "cc.Sprite"
+  },
+  {
+    "__type__": "cc.animation.Channel",
+    "_curve": {
+      "__id__": 5
+    }
+  },
+  {
+    "__type__": "cc.ObjectCurve",
+    "_times": [
+      0,
+      0.08333333333333333,
+      0.16666666666666666,
+      0.25,
+      0.3333333333333333,
+      0.4166666666666667,
+      0.5,
+      0.5833333333333334,
+      0.6666666666666666,
+      0.75,
+      0.8333333333333334,
+      0.9166666666666666,
+      1,
+      1.0833333333333333,
+      1.1666666666666667,
+      1.25,
+      1.3333333333333333,
+      1.4166666666666667
+    ],
+    "_values": [
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@5079c",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@a729b",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@983a3",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@cd9f2",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@8f252",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@aa887",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@c8e5b",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@16f7c",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@00d6a",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@bb601",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@1bab9",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@8a7b7",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@689d2",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@32beb",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@9f9ec",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@10033",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@afa3b",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "c9e5d712-12ee-4017-8b9c-9ba08f4133c5@7a9c6",
+        "__expectedType__": "cc.SpriteFrame"
+      }
+    ]
+  },
+  {
+    "__type__": "cc.AnimationClipAdditiveSettings",
+    "enabled": false,
+    "refClip": null
+  }
+]

@@ -278,6 +278,12 @@ export class DamageSystem extends ECSSystem {
             appliedDamage *= (1 - tieJiaComponent.damageReductionPct);
         }
 
+        // 应用壁垒守护伤害减免
+        const biLeiShouHuData = (targetEntity as any).biLeiShouHuBuffData;
+        if (biLeiShouHuData && biLeiShouHuData.active && biLeiShouHuData.damageReductionPct > 0) {
+            appliedDamage *= (1 - biLeiShouHuData.damageReductionPct);
+        }
+
         health.current -= appliedDamage;
         if (health.current <= 0) {
             health.current = 0;

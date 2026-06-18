@@ -7,7 +7,8 @@
             "id": "ProjectileSpecComponent",
             "speed": 620,
             "radius": 4,
-            "lifeSeconds": 2.8
+            "lifeSeconds": 2.8,
+            "maxFlightDistance": 300
         },
         {
             "id": "ColliderComponent",

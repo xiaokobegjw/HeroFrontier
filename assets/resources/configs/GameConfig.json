@@ -1,0 +1,7 @@
+{
+    "id": "GameConfig",
+    "description": "游戏通用配置",
+    "tower": {
+        "slotClickRadius": 32
+    }
+}

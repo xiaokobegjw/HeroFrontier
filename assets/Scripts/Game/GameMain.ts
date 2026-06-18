@@ -115,12 +115,14 @@ import { TowerPlacementManager } from './Managers/TowerPlacementManager';
 import { GameUIController } from './UI/GameUIController';
 import { HUDManager } from './UI/HUDManager';
 import { LevelComponent } from './ECS/Components/LevelComponent';
+import { TowerComponent } from './ECS/Components/TowerComponent';
 import { SkillComponent } from './ECS/Components/SkillComponent';
 import { BaseProductionComponent } from './ECS/Components/BaseProductionComponent';
 import { DefenseComponent } from './ECS/Components/DefenseComponent';
 import { LootComponent } from './ECS/Components/LootComponent';
 import { director } from 'cc';
 import { TowerBuildUI } from './UI/TowerBuildUI';
+import { TowerUpgradeUI } from './UI/TowerUpgradeUI';
 import { GMPanel } from './Debug/GMPanel';
 import { QuadTreeDebugDrawSystem } from './Debug/QuadTreeDebugDrawSystem';
 import { RenderModeSelectionOverlaySystem } from './Debug/RenderModeSelectionOverlaySystem';
@@ -165,6 +167,8 @@ export class GameMain extends Component {
     public towerInfoGfxNode: Node | null = null;
     @property(TowerBuildUI)
     public towerBuildUI: TowerBuildUI | null = null;
+    @property(TowerUpgradeUI)
+    public towerUpgradeUI: TowerUpgradeUI | null = null;
     private debugOverlaySystem: DebugOverlaySystem | null = null;
     private spatialIndex: QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }> | null = null;
     private collisionSystem: CollisionSystem = null!;
@@ -187,6 +191,7 @@ export class GameMain extends Component {
     private debugLabelNode: Node | null = null;
     private debugLabel: Label | null = null;
     private debugGoalNode: Node | null = null;
+    private gameConfig: any = null;
     private debugGoalLabel: Label | null = null;
     private debugDamageRoot: Node | null = null;
     private debugDamageLabels: Map<number, { node: Node; label: Label; ttl: number }> = new Map();
@@ -492,6 +497,10 @@ export class GameMain extends Component {
             this.towerBuildUI.init(this.world, this.currencySystem, this.towerManager);
         }
 
+        if (this.towerUpgradeUI) {
+            this.towerUpgradeUI.init(this.world, this.currencySystem, this.towerManager);
+        }
+
         if (GameConfigManager.instance.isPC) {
             DebugState.enabled = GameConfigManager.instance.isDebug;
             this.debugCommandBus = new CommandBus();
@@ -590,25 +599,69 @@ export class GameMain extends Component {
         const slots = this.towerManager.slots;
         let clickedSlot = false;
         for (const slot of slots) {
-            // slot.x/y 在加载时已经换算为相对于 levelBgNode 中心的坐标
             const dx = localTouchPos.x - slot.x;
             const dy = localTouchPos.y - slot.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             
-            // 判定半径设置为 80，提高点击成功率
-            if (dist < 80) { 
+            const slotClickRadius = this.gameConfig?.tower?.slotClickRadius ?? 80;
+            if (dist < slotClickRadius) { 
                 clickedSlot = true;
                 if (slot.entityId === null) {
                     this.towerBuildUI?.showBuildMenu(slot.index, { x: slot.x, y: slot.y });
+                    this.towerUpgradeUI?.hide();
+                } else {
+                    this.towerBuildUI?.hide();
+                    this.showTowerUpgradeUI(slot);
                 }
                 break;
             }
         }
 
-        // 如果没有点击任何槽位，隐藏建造面板
         if (!clickedSlot) {
             this.towerBuildUI?.hide();
+            this.towerUpgradeUI?.hide();
         }
+    }
+
+    private showTowerUpgradeUI(slot: { index: number; x: number; y: number; entityId: number | null }): void {
+        console.log('[GameMain] showTowerUpgradeUI called', { slotIndex: slot.index, entityId: slot.entityId });
+        
+        if (!this.towerUpgradeUI) {
+            console.error('[GameMain] towerUpgradeUI is null! Please bind TowerUpgradeUI component in Cocos Creator.');
+            return;
+        }
+        
+        if (slot.entityId === null) {
+            console.warn('[GameMain] slot.entityId is null');
+            return;
+        }
+
+        const towerEntity = this.world.getEntity(slot.entityId);
+        if (!towerEntity) {
+            console.warn('[GameMain] towerEntity not found for id:', slot.entityId);
+            return;
+        }
+
+        const towerComp = towerEntity.getComponent(TowerComponent);
+        const levelComp = towerEntity.getComponent(LevelComponent);
+        
+        let upgradeCost = 0;
+        let sellPrice = 0;
+
+        if (towerComp) {
+            sellPrice = Math.floor(towerComp.spentGold * towerComp.sellRefundRate);
+            
+            if (levelComp) {
+                const nextLevel = Math.floor(levelComp.level) + 1;
+                const costIdx = nextLevel - 2;
+                if (costIdx >= 0 && costIdx < towerComp.upgradeCosts.length) {
+                    upgradeCost = towerComp.upgradeCosts[costIdx];
+                }
+            }
+        }
+
+        console.log('[GameMain] Calling towerUpgradeUI.show with:', { upgradeCost, sellPrice });
+        this.towerUpgradeUI.show(slot.index, towerEntity, { x: slot.x, y: slot.y }, upgradeCost, sellPrice);
     }
 
     start() {
@@ -639,7 +692,7 @@ export class GameMain extends Component {
     }
 
     private initGame() {
-        // 启动 ECS 世界
+        this.loadGameConfig();
         this.world.start();
 
         this.spatialIndex = new QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }>(
@@ -648,6 +701,14 @@ export class GameMain extends Component {
         );
 
         this.loadLevelAndSpawn('levels/level1').catch(err => console.error('[GameMain] loadLevelAndSpawn failed', err));
+    }
+
+    private loadGameConfig(): void {
+        resources.load('configs/GameConfig', JsonAsset, (err, asset) => {
+            if (!err && asset) {
+                this.gameConfig = (asset as any).json;
+            }
+        });
     }
 
     private async loadLevelAndSpawn(levelResourcePathNoExt: string): Promise<void> {

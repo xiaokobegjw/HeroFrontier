@@ -123,11 +123,11 @@ export class ActorViewSystem extends ECSSystem {
 
             // 更新动态发射点偏移
             if (state.activeAttackNode) {
-                // 获取 attackNode 相对于根节点 (state.node) 的位置
-                const worldPos = state.activeAttackNode.getWorldPosition();
-                const rootSpacePos = state.node.getComponent(UITransform)!.convertToNodeSpaceAR(worldPos);
-                view.fireOffsetX = rootSpacePos.x;
-                view.fireOffsetY = rootSpacePos.y;
+                // 获取 attackNode 相对于根节点的世界坐标偏移
+                const attackWorldPos = state.activeAttackNode.getWorldPosition();
+                const rootWorldPos = state.node.getWorldPosition();
+                view.fireOffsetX = attackWorldPos.x - rootWorldPos.x;
+                view.fireOffsetY = attackWorldPos.y - rootWorldPos.y;
             } else {
                 view.fireOffsetX = 0;
                 view.fireOffsetY = 0;

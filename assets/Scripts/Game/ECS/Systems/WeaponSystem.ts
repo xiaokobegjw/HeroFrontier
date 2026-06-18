@@ -208,6 +208,7 @@ export class WeaponSystem extends ECSSystem {
         const spec = entity.getComponent(ProjectileSpecComponent);
         const speed = spec?.speed ?? weapon.projectileSpeed;
         const lifeSeconds = spec?.lifeSeconds ?? weapon.projectileLifeSeconds;
+        const maxFlightDistance = spec?.maxFlightDistance ?? 0;
 
         const projectile = this.world.acquireComponent(ProjectileComponent);
         projectile.ownerId = owner.id;
@@ -225,6 +226,9 @@ export class WeaponSystem extends ECSSystem {
         projectile.vx = dirX * speed;
         projectile.vy = dirY * speed;
         projectile.lifeRemaining = lifeSeconds;
+        projectile.maxFlightDistance = maxFlightDistance;
+        projectile.currentFlightDistance = 0;
+        projectile.stopY = -9999;
 
         entity.addComponent(projectile);
 

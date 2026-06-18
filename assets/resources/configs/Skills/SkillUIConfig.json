@@ -28,6 +28,7 @@
         { "id": "Hero_XingGuiLingZhen", "iconFrame": "HeroSKXGLZ.png", "nameKey": "skill_name_xing_gui_ling_zhen", "descKey": "skill_desc_xing_gui_ling_zhen" },
         { "id": "Hero_ZhanDiChiYuan", "iconFrame": "HeroSKZDCY.png", "nameKey": "skill_name_zhandi_chiyuan", "descKey": "skill_desc_zhandi_chiyuan" },
         { "id": "Hero_CongFengJiJie", "iconFrame": "HeroSKCFJJ.png", "nameKey": "skill_name_congfeng_jijie", "descKey": "skill_desc_congfeng_jijie" },
-        { "id": "Hero_BiLeiShouHu", "iconFrame": "HeroSKBLSH.png", "nameKey": "skill_name_bilei_shouhu", "descKey": "skill_desc_bilei_shouhu" }
+        { "id": "Hero_BiLeiShouHu", "iconFrame": "HeroSKBLSH.png", "nameKey": "skill_name_bilei_shouhu", "descKey": "skill_desc_bilei_shouhu" },
+        { "id": "Hero_ZhanShuZengFu", "iconFrame": "HeroSKZFZF.png", "nameKey": "skill_name_zhanshu_zengfu", "descKey": "skill_desc_zhanshu_zengfu" }
     ]
 }

@@ -23,6 +23,7 @@ import { XingGuiLingZhenSkillExecutor } from '../Skills/XingGuiLingZhenSkillExec
 import { ZhanDiChiYuanSkillExecutor } from '../Skills/ZhanDiChiYuanSkillExecutor';
 import { CongFengJiJieSkillExecutor } from '../Skills/CongFengJiJieSkillExecutor';
 import { BiLeiShouHuSkillExecutor } from '../Skills/BiLeiShouHuSkillExecutor';
+import { ZhanShuZengFuSkillExecutor } from '../Skills/ZhanShuZengFuSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
@@ -53,6 +54,7 @@ export class SkillSystem extends ECSSystem {
         this.registerExecutor(new ZhanDiChiYuanSkillExecutor());
         this.registerExecutor(new CongFengJiJieSkillExecutor());
         this.registerExecutor(new BiLeiShouHuSkillExecutor());
+        this.registerExecutor(new ZhanShuZengFuSkillExecutor());
     }
 
     public getMaxLevel(configId: string): number {

@@ -68,6 +68,7 @@ import { XingGuiLingZhenSystem } from './ECS/Systems/XingGuiLingZhenSystem';
 import { ZhanDiChiYuanSystem } from './ECS/Systems/ZhanDiChiYuanSystem';
 import { CongFengJiJieSystem } from './ECS/Systems/CongFengJiJieSystem';
 import { BiLeiShouHuSystem } from './ECS/Systems/BiLeiShouHuSystem';
+import { ZhanShuZengFuSystem } from './ECS/Systems/ZhanShuZengFuSystem';
 import { CurrencySystem } from './ECS/Systems/CurrencySystem';
 import { SaveManager, SaveData } from './Managers/SaveManager';
 import { Entity } from '../Shared/ECS/Core/Entity';
@@ -341,6 +342,7 @@ export class GameMain extends Component {
         this.world.registerSystem(new ZhanDiChiYuanSystem(this.world, 6.4));
         this.world.registerSystem(new CongFengJiJieSystem(this.world, 6.5));
         this.world.registerSystem(new BiLeiShouHuSystem(this.world, 6.6));
+        this.world.registerSystem(new ZhanShuZengFuSystem(this.world, 6.7));
         this.bindUIEventBus();
 
         this.upgradeSystem = new UpgradeSystem(

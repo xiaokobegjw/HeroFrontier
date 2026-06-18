@@ -1,0 +1,66 @@
+{
+    "id": "Hero_ZhanShuZengFu",
+    "name": "skill_name_zhanshu_zengfu",
+    "description": "skill_desc_zhanshu_zengfu",
+    "castType": "Active",
+    "targetType": "Ally",
+    "maxLevel": 6,
+    "defaultCooldownSeconds": 16,
+    "category": "Commander",
+    "levels": [
+        {
+            "level": 1,
+            "attackDefensePct": 0.02,
+            "extraDamagePct": 0,
+            "duration": 8,
+            "cooldownSeconds": 16,
+            "heroEffect": "prefabs/HeroSkillZFZF_Hero",
+            "allyEffect": "prefabs/HeroSkillZFZF_LV1"
+        },
+        {
+            "level": 2,
+            "attackDefensePct": 0.04,
+            "extraDamagePct": 0,
+            "duration": 8,
+            "cooldownSeconds": 15,
+            "heroEffect": "prefabs/HeroSkillZFZF_Hero",
+            "allyEffect": "prefabs/HeroSkillZFZF_LV1"
+        },
+        {
+            "level": 3,
+            "attackDefensePct": 0.06,
+            "extraDamagePct": 0.02,
+            "duration": 9,
+            "cooldownSeconds": 14,
+            "heroEffect": "prefabs/HeroSkillZFZF_Hero",
+            "allyEffect": "prefabs/HeroSkillZFZF_LV2"
+        },
+        {
+            "level": 4,
+            "attackDefensePct": 0.08,
+            "extraDamagePct": 0.04,
+            "duration": 9,
+            "cooldownSeconds": 13,
+            "heroEffect": "prefabs/HeroSkillZFZF_Hero",
+            "allyEffect": "prefabs/HeroSkillZFZF_LV2"
+        },
+        {
+            "level": 5,
+            "attackDefensePct": 0.10,
+            "extraDamagePct": 0.06,
+            "duration": 10,
+            "cooldownSeconds": 12,
+            "heroEffect": "prefabs/HeroSkillZFZF_Hero",
+            "allyEffect": "prefabs/HeroSkillZFZF_LV3"
+        },
+        {
+            "level": 6,
+            "attackDefensePct": 0.12,
+            "extraDamagePct": 0.09,
+            "duration": 10,
+            "cooldownSeconds": 11,
+            "heroEffect": "prefabs/HeroSkillZFZF_Hero",
+            "allyEffect": "prefabs/HeroSkillZFZF_LV3"
+        }
+    ]
+}

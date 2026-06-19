@@ -90,7 +90,7 @@
         "__id__": 31
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 39
@@ -619,7 +619,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -12.699,
+      "x": -11.192,
       "y": 7.836,
       "z": 0
     },
@@ -2800,7 +2800,7 @@
         "__id__": 151
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [],
     "_prefab": {
       "__id__": 157

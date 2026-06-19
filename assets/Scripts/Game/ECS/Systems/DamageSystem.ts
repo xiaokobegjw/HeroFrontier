@@ -166,11 +166,6 @@ export class DamageSystem extends ECSSystem {
             return true;
         }
 
-        // 追踪飞剑（有最大飞行距离）不销毁，继续飞行直到距离结束
-        if (projectile.maxFlightDistance > 0) {
-            return true;
-        }
-
         this.world.destroyEntity(projectileEntity);
         return true;
     }

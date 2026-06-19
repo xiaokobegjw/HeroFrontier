@@ -20,6 +20,7 @@ import { GameConfigManager } from '../../../Shared/Managers/GameConfigManager';
 import { DebugState } from '../../Debug/DebugState';
 import { ShapeType } from '../../../Shared/Data/ShapeData';
 import { StunComponent } from '../../../Shared/ECS/Components/StunComponent';
+import { TowerComponent } from '../Components/TowerComponent';
 
 export class WeaponSystem extends ECSSystem {
     private world: World;
@@ -29,6 +30,22 @@ export class WeaponSystem extends ECSSystem {
         super('WeaponSystem', priority);
         this.world = world;
         this.projectileConfigs = projectileConfigs;
+    }
+
+    /**
+     * 获取 ActorViewSystem
+     */
+    private getActorViewSystem(): any {
+        // 动态获取，避免创建顺序问题
+        const systems = (this.world as any).systems;
+        if (systems) {
+            for (const sys of systems) {
+                if (sys && sys.constructor && sys.constructor.name === 'ActorViewSystem') {
+                    return sys;
+                }
+            }
+        }
+        return null;
     }
 
     public getRequiredComponents(): (new (...args: any[]) => ECSComponent)[] {
@@ -75,15 +92,6 @@ export class WeaponSystem extends ECSSystem {
                 targetRadius = this.approxRadius(tc);
             }
 
-            const dx = tx - selfX;
-            const dy = ty - selfY;
-            const distSq = dx * dx + dy * dy;
-            const dist = Math.sqrt(distSq);
-            if (dist < 0.0001) continue;
-
-            const dirX = dx / dist;
-            const dirY = dy / dist;
-
             const weapons = this.resolveWeapons(entity);
             if (weapons.length === 0) continue;
 
@@ -108,12 +116,40 @@ export class WeaponSystem extends ECSSystem {
                 w.state.attackAnimRemaining = Math.max(0, w.state.attackAnimRemaining - deltaTime);
                 if (w.state.cooldownRemaining > 0) continue;
 
+                // 计算发射位置：优先使用 ActorViewSystem 的攻击节点偏移
+                let fireX = transform.x;
+                let fireY = transform.y;
+                const entityHasTower = entity.hasComponent && entity.hasComponent(TowerComponent);
+                if (entityHasTower) {
+                    const actorView = this.getActorViewSystem();
+                    if (actorView) {
+                        const offset = actorView.getAttackNodeOffset(entity.id);
+                        fireX += offset.x;
+                        fireY += offset.y;
+                    } else {
+                        // 回退到 ViewComponent 的偏移
+                        const view = entity.getComponent(ViewComponent);
+                        fireX += (view ? view.fireOffsetX : 0);
+                        fireY += (view ? view.fireOffsetY : 0);
+                    }
+                } else {
+                    // 非塔类实体使用 ViewComponent 的偏移
+                    const view = entity.getComponent(ViewComponent);
+                    fireX += (view ? view.fireOffsetX : 0);
+                    fireY += (view ? view.fireOffsetY : 0);
+                }
+
+                const dx = tx - fireX;
+                const dy = ty - fireY;
+                const distSq = dx * dx + dy * dy;
+                const dist = Math.sqrt(distSq);
+                if (dist < 0.0001) continue;
+
+                const dirX = dx / dist;
+                const dirY = dy / dist;
+
                 const effectiveRange = w.weapon.range + selfRadius + targetRadius;
                 if (distSq > effectiveRange * effectiveRange) continue;
-
-                const view = entity.getComponent(ViewComponent);
-                const fireX = transform.x + (view ? view.fireOffsetX : 0);
-                const fireY = transform.y + (view ? view.fireOffsetY : 0);
 
                 const fired = w.weapon.attackType === 'Melee'
                     ? this.spawnMeleeHitbox(entity, faction.faction, fireX, fireY, w.weapon, dirX, dirY)

@@ -37,7 +37,11 @@ type ViewState = {
     levelNormalNodes: (Node | null)[];
     levelDamageNodes: (Node | null)[];
     levelSoldierNodes: (Node | null)[];
+    levelSoldierAttackNodes: (Node | null)[];
     levelAttackNodes: (Node | null)[];
+    touchAreaNodes: (Node | null)[];
+    lastIsAttacking: boolean;
+    attackStateCooldown: number;  // 攻击状态切换冷却时间
 };
 
 type DetachedDeathView = {
@@ -91,6 +95,12 @@ export class ActorViewSystem extends ECSSystem {
             const isBladeStorm = entity.name.indexOf('Effect_BladeStorm_') !== -1 || (view.prefabPath && view.prefabPath.indexOf('JRFB_Prefab') !== -1);
             state.node.setPosition(transform.x + view.offsetX, transform.y + view.offsetY, 0);
             this.updateLevelDamageView(entity, view, state);
+
+            // 塔类实体：根据攻击状态切换 soldier / soldierAttack 显示
+            if (entity.hasComponent(TowerComponent)) {
+                this.updateTowerAttackView(entity, state, deltaTime);
+            }
+
             if (!isProjectile && !isBladeStorm) {
                 this.updateFacing(entity, transform, state);
             }
@@ -169,6 +179,45 @@ export class ActorViewSystem extends ECSSystem {
         this.deathViews = [];
     }
 
+    /**
+     * 获取指定实体当前激活的 touchArea 节点的世界坐标边界
+     * @returns { x, y, width, height } 或 null（如果未找到）
+     */
+    public getTouchAreaBounds(entityId: number): { x: number; y: number; width: number; height: number } | null {
+        const state = this.views.get(entityId);
+        if (!state) return null;
+
+        const idx = state.lastLevelViewIndex;
+        const touchAreaNode = idx >= 0 && idx < state.touchAreaNodes.length ? state.touchAreaNodes[idx] : null;
+        if (!touchAreaNode || !touchAreaNode.active) return null;
+
+        const ui = touchAreaNode.getComponent(UITransform);
+        if (!ui) return null;
+
+        // 获取 touchArea 的世界坐标边界
+        const w = ui.contentSize.width;
+        const h = ui.contentSize.height;
+        const left = -ui.anchorX * w;
+        const bottom = -ui.anchorY * h;
+        const right = left + w;
+        const top = bottom + h;
+
+        const p0 = ui.convertToWorldSpaceAR(new Vec3(left, bottom, 0));
+        const p1 = ui.convertToWorldSpaceAR(new Vec3(right, top, 0));
+
+        const minX = Math.min(p0.x, p1.x);
+        const maxX = Math.max(p0.x, p1.x);
+        const minY = Math.min(p0.y, p1.y);
+        const maxY = Math.max(p0.y, p1.y);
+
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
+        };
+    }
+
     public setSpriteVisible(visible: boolean): void {
         this.spriteVisible = visible;
         for (const [, state] of this.views) {
@@ -235,6 +284,10 @@ export class ActorViewSystem extends ECSSystem {
             }
 
             const levelNodes = this.resolveLevelNodes(node, view);
+            // 初始隐藏所有等级节点，由 updateLevelDamageView 根据等级显示对应节点
+            for (const ln of levelNodes) {
+                ln.active = false;
+            }
             const levelCache = this.buildLevelViewCache(levelNodes, view);
             const state: ViewState = {
                 node,
@@ -258,7 +311,11 @@ export class ActorViewSystem extends ECSSystem {
                 levelNormalNodes: levelCache.normalNodes,
                 levelDamageNodes: levelCache.damageNodes,
                 levelSoldierNodes: levelCache.soldierNodes,
-                levelAttackNodes: levelCache.attackNodes
+                levelSoldierAttackNodes: levelCache.soldierAttackNodes,
+                levelAttackNodes: levelCache.attackNodes,
+                touchAreaNodes: levelCache.touchAreaNodes,
+                lastIsAttacking: false,
+                attackStateCooldown: 0
             };
             this.views.set(entity.id, state);
         } catch (err) {
@@ -495,25 +552,33 @@ export class ActorViewSystem extends ECSSystem {
         normalNodes: (Node | null)[];
         damageNodes: (Node | null)[];
         soldierNodes: (Node | null)[];
+        soldierAttackNodes: (Node | null)[];
         attackNodes: (Node | null)[];
+        touchAreaNodes: (Node | null)[];
     } {
         const normalNodes: (Node | null)[] = [];
         const damageNodes: (Node | null)[] = [];
         const soldierNodes: (Node | null)[] = [];
+        const soldierAttackNodes: (Node | null)[] = [];
         const attackNodes: (Node | null)[] = [];
+        const touchAreaNodes: (Node | null)[] = [];
 
         for (const levelNode of levelNodes) {
             const normalNode = levelNode.getChildByName(view.normalNodeName) ?? null;
             const damageNode = levelNode.getChildByName(view.damageNodeName) ?? null;
             const soldierNode = levelNode.getChildByName('soldier') ?? null;
-            const attackNode = soldierNode?.getChildByName('attackNode') ?? null;
+            const soldierAttackNode = levelNode.getChildByName('soldierAttack') ?? null;
+            const attackNode = soldierAttackNode?.getChildByName('attackNode') ?? null;
+            const touchAreaNode = levelNode.getChildByName('touchArea') ?? null;
             normalNodes.push(normalNode);
             damageNodes.push(damageNode);
             soldierNodes.push(soldierNode);
+            soldierAttackNodes.push(soldierAttackNode);
             attackNodes.push(attackNode);
+            touchAreaNodes.push(touchAreaNode);
         }
 
-        return { normalNodes, damageNodes, soldierNodes, attackNodes };
+        return { normalNodes, damageNodes, soldierNodes, soldierAttackNodes, attackNodes, touchAreaNodes };
     }
 
     private updateLevelDamageView(entity: Entity, view: ViewComponent, state: ViewState): void {
@@ -546,14 +611,53 @@ export class ActorViewSystem extends ECSSystem {
             const damageNode = state.levelDamageNodes[viewIndex] ?? null;
             if (normalNode) normalNode.active = !showDamage;
             if (damageNode) damageNode.active = showDamage;
-            state.activeSoldierNode = state.levelSoldierNodes[viewIndex] ?? null;
-            state.activeAttackNode = state.levelAttackNodes[viewIndex] ?? null;
         }
 
         state.lastLevelViewIndex = viewIndex;
         state.lastShowDamage = showDamage;
         state.lastHpCurrent = hpCurrent;
         state.lastHpMax = hpMax;
+    }
+
+    /**
+     * 根据攻击状态切换塔的 soldier / soldierAttack 显示
+     * @param deltaTime 用于管理切换冷却时间
+     */
+    private updateTowerAttackView(entity: Entity, state: ViewState, deltaTime: number): void {
+        // 减少冷却时间
+        state.attackStateCooldown = Math.max(0, state.attackStateCooldown - deltaTime);
+
+        const weaponState = entity.getComponent(WeaponStateComponent);
+        const isAttacking = weaponState ? weaponState.attackAnimRemaining > 0 : false;
+
+        const idx = state.lastLevelViewIndex;
+        if (idx < 0 || idx >= state.levelNodes.length) return;
+
+        // 冷却中且状态未变化，不执行
+        const statusUnchanged = isAttacking === state.lastIsAttacking;
+        if (statusUnchanged && state.attackStateCooldown > 0) return;
+
+        const soldierNode = state.levelSoldierNodes[idx] ?? null;
+        const soldierAttackNode = state.levelSoldierAttackNodes[idx] ?? null;
+        const attackNode = state.levelAttackNodes[idx] ?? null;
+
+        if (isAttacking) {
+            // 攻击状态：显示 soldierAttack，隐藏 soldier
+            if (soldierNode) soldierNode.active = false;
+            if (soldierAttackNode) soldierAttackNode.active = true;
+            state.activeSoldierNode = soldierAttackNode;
+            state.activeAttackNode = attackNode;
+        } else {
+            // 非攻击状态：显示 soldier，隐藏 soldierAttack
+            if (soldierNode) soldierNode.active = true;
+            if (soldierAttackNode) soldierAttackNode.active = false;
+            state.activeSoldierNode = soldierNode;
+            state.activeAttackNode = null;
+        }
+
+        state.lastIsAttacking = isAttacking;
+        // 切换后设置冷却时间，防止反复切换
+        state.attackStateCooldown = 0.1;
     }
 
     private resolveLevelViewIndex(entity: Entity, level: number, count: number): number {
@@ -568,5 +672,30 @@ export class ActorViewSystem extends ECSSystem {
 
         // 对于塔或其他多级单位，采用 1:1 映射 (Level 1 -> Index 0)
         return Math.max(0, Math.min(level - 1, count - 1));
+    }
+
+    /**
+     * 获取塔的攻击节点偏移（世界坐标）
+     * 用于 WeaponSystem 计算箭的发射位置
+     * @param entityId 塔实体ID
+     * @returns 攻击节点相对塔中心的世界坐标偏移，如果未找到则返回 {x: 0, y: 0}
+     */
+    public getAttackNodeOffset(entityId: number): { x: number, y: number } {
+        const state = this.views.get(entityId);
+        if (!state || !state.activeAttackNode) {
+            return { x: 0, y: 0 };
+        }
+
+        const attackNode = state.activeAttackNode;
+        // attackNode 的世界坐标相对于实体世界坐标的偏移
+        const worldPos = attackNode.worldPosition;
+        const stateNode = state.node;
+        if (!stateNode) return { x: 0, y: 0 };
+
+        const stateWorldPos = stateNode.worldPosition;
+        return {
+            x: worldPos.x - stateWorldPos.x,
+            y: worldPos.y - stateWorldPos.y
+        };
     }
 }

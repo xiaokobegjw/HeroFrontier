@@ -599,21 +599,50 @@ export class GameMain extends Component {
         const slots = this.towerManager.slots;
         let clickedSlot = false;
         for (const slot of slots) {
-            const dx = localTouchPos.x - slot.x;
-            const dy = localTouchPos.y - slot.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            
-            const slotClickRadius = this.gameConfig?.tower?.slotClickRadius ?? 80;
-            if (dist < slotClickRadius) { 
-                clickedSlot = true;
-                if (slot.entityId === null) {
+            if (slot.entityId === null) {
+                // 空坑位：使用固定半径判断
+                const dx = localTouchPos.x - slot.x;
+                const dy = localTouchPos.y - slot.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const slotClickRadius = this.gameConfig?.tower?.slotClickRadius ?? 80;
+                if (dist < slotClickRadius) {
+                    clickedSlot = true;
                     this.towerBuildUI?.showBuildMenu(slot.index, { x: slot.x, y: slot.y });
                     this.towerUpgradeUI?.hide();
-                } else {
-                    this.towerBuildUI?.hide();
-                    this.showTowerUpgradeUI(slot);
+                    break;
                 }
-                break;
+            } else {
+                // 已建立的塔：使用 touchArea 节点判断
+                const bounds = this.actorViewSystem?.getTouchAreaBounds(slot.entityId);
+                if (bounds) {
+                    // 将 touchArea 的世界坐标边界转换为 levelBgNode 的本地坐标
+                    const localMin = uiTransform.convertToNodeSpaceAR(new Vec3(bounds.x, bounds.y, 0));
+                    const localMax = uiTransform.convertToNodeSpaceAR(new Vec3(bounds.x + bounds.width, bounds.y + bounds.height, 0));
+                    const minX = Math.min(localMin.x, localMax.x);
+                    const maxX = Math.max(localMin.x, localMax.x);
+                    const minY = Math.min(localMin.y, localMax.y);
+                    const maxY = Math.max(localMin.y, localMax.y);
+                    
+                    if (localTouchPos.x >= minX && localTouchPos.x <= maxX &&
+                        localTouchPos.y >= minY && localTouchPos.y <= maxY) {
+                        clickedSlot = true;
+                        this.towerBuildUI?.hide();
+                        this.showTowerUpgradeUI(slot);
+                        break;
+                    }
+                } else {
+                    // touchArea 未找到，回退到固定半径判断
+                    const dx = localTouchPos.x - slot.x;
+                    const dy = localTouchPos.y - slot.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const slotClickRadius = this.gameConfig?.tower?.slotClickRadius ?? 80;
+                    if (dist < slotClickRadius) {
+                        clickedSlot = true;
+                        this.towerBuildUI?.hide();
+                        this.showTowerUpgradeUI(slot);
+                        break;
+                    }
+                }
             }
         }
 

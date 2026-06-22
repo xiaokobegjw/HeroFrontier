@@ -4,24 +4,29 @@ import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { World } from '../../../Shared/ECS/Core/World';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
-import { QuadTree, QuadTreeRect } from '../../../Shared/Spatial/QuadTree';
 import { MoveStatsComponent } from '../Components/MoveStatsComponent';
 import { ObstacleComponent } from '../Components/ObstacleComponent';
+import { SpatialHash, SpatialHashRect } from '../../../Shared/Spatial/SpatialHash';
+import { GameConfigManager } from '../../../Shared/Managers/GameConfigManager';
+import { DebugState } from '../../../Game/Debug/DebugState';
 
 type ObstacleItem = {
     id: number;
     entity: Entity;
-    bounds: QuadTreeRect;
+    transform: TransformComponent;
+    collider: ColliderComponent;
+    bounds: SpatialHashRect;
 };
 
 export class MovementBlockSystem extends ECSSystem {
     private world: World;
-    private obstacleIndex: QuadTree<ObstacleItem> | null = null;
+    private spatialHash: SpatialHash<ObstacleItem>;
     private obstacleSignature: string = '';
 
     constructor(world: World, priority: number = 4.85) {
         super('MovementBlockSystem', priority);
         this.world = world;
+        this.spatialHash = new SpatialHash<ObstacleItem>(64);
     }
 
     public getRequiredComponents(): (new (...args: any[]) => ECSComponent)[] {
@@ -35,20 +40,54 @@ export class MovementBlockSystem extends ECSSystem {
             .filter(e => e.getComponent(ObstacleComponent)!.blocksMovement);
 
         if (obstacles.length === 0) return;
+
         this.refreshObstacleIndex(obstacles);
-        if (!this.obstacleIndex) return;
 
         for (const entity of entities) {
             if (!entity.active) continue;
             if (entity.hasComponent(ObstacleComponent)) continue;
             const tr = entity.getComponent(TransformComponent);
             const col = entity.getComponent(ColliderComponent);
-            if (!tr || !col) continue;
+            const moveStats = entity.getComponent(MoveStatsComponent);
+            if (!tr || !col || !moveStats) continue;
             if (col.shape !== ColliderShapeType.Circle) continue;
+
+            const currX = tr.x;
+            const currY = tr.y;
+            const prevX = moveStats.prevX;
+            const prevY = moveStats.prevY;
+
+            if (!moveStats.prevPosInitialized) {
+                moveStats.prevX = currX;
+                moveStats.prevY = currY;
+                moveStats.prevPosInitialized = true;
+            } else {
+                const dx = currX - prevX;
+                const dy = currY - prevY;
+                const moveDist = Math.sqrt(dx * dx + dy * dy);
+
+                if (moveDist > 1e-6) {
+
+                     if (GameConfigManager.instance.isPC && GameConfigManager.instance.isDebug)
+                    {
+                        if(entity.id === DebugState.selectedEntityId)
+                        {
+                            let adfasd = 0;
+                            adfasd++;
+                        }
+                    }
+
+                    const hasObstacleOnPath = this.rayCheckObstacles(prevX, prevY, dx, dy, col.radius);
+                    if (hasObstacleOnPath) {
+                        tr.x = prevX;
+                        tr.y = prevY;
+                    }
+                }
+            }
 
             for (let iter = 0; iter < 4; iter++) {
                 const queryRange = this.getAABB(tr, col);
-                const candidates = this.obstacleIndex.query(queryRange, []);
+                const candidates = this.spatialHash.query(queryRange);
                 if (candidates.length === 0) break;
 
                 let moved = false;
@@ -57,64 +96,41 @@ export class MovementBlockSystem extends ECSSystem {
                 }
                 if (!moved) break;
             }
+
+            moveStats.prevX = tr.x;
+            moveStats.prevY = tr.y;
         }
     }
 
     private refreshObstacleIndex(obstacles: Entity[]): void {
-        const items = obstacles.map(entity => {
-            const tr = entity.getComponent(TransformComponent)!;
-            const col = entity.getComponent(ColliderComponent)!;
-            return {
-                id: entity.id,
-                entity,
-                bounds: this.getAABB(tr, col)
-            };
-        });
-
-        const signature = items
-            .map(item => {
-                const b = item.bounds;
-                return `${item.id}:${b.x.toFixed(1)},${b.y.toFixed(1)},${b.width.toFixed(1)},${b.height.toFixed(1)}`;
+        const signature = obstacles
+            .map(e => {
+                const tr = e.getComponent(TransformComponent)!;
+                const col = e.getComponent(ColliderComponent)!;
+                const b = this.getAABB(tr, col);
+                return `${e.id}:${b.x.toFixed(1)},${b.y.toFixed(1)},${b.width.toFixed(1)},${b.height.toFixed(1)}`;
             })
+            .sort()
             .join('|');
 
-        if (this.obstacleIndex && signature === this.obstacleSignature) return;
+        if (signature === this.obstacleSignature) return;
 
-        const bounds = this.computeTreeBounds(items);
-        this.obstacleIndex = new QuadTree<ObstacleItem>(bounds, { capacity: 8, maxDepth: 8 });
-        for (const item of items) {
-            this.obstacleIndex.insert(item);
+        this.spatialHash.clear();
+        for (const entity of obstacles) {
+            const tr = entity.getComponent(TransformComponent)!;
+            const col = entity.getComponent(ColliderComponent)!;
+            this.spatialHash.insert({
+                id: entity.id,
+                entity,
+                transform: tr,
+                collider: col,
+                bounds: this.getAABB(tr, col)
+            });
         }
         this.obstacleSignature = signature;
     }
 
-    private computeTreeBounds(items: ObstacleItem[]): QuadTreeRect {
-        let minX = Infinity;
-        let minY = Infinity;
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-
-        for (const item of items) {
-            minX = Math.min(minX, item.bounds.x);
-            minY = Math.min(minY, item.bounds.y);
-            maxX = Math.max(maxX, item.bounds.x + item.bounds.width);
-            maxY = Math.max(maxY, item.bounds.y + item.bounds.height);
-        }
-
-        if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
-            return { x: -1000, y: -1000, width: 2000, height: 2000 };
-        }
-
-        const pad = 32;
-        return {
-            x: minX - pad,
-            y: minY - pad,
-            width: Math.max(64, maxX - minX + pad * 2),
-            height: Math.max(64, maxY - minY + pad * 2)
-        };
-    }
-
-    private getAABB(transform: TransformComponent, collider: ColliderComponent): QuadTreeRect {
+    private getAABB(transform: TransformComponent, collider: ColliderComponent): SpatialHashRect {
         const x = transform.x + collider.offsetX;
         const y = transform.y + collider.offsetY;
 
@@ -196,6 +212,101 @@ export class MovementBlockSystem extends ECSSystem {
         }
 
         return false;
+    }
+
+    private rayCheckObstacles(startX: number, startY: number, dx: number, dy: number, radius: number): boolean {
+        const endX = startX + dx;
+        const endY = startY + dy;
+
+        const queryRange: SpatialHashRect = {
+            x: Math.min(startX, endX) - radius,
+            y: Math.min(startY, endY) - radius,
+            width: Math.abs(endX - startX) + radius * 2,
+            height: Math.abs(endY - startY) + radius * 2
+        };
+        const candidates = this.spatialHash.query(queryRange);
+        for (const candidate of candidates) {
+            if (this.rayIntersectsObstacle(startX, startY, dx, dy, radius, candidate.transform, candidate.collider)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private rayIntersectsObstacle(
+        startX: number, startY: number, dx: number, dy: number, radius: number,
+        otr: TransformComponent, ocol: ColliderComponent
+    ): boolean {
+        if (ocol.shape === ColliderShapeType.Circle) {
+            const ox = otr.x + ocol.offsetX;
+            const oy = otr.y + ocol.offsetY;
+            const rr = ocol.radius + radius;
+
+            const fx = startX - ox;
+            const fy = startY - oy;
+
+            const a = dx * dx + dy * dy;
+            const b = 2 * (fx * dx + fy * dy);
+            const c = fx * fx + fy * fy - rr * rr;
+
+            const discriminant = b * b - 4 * a * c;
+            if (discriminant < 0) return false;
+
+            const sqrtDisc = Math.sqrt(discriminant);
+            const t1 = (-b - sqrtDisc) / (2 * a);
+            const t2 = (-b + sqrtDisc) / (2 * a);
+
+            return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1) || (t1 < 0 && t2 > 1);
+        }
+
+        if (ocol.shape === ColliderShapeType.AABB) {
+            const halfW = ocol.width * 0.5;
+            const halfH = ocol.height * 0.5;
+            const rx = otr.x + ocol.offsetX;
+            const ry = otr.y + ocol.offsetY;
+
+            const minX = rx - halfW - radius;
+            const maxX = rx + halfW + radius;
+            const minY = ry - halfH - radius;
+            const maxY = ry + halfH + radius;
+
+            return this.rayIntersectsRect(startX, startY, dx, dy, minX, maxX, minY, maxY);
+        }
+
+        return false;
+    }
+
+    private rayIntersectsRect(
+        startX: number, startY: number, dx: number, dy: number,
+        minX: number, maxX: number, minY: number, maxY: number
+    ): boolean {
+        if (startX >= minX && startX <= maxX && startY >= minY && startY <= maxY) {
+            return true;
+        }
+
+        let tmin = 0;
+        let tmax = 1;
+
+        if (dx !== 0) {
+            const t1 = (minX - startX) / dx;
+            const t2 = (maxX - startX) / dx;
+            tmin = Math.max(tmin, Math.min(t1, t2));
+            tmax = Math.min(tmax, Math.max(t1, t2));
+        } else {
+            if (startX < minX || startX > maxX) return false;
+        }
+
+        if (dy !== 0) {
+            const t1 = (minY - startY) / dy;
+            const t2 = (maxY - startY) / dy;
+            tmin = Math.max(tmin, Math.min(t1, t2));
+            tmax = Math.min(tmax, Math.max(t1, t2));
+        } else {
+            if (startY < minY || startY > maxY) return false;
+        }
+
+        return tmin <= tmax;
     }
 }
 

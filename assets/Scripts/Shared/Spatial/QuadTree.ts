@@ -102,12 +102,27 @@ export class QuadTree<T extends QuadTreeItem> {
 
     private insertIntoChildren(item: T): boolean {
         if (!this.divided) return false;
-        return (
-            this.northeast!.insert(item) ||
-            this.northwest!.insert(item) ||
-            this.southeast!.insert(item) ||
-            this.southwest!.insert(item)
-        );
+        
+        // 如果矩形横跨多个子树，需要插入到所有相交的子树
+        // 而不是只插入第一个匹配的子树
+        let inserted = false;
+        if (this.northeast!.intersectsRect(this.northeast!.boundary, item.bounds)) {
+            this.northeast!.insert(item);
+            inserted = true;
+        }
+        if (this.northwest!.intersectsRect(this.northwest!.boundary, item.bounds)) {
+            this.northwest!.insert(item);
+            inserted = true;
+        }
+        if (this.southeast!.intersectsRect(this.southeast!.boundary, item.bounds)) {
+            this.southeast!.insert(item);
+            inserted = true;
+        }
+        if (this.southwest!.intersectsRect(this.southwest!.boundary, item.bounds)) {
+            this.southwest!.insert(item);
+            inserted = true;
+        }
+        return inserted;
     }
 
     private subdivide(): void {

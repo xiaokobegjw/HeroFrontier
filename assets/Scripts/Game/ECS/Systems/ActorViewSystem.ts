@@ -42,6 +42,7 @@ type ViewState = {
     touchAreaNodes: (Node | null)[];
     lastIsAttacking: boolean;
     attackStateCooldown: number;  // 攻击状态切换冷却时间
+    cachedWeaponState: WeaponStateComponent | null;  // 缓存 WeaponStateComponent，避免每帧 getComponent
 };
 
 type DetachedDeathView = {
@@ -315,7 +316,8 @@ export class ActorViewSystem extends ECSSystem {
                 levelAttackNodes: levelCache.attackNodes,
                 touchAreaNodes: levelCache.touchAreaNodes,
                 lastIsAttacking: false,
-                attackStateCooldown: 0
+                attackStateCooldown: 0,
+                cachedWeaponState: null
             };
             this.views.set(entity.id, state);
         } catch (err) {
@@ -627,7 +629,11 @@ export class ActorViewSystem extends ECSSystem {
         // 减少冷却时间
         state.attackStateCooldown = Math.max(0, state.attackStateCooldown - deltaTime);
 
-        const weaponState = entity.getComponent(WeaponStateComponent);
+        // 使用缓存的 WeaponStateComponent，避免每帧 getComponent
+        if (!state.cachedWeaponState) {
+            state.cachedWeaponState = entity.getComponent(WeaponStateComponent);
+        }
+        const weaponState = state.cachedWeaponState;
         const isAttacking = weaponState ? weaponState.attackAnimRemaining > 0 : false;
 
         const idx = state.lastLevelViewIndex;
@@ -641,18 +647,19 @@ export class ActorViewSystem extends ECSSystem {
         const soldierAttackNode = state.levelSoldierAttackNodes[idx] ?? null;
         const attackNode = state.levelAttackNodes[idx] ?? null;
 
+        // 始终保存 attackNode 引用，不受攻击状态影响
+        state.activeAttackNode = attackNode;
+
         if (isAttacking) {
             // 攻击状态：显示 soldierAttack，隐藏 soldier
             if (soldierNode) soldierNode.active = false;
             if (soldierAttackNode) soldierAttackNode.active = true;
             state.activeSoldierNode = soldierAttackNode;
-            state.activeAttackNode = attackNode;
         } else {
             // 非攻击状态：显示 soldier，隐藏 soldierAttack
             if (soldierNode) soldierNode.active = true;
             if (soldierAttackNode) soldierAttackNode.active = false;
             state.activeSoldierNode = soldierNode;
-            state.activeAttackNode = null;
         }
 
         state.lastIsAttacking = isAttacking;

@@ -7,6 +7,7 @@ import { LevelComponent } from '../Components/LevelComponent';
 import { drainExpEvents } from '../GameEvents';
 import { FactionComponent } from '../Components/FactionComponent';
 import { FactionType } from '../../Data/Faction';
+import { UIEventBus, UIEvents } from '../../UI/UIEventBus';
 
 export class ExperienceSystem extends ECSSystem {
     private world: World;
@@ -43,8 +44,15 @@ export class ExperienceSystem extends ECSSystem {
             if (ev.exp <= 0) continue;
 
             if (ev.killerId !== null) {
-                const killerFaction = this.world.getEntity(ev.killerId)?.getComponent(FactionComponent)?.faction ?? null;
+                const killer = this.world.getEntity(ev.killerId);
+                const killerFaction = killer?.getComponent(FactionComponent)?.faction ?? null;
                 if (killerFaction !== FactionType.Player) continue;
+                
+                if (ev.killerId !== heroId) {
+                    continue;
+                }
+            } else {
+                continue;
             }
 
             gained += ev.exp;
@@ -61,6 +69,7 @@ export class ExperienceSystem extends ECSSystem {
             exp.currentExp -= required;
             level.level = nextLevel;
             console.log(`[ExperienceSystem] ${hero.name} leveled up to ${level.level}`);
+            UIEventBus.emit(UIEvents.HeroLevelUp, { heroEntityId: heroId, newLevel: nextLevel });
         }
 
         if (level.level >= maxLevel) {

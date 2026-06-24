@@ -60,7 +60,7 @@ export class TowerUpgradeUI extends Component {
         this.towerManager = towerManager;
     }
 
-    public show(slotIndex: number, towerEntity: Entity, worldPos: { x: number; y: number }, upgradeCost: number, sellPrice: number): void {
+    public show(slotIndex: number, towerEntity: Entity, worldPos: { x: number; y: number }, upgradeCost: number, sellPrice: number, isCastle: boolean = false): void {
         this.selectedSlotIndex = slotIndex;
         this.selectedTowerEntity = towerEntity;
         this.upgradeCost = upgradeCost;
@@ -75,6 +75,13 @@ export class TowerUpgradeUI extends Component {
         
         if (this.IconSelectUpgradeTowerBG) this.IconSelectUpgradeTowerBG.active = false;
         if (this.IconSelectSellTowerBG) this.IconSelectSellTowerBG.active = false;
+
+        // 城堡不显示出售节点
+        if (isCastle && this.BtnSellTower) {
+            this.BtnSellTower.node.active = false;
+        } else if (this.BtnSellTower) {
+            this.BtnSellTower.node.active = true;
+        }
 
         if (this.TowerUpgradeNode) {
             this.TowerUpgradeNode.active = true;

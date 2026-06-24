@@ -11,9 +11,15 @@ export type HeroSkillsChangedPayload = {
     heroEntityId?: number | null;
 };
 
+export type HeroLevelUpPayload = {
+    heroEntityId: number;
+    newLevel: number;
+};
+
 export const UIEvents = {
     RequestCastSkill: 'UI:RequestCastSkill',
-    HeroSkillsChanged: 'UI:HeroSkillsChanged'
+    HeroSkillsChanged: 'UI:HeroSkillsChanged',
+    HeroLevelUp: 'UI:HeroLevelUp'
 } as const;
 
 export const UIEventBus = new EventTarget();

@@ -65,10 +65,6 @@
             "isTrigger": false
         },
         {
-            "id": "ObstacleComponent",
-            "blocksMovement": true
-        },
-        {
             "id": "RenderComponent",
             "offset": { "x": 0, "y": 0 },
             "shapes": [{ "type": "Square", "color": [255, 220, 80, 140], "lineWidth": 2, "fill": true, "width": 54, "height": 20 }]

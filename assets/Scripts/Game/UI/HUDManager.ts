@@ -47,6 +47,9 @@ export class HUDManager extends Component {
     @property({ type: Node })
     public levelGeNode: Node | null = null;   // 英雄等级个位
 
+    @property({ type: ProgressBar })
+    public heroReviveProgressBar: ProgressBar | null = null;  // 英雄复活CD进度条
+
     private coinNumGe: NumberDisplay | null = null;
     private coinNumShi: NumberDisplay | null = null;
     private coinNumBai: NumberDisplay | null = null;
@@ -235,6 +238,25 @@ export class HUDManager extends Component {
     }
 
     /**
+     * 更新英雄复活CD进度条
+     * @param progress 进度 (0-1，0表示即将复活，1表示刚死亡)
+     */
+    public updateHeroReviveBar(progress: number): void {
+        if (!this.heroReviveProgressBar) return;
+        this.heroReviveProgressBar.progress = Math.max(0, Math.min(1, progress));
+        this.heroReviveProgressBar.node.active = progress > 0;
+    }
+
+    /**
+     * 隐藏复活CD进度条
+     */
+    public hideHeroReviveBar(): void {
+        if (this.heroReviveProgressBar?.node) {
+            this.heroReviveProgressBar.node.active = false;
+        }
+    }
+
+    /**
      * 隐藏或显示 HUD
      */
     public setHUDVisible(visible: boolean): void {
@@ -255,5 +277,9 @@ export class HUDManager extends Component {
 
         if (this.levelShiNode) this.levelShiNode.active = visible;
         if (this.levelGeNode) this.levelGeNode.active = visible;
+
+        if (this.heroReviveProgressBar?.node) {
+            this.heroReviveProgressBar.node.active = false;
+        }
     }
 }

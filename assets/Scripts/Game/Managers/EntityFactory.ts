@@ -30,6 +30,7 @@ import { ExperienceComponent } from '../ECS/Components/ExperienceComponent';
 import { ExperienceRewardComponent } from '../ECS/Components/ExperienceRewardComponent';
 import { TowerComponent } from '../ECS/Components/TowerComponent';
 import { SupplyComponent } from '../ECS/Components/SupplyComponent';
+import { ReviveComponent } from '../ECS/Components/ReviveComponent';
 
 export class EntityFactory {
     /**
@@ -364,6 +365,12 @@ export class EntityFactory {
                 supply.max = typeof config.max === 'number' ? config.max : supply.max;
                 supply.recoveryPerSecond = typeof config.recoveryPerSecond === 'number' ? config.recoveryPerSecond : supply.recoveryPerSecond;
                 entity.addComponent(supply);
+                break;
+
+            case 'ReviveComponent':
+                const revive = world.acquireComponent(ReviveComponent);
+                revive.reviveSeconds = typeof config.reviveSeconds === 'number' ? config.reviveSeconds : revive.reviveSeconds;
+                entity.addComponent(revive);
                 break;
                 
             default:

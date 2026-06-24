@@ -41,8 +41,8 @@ type ViewState = {
     levelAttackNodes: (Node | null)[];
     touchAreaNodes: (Node | null)[];
     lastIsAttacking: boolean;
-    attackStateCooldown: number;  // 攻击状态切换冷却时间
-    cachedWeaponState: WeaponStateComponent | null;  // 缓存 WeaponStateComponent，避免每帧 getComponent
+    attackStateCooldown: number;
+    cachedWeaponState: WeaponStateComponent | null;
 };
 
 type DetachedDeathView = {

@@ -25,6 +25,7 @@ import { MoveSpeedModifierComponent } from '../../../Shared/ECS/Components/MoveS
 import { StunOnHitComponent } from '../Components/StunOnHitComponent';
 import { StunComponent } from '../../../Shared/ECS/Components/StunComponent';
 import { TieJiaJianShouComponent } from '../Components/TieJiaJianShouComponent';
+import { ReviveComponent } from '../Components/ReviveComponent';
 
 export type DamageType = 'Physical' | 'Magic';
 
@@ -288,7 +289,19 @@ export class DamageSystem extends ECSSystem {
 
         if (health.isDead) {
             this.emitKill(killerId, targetEntity);
-            this.world.destroyEntity(targetEntity);
+            
+            const revive = targetEntity.getComponent(ReviveComponent);
+            if (revive) {
+                const tr = targetEntity.getComponent(TransformComponent);
+                if (tr) {
+                    revive.deathTime = this.timeSeconds;
+                    revive.deathX = tr.x;
+                    revive.deathY = tr.y;
+                }
+                targetEntity.active = false;
+            } else {
+                this.world.destroyEntity(targetEntity);
+            }
         }
     }
 

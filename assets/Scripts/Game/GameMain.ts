@@ -56,6 +56,7 @@ import { WeaponSystem } from './ECS/Systems/WeaponSystem';
 import { ProjectileSystem } from './ECS/Systems/ProjectileSystem';
 import { MeleeHitboxSystem } from './ECS/Systems/MeleeHitboxSystem';
 import { DamageSystem } from './ECS/Systems/DamageSystem';
+import { HeroReviveSystem } from './ECS/Systems/HeroReviveSystem';
 import { AbyssalBlazeSystem } from './ECS/Systems/AbyssalBlazeSystem';
 import { AbyssalBlazeFireSystem } from './ECS/Systems/AbyssalBlazeFireSystem';
 import { ArmorReductionSystem } from './ECS/Systems/ArmorReductionSystem';
@@ -120,6 +121,7 @@ import { SkillComponent } from './ECS/Components/SkillComponent';
 import { BaseProductionComponent } from './ECS/Components/BaseProductionComponent';
 import { DefenseComponent } from './ECS/Components/DefenseComponent';
 import { LootComponent } from './ECS/Components/LootComponent';
+import { ReviveComponent } from './ECS/Components/ReviveComponent';
 import { director } from 'cc';
 import { TowerBuildUI } from './UI/TowerBuildUI';
 import { TowerUpgradeUI } from './UI/TowerUpgradeUI';
@@ -131,7 +133,7 @@ import { BladeOrbitSystem } from './ECS/Systems/BladeOrbitSystem';
 import { MoveSpeedModifierSystem } from './ECS/Systems/MoveSpeedModifierSystem';
 import { ArrowRainSystem } from './ECS/Systems/ArrowRainSystem';
 import { StunSystem } from './ECS/Systems/StunSystem';
-import { UIEventBus, UIEvents, type RequestCastSkillPayload } from './UI/UIEventBus';
+import { UIEventBus, UIEvents, type RequestCastSkillPayload, type HeroLevelUpPayload } from './UI/UIEventBus';
 
 const CASTLE_UPGRADE_COSTS = [0, 160, 280, 420, 600];
 const STARTING_GOLD = 200;
@@ -222,6 +224,7 @@ export class GameMain extends Component {
     private gmSkillConfigById: Record<string, any> = {};
     private uiEventBusBound: boolean = false;
     private uiOnRequestCastSkill: ((payload?: RequestCastSkillPayload) => void) | null = null;
+    private uiOnHeroLevelUp: ((payload?: HeroLevelUpPayload) => void) | null = null;
 
     onLoad() {
         GameSession.reset();
@@ -485,6 +488,8 @@ export class GameMain extends Component {
         this.damageSystem = new DamageSystem(this.world, this.collisionSystem, 11);
         this.world.registerSystem(this.damageSystem);
 
+        this.world.registerSystem(new HeroReviveSystem(this.world, 11.05));
+
         this.world.registerSystem(new BurningSystem(this.world, 11.1));
 
         this.experienceSystem = new ExperienceSystem(this.world, () => this.playerEntity?.id ?? null, 11.25);
@@ -575,7 +580,13 @@ export class GameMain extends Component {
             const targetY = typeof payload?.targetY === 'number' ? payload!.targetY! : 0;
             this.skillSystem.requestCast(this.playerEntity.id, idx, targetEntityId, targetX, targetY);
         };
+        this.uiOnHeroLevelUp = (payload?: HeroLevelUpPayload) => {
+            if (!payload || payload.heroEntityId !== this.playerEntity?.id) return;
+            console.log(`[GameMain] Hero leveled up to ${payload.newLevel}, opening skill select`);
+            this.skillPanelController?.openSkillSelect();
+        };
         UIEventBus.on(UIEvents.RequestCastSkill, this.uiOnRequestCastSkill, this);
+        UIEventBus.on(UIEvents.HeroLevelUp, this.uiOnHeroLevelUp, this);
     }
 
     public setPaused(paused: boolean): void {
@@ -646,6 +657,26 @@ export class GameMain extends Component {
             }
         }
 
+        // 检查是否点击了城堡
+        if (this.baseEntityId !== null && !clickedSlot) {
+            const baseBounds = this.actorViewSystem?.getTouchAreaBounds(this.baseEntityId);
+            if (baseBounds) {
+                const localMin = uiTransform.convertToNodeSpaceAR(new Vec3(baseBounds.x, baseBounds.y, 0));
+                const localMax = uiTransform.convertToNodeSpaceAR(new Vec3(baseBounds.x + baseBounds.width, baseBounds.y + baseBounds.height, 0));
+                const minX = Math.min(localMin.x, localMax.x);
+                const maxX = Math.max(localMin.x, localMax.x);
+                const minY = Math.min(localMin.y, localMax.y);
+                const maxY = Math.max(localMin.y, localMax.y);
+
+                if (localTouchPos.x >= minX && localTouchPos.x <= maxX &&
+                    localTouchPos.y >= minY && localTouchPos.y <= maxY) {
+                    clickedSlot = true;
+                    this.towerBuildUI?.hide();
+                    this.showCastleUpgradeUI();
+                }
+            }
+        }
+
         if (!clickedSlot) {
             this.towerBuildUI?.hide();
             this.towerUpgradeUI?.hide();
@@ -690,7 +721,42 @@ export class GameMain extends Component {
         }
 
         console.log('[GameMain] Calling towerUpgradeUI.show with:', { upgradeCost, sellPrice });
-        this.towerUpgradeUI.show(slot.index, towerEntity, { x: slot.x, y: slot.y }, upgradeCost, sellPrice);
+        this.towerUpgradeUI.show(slot.index, towerEntity, { x: slot.x, y: slot.y }, upgradeCost, sellPrice, false);
+    }
+
+    private showCastleUpgradeUI(): void {
+        console.log('[GameMain] showCastleUpgradeUI called');
+        
+        if (!this.towerUpgradeUI) {
+            console.error('[GameMain] towerUpgradeUI is null! Please bind TowerUpgradeUI component in Cocos Creator.');
+            return;
+        }
+        
+        if (this.baseEntityId === null) {
+            console.warn('[GameMain] baseEntityId is null');
+            return;
+        }
+
+        const castleEntity = this.world.getEntity(this.baseEntityId);
+        if (!castleEntity) {
+            console.warn('[GameMain] castleEntity not found for id:', this.baseEntityId);
+            return;
+        }
+
+        const levelComp = castleEntity.getComponent(LevelComponent);
+        const transformComp = castleEntity.getComponent(TransformComponent);
+        
+        if (!levelComp || !transformComp) {
+            console.warn('[GameMain] castleEntity missing LevelComponent or TransformComponent');
+            return;
+        }
+
+        // 计算城堡升级费用
+        const nextLevel = Math.floor(levelComp.level) + 1;
+        const upgradeCost = Math.floor(100 * Math.pow(1.5, nextLevel - 1)); // 示例公式
+
+        console.log('[GameMain] Calling towerUpgradeUI.show for castle:', { upgradeCost });
+        this.towerUpgradeUI.show(-1, castleEntity, { x: transformComp.x, y: transformComp.y }, upgradeCost, 0, true);
     }
 
     start() {
@@ -912,6 +978,9 @@ export class GameMain extends Component {
         const heroFromConfig = EntityFactory.createEntityFromConfig(this.world, heroConfig, heroPos);
         SaveManager.instance.applyToPlayerEntity(heroFromConfig as any, this.saveData);
         this.playerEntity = heroFromConfig as any;
+        if (this.playerEntity) {
+            UIEventBus.emit(UIEvents.HeroSkillsChanged, { heroEntityId: this.playerEntity.id });
+        }
 
         const basePos = toWorldPos((level as any).base);
         const baseEntity = EntityFactory.createEntityFromConfig(this.world, castleConfig as any, basePos);
@@ -1127,6 +1196,18 @@ export class GameMain extends Component {
 
         // 更新金币显示
         this.hudManager.displayCoin(this.currencySystem.getGold());
+
+        // 更新英雄复活CD进度条
+        const reviveComponent = this.playerEntity.getComponent(ReviveComponent);
+        
+        if (reviveComponent && healthComponent && healthComponent.isDead) {
+            const elapsed = this.levelTimeSeconds - reviveComponent.deathTime;
+            const remaining = Math.max(0, reviveComponent.reviveSeconds - elapsed);
+            const progress = remaining > 0 ? remaining / reviveComponent.reviveSeconds : 0;
+            this.hudManager.updateHeroReviveBar(progress);
+        } else {
+            this.hudManager.hideHeroReviveBar();
+        }
     }
 
     private checkGameOver(): void {
@@ -1255,7 +1336,11 @@ export class GameMain extends Component {
         if (this.uiOnRequestCastSkill) {
             UIEventBus.off(UIEvents.RequestCastSkill, this.uiOnRequestCastSkill, this);
         }
+        if (this.uiOnHeroLevelUp) {
+            UIEventBus.off(UIEvents.HeroLevelUp, this.uiOnHeroLevelUp, this);
+        }
         this.uiOnRequestCastSkill = null;
+        this.uiOnHeroLevelUp = null;
         this.debugInput = null;
         this.debugCommandBus = null;
         this.playerMoveInput = null;

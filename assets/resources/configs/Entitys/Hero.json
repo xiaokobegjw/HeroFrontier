@@ -82,6 +82,10 @@
             "autoCastEnabled": [true]
         },
         {
+            "id": "ReviveComponent",
+            "reviveSeconds": 12
+        },
+        {
             "id": "WeaponComponent",
             "autoFire": true,
             "attackType": "Melee",

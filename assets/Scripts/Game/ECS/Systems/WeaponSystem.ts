@@ -312,7 +312,7 @@ export class WeaponSystem extends ECSSystem {
             collider.shape = ColliderShapeType.AABB;
             collider.width = spec?.radius ? spec.radius * 2 : weapon.projectileRadius * 2;
             collider.height = weapon.range * 2;
-        } else {
+        } else if (collider.shape === ColliderShapeType.Circle || !entity.hasComponent(ColliderComponent)) {
             collider.shape = ColliderShapeType.Circle;
             collider.radius = spec?.radius ?? collider.radius ?? weapon.projectileRadius;
         }

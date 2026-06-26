@@ -19,7 +19,7 @@
             "id": "TowerComponent",
             "towerTypeId": "Magic",
             "buildCost": 100,
-            "upgradeCosts": [80, 150],
+            "upgradeCosts": [80, 150, 200],
             "sellRefundRate": 0.65
         },
         {

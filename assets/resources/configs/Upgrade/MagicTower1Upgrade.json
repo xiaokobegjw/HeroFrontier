@@ -22,8 +22,9 @@
         },
         {
             "level": 4,
+            "cost": 200,
             "fields": {
-                "WeaponComponent": { "damage": 145, "attackInterval": 1.05, "range": 240, "armorPenPct": 0.3, "projectileSplashRadius": 72 }
+                "WeaponComponent": { "damage": 36, "attackInterval": 1.5, "range": 288, "armorPenPct": 0, "projectileConfigId": "TowerMagicScythe4", "projectileSpeed": 300, "projectileRadius": 24, "projectileLifeSeconds": 1.5, "pierceCount": 5 }
             }
         },
         {

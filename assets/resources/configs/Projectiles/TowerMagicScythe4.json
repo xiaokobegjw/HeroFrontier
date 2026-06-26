@@ -1,0 +1,42 @@
+{
+    "id": "TowerMagicScythe4",
+    "name": "projectile_tower_magic_4",
+    "description": "projectile_tower_magic_4_desc",
+    "ComponentsList": [
+        {
+            "id": "ProjectileSpecComponent",
+            "speed": 300,
+            "radius": 24,
+            "lifeSeconds": 1.5,
+            "maxFlightDistance": 288
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/magicTower_p_lv3",
+            "scale": 1
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "AABB",
+            "width": 32,
+            "height": 24,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Square",
+                    "color": [255, 150, 50],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "width": 32,
+                    "height": 24
+                }
+            ]
+        }
+    ]
+}

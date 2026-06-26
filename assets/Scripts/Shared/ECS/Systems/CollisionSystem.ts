@@ -88,7 +88,29 @@ export class CollisionSystem extends ECSSystem {
             return { x: x - r, y: y - r, width: r * 2, height: r * 2 };
         }
 
-        return { x: x - collider.width / 2, y: y - collider.height / 2, width: collider.width, height: collider.height };
+        const rad = (transform.rotation * Math.PI) / 180;
+        const hw = collider.width / 2;
+        const hh = collider.height / 2;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+
+        const points = [
+            { x: x + cos * (-hw) - sin * (-hh), y: y + sin * (-hw) + cos * (-hh) },
+            { x: x + cos * (hw) - sin * (-hh), y: y + sin * (hw) + cos * (-hh) },
+            { x: x + cos * (hw) - sin * (hh), y: y + sin * (hw) + cos * (hh) },
+            { x: x + cos * (-hw) - sin * (hh), y: y + sin * (-hw) + cos * (hh) },
+        ];
+
+        let minX = points[0].x, maxX = points[0].x;
+        let minY = points[0].y, maxY = points[0].y;
+        for (const p of points) {
+            minX = Math.min(minX, p.x);
+            maxX = Math.max(maxX, p.x);
+            minY = Math.min(minY, p.y);
+            maxY = Math.max(maxY, p.y);
+        }
+
+        return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
     }
 
     private intersects(a: Entity, b: Entity): boolean {
@@ -110,22 +132,98 @@ export class CollisionSystem extends ECSSystem {
             return dx * dx + dy * dy <= r * r;
         }
 
-        const aRect = this.getAABB(ta, ca);
-        const bRect = this.getAABB(tb, cb);
-
-        if (ca.shape === ColliderShapeType.AABB && cb.shape === ColliderShapeType.AABB) {
-            return this.rectIntersects(aRect, bRect);
-        }
-
         if (ca.shape === ColliderShapeType.Circle && cb.shape === ColliderShapeType.AABB) {
-            return this.circleRectIntersects(ax, ay, ca.radius, bRect);
+            return this.circleOBBIntersects(ax, ay, ca.radius, bx, by, cb.width, cb.height, tb.rotation);
         }
 
         if (ca.shape === ColliderShapeType.AABB && cb.shape === ColliderShapeType.Circle) {
-            return this.circleRectIntersects(bx, by, cb.radius, aRect);
+            return this.circleOBBIntersects(bx, by, cb.radius, ax, ay, ca.width, ca.height, ta.rotation);
+        }
+
+        if (ca.shape === ColliderShapeType.AABB && cb.shape === ColliderShapeType.AABB) {
+            return this.obbIntersects(ax, ay, ca.width, ca.height, ta.rotation, bx, by, cb.width, cb.height, tb.rotation);
         }
 
         return false;
+    }
+
+    private circleOBBIntersects(cx: number, cy: number, cr: number, rx: number, ry: number, rw: number, rh: number, rRot: number): boolean {
+        const rad = (rRot * Math.PI) / 180;
+        const cos = Math.cos(-rad);
+        const sin = Math.sin(-rad);
+
+        const dx = cx - rx;
+        const dy = cy - ry;
+        const localX = dx * cos - dy * sin;
+        const localY = dx * sin + dy * cos;
+
+        const hw = rw / 2;
+        const hh = rh / 2;
+        const closestX = Math.max(-hw, Math.min(localX, hw));
+        const closestY = Math.max(-hh, Math.min(localY, hh));
+
+        const distX = localX - closestX;
+        const distY = localY - closestY;
+        return distX * distX + distY * distY <= cr * cr;
+    }
+
+    private obbIntersects(ax: number, ay: number, aw: number, ah: number, aRot: number, bx: number, by: number, bw: number, bh: number, bRot: number): boolean {
+        const aRad = (aRot * Math.PI) / 180;
+        const bRad = (bRot * Math.PI) / 180;
+
+        const aCos = Math.cos(aRad);
+        const aSin = Math.sin(aRad);
+        const bCos = Math.cos(bRad);
+        const bSin = Math.sin(bRad);
+
+        const aHalfW = aw / 2;
+        const aHalfH = ah / 2;
+        const bHalfW = bw / 2;
+        const bHalfH = bh / 2;
+
+        const aPoints = [
+            { x: ax + aCos * (-aHalfW) - aSin * (-aHalfH), y: ay + aSin * (-aHalfW) + aCos * (-aHalfH) },
+            { x: ax + aCos * (aHalfW) - aSin * (-aHalfH), y: ay + aSin * (aHalfW) + aCos * (-aHalfH) },
+            { x: ax + aCos * (aHalfW) - aSin * (aHalfH), y: ay + aSin * (aHalfW) + aCos * (aHalfH) },
+            { x: ax + aCos * (-aHalfW) - aSin * (aHalfH), y: ay + aSin * (-aHalfW) + aCos * (aHalfH) },
+        ];
+
+        const bPoints = [
+            { x: bx + bCos * (-bHalfW) - bSin * (-bHalfH), y: by + bSin * (-bHalfW) + bCos * (-bHalfH) },
+            { x: bx + bCos * (bHalfW) - bSin * (-bHalfH), y: by + bSin * (bHalfW) + bCos * (-bHalfH) },
+            { x: bx + bCos * (bHalfW) - bSin * (bHalfH), y: by + bSin * (bHalfW) + bCos * (bHalfH) },
+            { x: bx + bCos * (-bHalfW) - bSin * (bHalfH), y: by + bSin * (-bHalfW) + bCos * (bHalfH) },
+        ];
+
+        const axes = [
+            { x: aCos, y: aSin },
+            { x: -aSin, y: aCos },
+            { x: bCos, y: bSin },
+            { x: -bSin, y: bCos },
+        ];
+
+        for (const axis of axes) {
+            let aMin = Infinity, aMax = -Infinity;
+            let bMin = Infinity, bMax = -Infinity;
+
+            for (const p of aPoints) {
+                const proj = p.x * axis.x + p.y * axis.y;
+                aMin = Math.min(aMin, proj);
+                aMax = Math.max(aMax, proj);
+            }
+
+            for (const p of bPoints) {
+                const proj = p.x * axis.x + p.y * axis.y;
+                bMin = Math.min(bMin, proj);
+                bMax = Math.max(bMax, proj);
+            }
+
+            if (aMax < bMin || bMax < aMin) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private rectIntersects(a: Rect, b: Rect): boolean {

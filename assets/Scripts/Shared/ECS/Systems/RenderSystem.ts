@@ -96,7 +96,17 @@ export class RenderSystem extends ECSSystem {
 
                     case ShapeType.Square:
                         if (shape.width !== undefined && shape.height !== undefined) {
-                            ctx.rect(finalX - shape.width / 2, finalY - shape.height / 2, shape.width, shape.height);
+                            const rad = (transform.rotation * Math.PI) / 180;
+                            const cos = Math.cos(rad);
+                            const sin = Math.sin(rad);
+                            const hw = shape.width / 2;
+                            const hh = shape.height / 2;
+
+                            ctx.moveTo(finalX + cos * (-hw) - sin * (-hh), finalY + sin * (-hw) + cos * (-hh));
+                            ctx.lineTo(finalX + cos * (hw) - sin * (-hh), finalY + sin * (hw) + cos * (-hh));
+                            ctx.lineTo(finalX + cos * (hw) - sin * (hh), finalY + sin * (hw) + cos * (hh));
+                            ctx.lineTo(finalX + cos * (-hw) - sin * (hh), finalY + sin * (-hw) + cos * (hh));
+                            ctx.close();
                         }
                         break;
 

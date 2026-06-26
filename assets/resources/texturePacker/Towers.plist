@@ -7,7 +7,7 @@
             <key>ArcherTower1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{147,973},{48,48}}</string>
+                <string>{{938,293},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -20,11 +20,11 @@
             <key>ArcherTower2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{130,702},{48,56}}</string>
+                <string>{{556,203},{48,56}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{48,56}}</string>
                 <key>sourceSize</key>
@@ -33,7 +33,7 @@
             <key>ArcherTower3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{130,812},{48,52}}</string>
+                <string>{{249,970},{48,52}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -46,11 +46,11 @@
             <key>ArcherTower4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{130,644},{48,57}}</string>
+                <string>{{498,203},{48,57}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{48,57}}</string>
                 <key>sourceSize</key>
@@ -59,7 +59,7 @@
             <key>ArcherTowerDamage1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{309,846},{48,50}}</string>
+                <string>{{613,203},{48,50}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -72,7 +72,7 @@
             <key>ArcherTowerDamage2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{309,797},{48,56}}</string>
+                <string>{{405,211},{48,56}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -85,7 +85,7 @@
             <key>ArcherTowerDamage3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{130,759},{48,52}}</string>
+                <string>{{200,970},{48,52}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -98,7 +98,7 @@
             <key>ArcherTowerDamage4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{313,748},{48,57}}</string>
+                <string>{{697,195},{48,57}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -111,7 +111,7 @@
             <key>ArrowTowerSoldier1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{327,942},{32,41}}</string>
+                <string>{{0,982},{32,41}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -124,7 +124,7 @@
             <key>ArrowTowerSoldier2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{196,875},{32,48}}</string>
+                <string>{{664,203},{32,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -137,7 +137,7 @@
             <key>ArrowTowerSoldier3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{327,895},{32,46}}</string>
+                <string>{{462,257},{32,46}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -150,7 +150,7 @@
             <key>ArrowTowerSoldier4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{196,924},{32,37}}</string>
+                <string>{{356,154},{32,37}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -163,11 +163,11 @@
             <key>ArrowTowerSoldierAttack1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{146,600},{36,43}}</string>
+                <string>{{389,154},{36,43}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{36,43}}</string>
                 <key>sourceSize</key>
@@ -176,11 +176,11 @@
             <key>ArrowTowerSoldierAttack2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{146,550},{38,49}}</string>
+                <string>{{33,982},{38,49}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{38,49}}</string>
                 <key>sourceSize</key>
@@ -189,7 +189,7 @@
             <key>ArrowTowerSoldierAttack3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,916},{34,45}}</string>
+                <string>{{462,211},{34,45}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -202,7 +202,7 @@
             <key>ArrowTowerSoldierAttack4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{196,981},{34,38}}</string>
+                <string>{{83,982},{34,38}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -215,7 +215,7 @@
             <key>MagicTower1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{458,518},{48,99}}</string>
+                <string>{{0,300},{48,99}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -228,7 +228,7 @@
             <key>MagicTower2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{323,667},{48,80}}</string>
+                <string>{{356,0},{48,80}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -241,11 +241,11 @@
             <key>MagicTower3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{388,453},{64,99}}</string>
+                <string>{{0,100},{64,99}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{64,99}}</string>
                 <key>sourceSize</key>
@@ -254,11 +254,11 @@
             <key>MagicTower4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{95,485},{64,94}}</string>
+                <string>{{340,289},{64,94}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{64,94}}</string>
                 <key>sourceSize</key>
@@ -267,7 +267,7 @@
             <key>MagicTowerDamage1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{336,485},{48,99}}</string>
+                <string>{{0,200},{48,99}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -280,11 +280,11 @@
             <key>MagicTowerDamage2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{323,585},{48,81}}</string>
+                <string>{{118,976},{48,81}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{48,81}}</string>
                 <key>sourceSize</key>
@@ -293,11 +293,11 @@
             <key>MagicTowerDamage3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{388,388},{64,99}}</string>
+                <string>{{0,0},{64,99}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{64,99}}</string>
                 <key>sourceSize</key>
@@ -306,11 +306,11 @@
             <key>MagicTowerDamage4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,485},{64,94}}</string>
+                <string>{{340,194},{64,94}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{64,94}}</string>
                 <key>sourceSize</key>
@@ -319,7 +319,7 @@
             <key>MagicTowerMagic_LV1_00.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{185,558},{72,72}}</string>
+                <string>{{624,0},{72,72}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -332,7 +332,7 @@
             <key>MagicTowerMagic_LV1_01.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{73,550},{72,72}}</string>
+                <string>{{551,0},{72,72}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -345,7 +345,7 @@
             <key>MagicTowerMagic_LV1_02.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,550},{72,72}}</string>
+                <string>{{478,0},{72,72}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -358,7 +358,7 @@
             <key>MagicTowerMagic_LV1_03.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{385,518},{72,72}}</string>
+                <string>{{429,73},{72,72}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -371,7 +371,7 @@
             <key>MagicTowerMagic_LV1_04.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{263,485},{72,72}}</string>
+                <string>{{405,0},{72,72}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -384,7 +384,7 @@
             <key>MagicTowerMagic_LV1_05.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{190,485},{72,72}}</string>
+                <string>{{356,81},{72,72}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -397,7 +397,7 @@
             <key>MagicTowerMagic_LV2_00.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{49,965},{48,48}}</string>
+                <string>{{889,293},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -410,7 +410,7 @@
             <key>MagicTowerMagic_LV2_01.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{98,963},{48,48}}</string>
+                <string>{{840,293},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -423,7 +423,7 @@
             <key>MagicTowerMagic_LV2_02.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{49,916},{48,48}}</string>
+                <string>{{791,293},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -436,7 +436,7 @@
             <key>MagicTowerMagic_LV2_03.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,963},{48,48}}</string>
+                <string>{{742,293},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -449,7 +449,7 @@
             <key>MagicTowerMagic_LV2_04.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{278,944},{48,48}}</string>
+                <string>{{642,301},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -462,7 +462,7 @@
             <key>MagicTowerMagic_LV2_05.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{229,932},{48,48}}</string>
+                <string>{{593,301},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -475,7 +475,7 @@
             <key>MagicTowerMagic_LV2_06.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{147,924},{48,48}}</string>
+                <string>{{544,301},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -488,7 +488,7 @@
             <key>MagicTowerMagic_LV2_07.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{98,914},{48,48}}</string>
+                <string>{{405,309},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -501,7 +501,7 @@
             <key>MagicTowerMagic_LV2_08.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{49,867},{48,48}}</string>
+                <string>{{495,301},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -514,7 +514,7 @@
             <key>MagicTowerMagic_LV2_09.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,867},{48,48}}</string>
+                <string>{{693,293},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -527,7 +527,7 @@
             <key>MagicTowerMagic_LV2_10.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{458,976},{48,48}}</string>
+                <string>{{942,244},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -540,7 +540,7 @@
             <key>MagicTowerMagic_LV2_11.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{458,927},{48,48}}</string>
+                <string>{{893,244},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -553,7 +553,7 @@
             <key>MagicTowerMagic_LV2_12.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{409,976},{48,48}}</string>
+                <string>{{844,244},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -566,7 +566,7 @@
             <key>MagicTowerMagic_LV2_13.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{360,949},{48,48}}</string>
+                <string>{{795,244},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -579,7 +579,7 @@
             <key>MagicTowerMagic_LV2_14.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{409,927},{48,48}}</string>
+                <string>{{746,244},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -592,7 +592,7 @@
             <key>MagicTowerMagic_LV2_15.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{360,900},{48,48}}</string>
+                <string>{{644,252},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -605,7 +605,7 @@
             <key>MagicTowerMagic_LV2_16.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{278,895},{48,48}}</string>
+                <string>{{595,252},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -618,7 +618,7 @@
             <key>MagicTowerMagic_LV2_17.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{229,883},{48,48}}</string>
+                <string>{{546,252},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -631,7 +631,7 @@
             <key>MagicTowerMagic_LV2_18.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{147,875},{48,48}}</string>
+                <string>{{405,260},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -644,7 +644,7 @@
             <key>MagicTowerMagic_LV2_19.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{98,865},{48,48}}</string>
+                <string>{{497,252},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -657,7 +657,7 @@
             <key>MagicTowerMagic_LV2_20.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{49,818},{48,48}}</string>
+                <string>{{697,244},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -670,7 +670,7 @@
             <key>MagicTowerMagic_LV2_21.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,818},{48,48}}</string>
+                <string>{{951,195},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -683,7 +683,7 @@
             <key>MagicTowerMagic_LV2_22.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{458,878},{48,48}}</string>
+                <string>{{902,195},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -696,7 +696,7 @@
             <key>MagicTowerMagic_LV2_23.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{409,878},{48,48}}</string>
+                <string>{{853,195},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -709,7 +709,7 @@
             <key>MagicTowerMagic_LV2_24.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{360,851},{48,48}}</string>
+                <string>{{804,195},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -722,7 +722,7 @@
             <key>MagicTowerMagic_LV2_25.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{179,826},{48,48}}</string>
+                <string>{{755,195},{48,48}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -748,7 +748,7 @@
             <key>MagicTowerMagic_LV3_01.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{194,388},{96,96}}</string>
+                <string>{{194,873},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -761,7 +761,7 @@
             <key>MagicTowerMagic_LV3_02.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{97,388},{96,96}}</string>
+                <string>{{194,776},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -774,7 +774,7 @@
             <key>MagicTowerMagic_LV3_03.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,388},{96,96}}</string>
+                <string>{{194,679},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -787,7 +787,7 @@
             <key>MagicTowerMagic_LV3_04.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{388,291},{96,96}}</string>
+                <string>{{194,582},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -800,7 +800,7 @@
             <key>MagicTowerMagic_LV3_05.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{291,291},{96,96}}</string>
+                <string>{{194,485},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -813,7 +813,7 @@
             <key>MagicTowerMagic_LV3_06.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{194,291},{96,96}}</string>
+                <string>{{259,97},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -826,7 +826,7 @@
             <key>MagicTowerMagic_LV3_07.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{97,291},{96,96}}</string>
+                <string>{{259,0},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -839,7 +839,7 @@
             <key>MagicTowerMagic_LV3_08.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,291},{96,96}}</string>
+                <string>{{243,291},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -852,7 +852,7 @@
             <key>MagicTowerMagic_LV3_09.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{388,194},{96,96}}</string>
+                <string>{{243,194},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -865,7 +865,7 @@
             <key>MagicTowerMagic_LV3_10.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{291,194},{96,96}}</string>
+                <string>{{194,388},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -878,7 +878,7 @@
             <key>MagicTowerMagic_LV3_11.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{194,194},{96,96}}</string>
+                <string>{{97,879},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -891,7 +891,7 @@
             <key>MagicTowerMagic_LV3_12.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{97,194},{96,96}}</string>
+                <string>{{97,782},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -904,7 +904,7 @@
             <key>MagicTowerMagic_LV3_13.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,194},{96,96}}</string>
+                <string>{{97,685},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -917,7 +917,7 @@
             <key>MagicTowerMagic_LV3_14.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{388,97},{96,96}}</string>
+                <string>{{97,588},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -930,7 +930,7 @@
             <key>MagicTowerMagic_LV3_15.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{291,97},{96,96}}</string>
+                <string>{{97,491},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -943,7 +943,7 @@
             <key>MagicTowerMagic_LV3_16.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{194,97},{96,96}}</string>
+                <string>{{162,97},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -956,7 +956,7 @@
             <key>MagicTowerMagic_LV3_17.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{97,97},{96,96}}</string>
+                <string>{{162,0},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -969,7 +969,7 @@
             <key>MagicTowerMagic_LV3_18.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,97},{96,96}}</string>
+                <string>{{146,291},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -982,7 +982,7 @@
             <key>MagicTowerMagic_LV3_19.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{388,0},{96,96}}</string>
+                <string>{{146,194},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -995,7 +995,7 @@
             <key>MagicTowerMagic_LV3_20.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{291,0},{96,96}}</string>
+                <string>{{97,394},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1008,7 +1008,7 @@
             <key>MagicTowerMagic_LV3_21.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{194,0},{96,96}}</string>
+                <string>{{0,885},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1021,7 +1021,7 @@
             <key>MagicTowerMagic_LV3_22.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{97,0},{96,96}}</string>
+                <string>{{0,788},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1034,7 +1034,7 @@
             <key>MagicTowerMagic_LV3_23.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,0},{96,96}}</string>
+                <string>{{0,691},{96,96}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1047,7 +1047,7 @@
             <key>MagicTowerMagic_LV4_00.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{244,818},{64,64}}</string>
+                <string>{{957,130},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1060,7 +1060,7 @@
             <key>MagicTowerMagic_LV4_01.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{179,761},{64,64}}</string>
+                <string>{{892,130},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1073,7 +1073,7 @@
             <key>MagicTowerMagic_LV4_02.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{65,753},{64,64}}</string>
+                <string>{{827,130},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1086,7 +1086,7 @@
             <key>MagicTowerMagic_LV4_03.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,753},{64,64}}</string>
+                <string>{{762,130},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1099,7 +1099,7 @@
             <key>MagicTowerMagic_LV4_04.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{65,688},{64,64}}</string>
+                <string>{{632,138},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1112,7 +1112,7 @@
             <key>MagicTowerMagic_LV4_05.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,688},{64,64}}</string>
+                <string>{{567,138},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1125,7 +1125,7 @@
             <key>MagicTowerMagic_LV4_06.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{244,753},{64,64}}</string>
+                <string>{{433,146},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1138,7 +1138,7 @@
             <key>MagicTowerMagic_LV4_07.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{179,696},{64,64}}</string>
+                <string>{{502,138},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1151,7 +1151,7 @@
             <key>MagicTowerMagic_LV4_08.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{65,623},{64,64}}</string>
+                <string>{{697,130},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1164,7 +1164,7 @@
             <key>MagicTowerMagic_LV4_09.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,623},{64,64}}</string>
+                <string>{{957,65},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1177,7 +1177,7 @@
             <key>MagicTowerMagic_LV4_10.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{436,813},{64,64}}</string>
+                <string>{{892,65},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1190,7 +1190,7 @@
             <key>MagicTowerMagic_LV4_11.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{371,786},{64,64}}</string>
+                <string>{{827,65},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1203,7 +1203,7 @@
             <key>MagicTowerMagic_LV4_12.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{437,748},{64,64}}</string>
+                <string>{{762,65},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1216,7 +1216,7 @@
             <key>MagicTowerMagic_LV4_13.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{372,721},{64,64}}</string>
+                <string>{{632,73},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1229,7 +1229,7 @@
             <key>MagicTowerMagic_LV4_14.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{437,683},{64,64}}</string>
+                <string>{{567,73},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1242,7 +1242,7 @@
             <key>MagicTowerMagic_LV4_15.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{248,688},{64,64}}</string>
+                <string>{{502,73},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1255,7 +1255,7 @@
             <key>MagicTowerMagic_LV4_16.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{372,656},{64,64}}</string>
+                <string>{{697,65},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1268,7 +1268,7 @@
             <key>MagicTowerMagic_LV4_17.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{437,618},{64,64}}</string>
+                <string>{{957,0},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1281,7 +1281,7 @@
             <key>MagicTowerMagic_LV4_18.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{372,591},{64,64}}</string>
+                <string>{{892,0},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1294,7 +1294,7 @@
             <key>MagicTowerMagic_LV4_19.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{183,631},{64,64}}</string>
+                <string>{{827,0},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1307,7 +1307,7 @@
             <key>MagicTowerMagic_LV4_20.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{258,623},{64,64}}</string>
+                <string>{{762,0},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1320,7 +1320,7 @@
             <key>MagicTowerMagic_LV4_21.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{258,558},{64,64}}</string>
+                <string>{{697,0},{64,64}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -1330,6 +1330,97 @@
                 <key>sourceSize</key>
                 <string>{64,64}</string>
             </dict>
+            <key>MagicTowerMagic_exp_00.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,594},{96,96}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{96,96}}</string>
+                <key>sourceSize</key>
+                <string>{96,96}</string>
+            </dict>
+            <key>MagicTowerMagic_exp_01.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,497},{96,96}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{96,96}}</string>
+                <key>sourceSize</key>
+                <string>{96,96}</string>
+            </dict>
+            <key>MagicTowerMagic_exp_02.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{65,97},{96,96}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{96,96}}</string>
+                <key>sourceSize</key>
+                <string>{96,96}</string>
+            </dict>
+            <key>MagicTowerMagic_exp_03.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{65,0},{96,96}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{96,96}}</string>
+                <key>sourceSize</key>
+                <string>{96,96}</string>
+            </dict>
+            <key>MagicTowerMagic_exp_04.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{49,297},{96,96}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{96,96}}</string>
+                <key>sourceSize</key>
+                <string>{96,96}</string>
+            </dict>
+            <key>MagicTowerMagic_exp_05.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{49,200},{96,96}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{96,96}}</string>
+                <key>sourceSize</key>
+                <string>{96,96}</string>
+            </dict>
+            <key>MagicTowerMagic_exp_06.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,400},{96,96}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{96,96}}</string>
+                <key>sourceSize</key>
+                <string>{96,96}</string>
+            </dict>
         </dict>
         <key>metadata</key>
         <dict>
@@ -1338,9 +1429,9 @@
             <key>realTextureFileName</key>
             <string>Towers.png</string>
             <key>size</key>
-            <string>{512,1024}</string>
+            <string>{1024,1024}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:482d15010576af637d2c6110ac190b0d:1/1$</string>
+            <string>$TexturePacker:SmartUpdate:4ada42146fe56ed003767a0983d7461f:1/1$</string>
             <key>textureFileName</key>
             <string>Towers.png</string>
         </dict>

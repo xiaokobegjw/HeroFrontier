@@ -6,6 +6,8 @@ export class ProjectileSpecComponent extends ECSComponent {
     public lifeSeconds: number = 2.5;
     /** 最大飞行距离，0 表示无限制 */
     public maxFlightDistance: number = 0;
+    /** 爆炸特效预制体路径 */
+    public explodePrefabPath: string = '';
 
     reset(): void {
         super.reset();
@@ -13,6 +15,7 @@ export class ProjectileSpecComponent extends ECSComponent {
         this.radius = 3;
         this.lifeSeconds = 2.5;
         this.maxFlightDistance = 0;
+        this.explodePrefabPath = '';
     }
 }
 

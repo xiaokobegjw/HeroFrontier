@@ -230,6 +230,7 @@ export class EntityFactory {
                 spec.radius = config.radius ?? spec.radius;
                 spec.lifeSeconds = config.lifeSeconds ?? spec.lifeSeconds;
                 spec.maxFlightDistance = typeof config.maxFlightDistance === 'number' ? config.maxFlightDistance : spec.maxFlightDistance;
+                spec.explodePrefabPath = config.explodePrefabPath ?? spec.explodePrefabPath;
                 entity.addComponent(spec);
                 break;
 

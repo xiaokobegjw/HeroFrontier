@@ -11,7 +11,7 @@ import { DebugState } from '../../Debug/DebugState';
 import { DefenseComponent } from '../Components/DefenseComponent';
 import { ArmorReductionComponent } from '../Components/ArmorReductionComponent';
 import { LootComponent } from '../Components/LootComponent';
-import { emitDeathViewEvent, emitExpEvent, emitKillEvent } from '../GameEvents';
+import { emitDeathViewEvent, emitExpEvent, emitKillEvent, drainProjectileExplodeEvents, emitExplosionEffectEvent } from '../GameEvents';
 import { ExperienceRewardComponent } from '../Components/ExperienceRewardComponent';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
@@ -44,6 +44,7 @@ export class DamageSystem extends ECSSystem {
     private world: World;
     private collisionSystem: CollisionSystem;
     private timeSeconds: number = 0;
+    private splashDamageCooldowns: Map<number, number> = new Map();
 
     constructor(world: World, collisionSystem: CollisionSystem, priority: number = 11) {
         super('DamageSystem', priority);
@@ -78,6 +79,34 @@ export class DamageSystem extends ECSSystem {
         }
 
         this.updateBeamDamage();
+        this.processProjectileExplodeEvents();
+    }
+
+    private processProjectileExplodeEvents(): void {
+        const events = drainProjectileExplodeEvents();
+        for (const ev of events) {
+            const source: DamageSource = {
+                armorPenPct: ev.armorPenPct,
+                skillMultiplier: ev.skillMultiplier,
+                critChance: ev.critChance,
+                critMultiplier: ev.critMultiplier,
+                finalDamageBonusPct: ev.finalDamageBonusPct,
+                damageType: ev.damageType,
+                sourceEntityId: ev.ownerId
+            };
+
+            this.applySplashDamage(
+                ev.ownerId,
+                ev.ownerFaction,
+                ev.x,
+                ev.y,
+                ev.splashRadius,
+                ev.damage,
+                source,
+                [],
+                ev.splashDamageCooldown
+            );
+        }
     }
 
     private updateBeamDamage(): void {
@@ -161,8 +190,8 @@ export class DamageSystem extends ECSSystem {
         
         let primaryDamage = this.computeDamage(projectile.damage, source, targetEntity);
         
-        if (projectile.executeThreshold > 0 && health.maxHealth > 0) {
-            const healthPercent = health.currentHealth / health.maxHealth;
+        if (projectile.executeThreshold > 0 && health.max > 0) {
+            const healthPercent = health.current / health.max;
             if (healthPercent <= projectile.executeThreshold) {
                 primaryDamage *= projectile.executeMultiplier;
             }
@@ -177,10 +206,19 @@ export class DamageSystem extends ECSSystem {
                 pt.x,
                 pt.y,
                 splashRadius,
-                projectile.damage * 0.55,
+                projectile.damage,
                 source,
-                [targetEntity.id, ...projectile.hitEntityIds]
+                [targetEntity.id, ...projectile.hitEntityIds],
+                projectile.splashDamageCooldown
             );
+
+            if (projectile.explodePrefabPath) {
+                emitExplosionEffectEvent({
+                    prefabPath: projectile.explodePrefabPath,
+                    x: pt.x,
+                    y: pt.y
+                });
+            }
         }
 
         if (projectile.burnDamagePerSecond > 0 && projectile.burnDuration > 0) {
@@ -300,7 +338,8 @@ export class DamageSystem extends ECSSystem {
         radius: number,
         damage: number,
         source: DamageSource,
-        excludeIds: number[]
+        excludeIds: number[],
+        cooldownSeconds: number = 0
     ): void {
         const spatial = this.world.getSystem(SpatialIndexSystem);
         if (!spatial || damage <= 0) return;
@@ -314,6 +353,12 @@ export class DamageSystem extends ECSSystem {
 
         for (const id of ids) {
             if (excludeIds.indexOf(id) !== -1) continue;
+            
+            if (cooldownSeconds > 0) {
+                const lastDamageTime = this.splashDamageCooldowns.get(id) || 0;
+                if (this.timeSeconds - lastDamageTime < cooldownSeconds) continue;
+            }
+
             const ent = this.world.getEntity(id);
             const hp = ent?.getComponent(HealthComponent);
             if (!ent || !hp || hp.isDead) continue;
@@ -322,6 +367,11 @@ export class DamageSystem extends ECSSystem {
             const dx = tr.x - cx;
             const dy = tr.y - cy;
             if (dx * dx + dy * dy > radius * radius) continue;
+            
+            if (cooldownSeconds > 0) {
+                this.splashDamageCooldowns.set(id, this.timeSeconds);
+            }
+            
             this.applyDamageToTarget(ownerId, ent, this.computeDamage(damage, source, ent));
         }
     }

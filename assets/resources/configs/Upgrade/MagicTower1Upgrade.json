@@ -15,8 +15,9 @@
         },
         {
             "level": 3,
+            "cost": 130,
             "fields": {
-                "WeaponComponent": { "damage": 108, "attackInterval": 1.15, "range": 230, "armorPenPct": 0.25, "projectileSplashRadius": 64 }
+                "WeaponComponent": { "damage": 48, "attackInterval": 1.8, "range": 230, "armorPenPct": 0, "projectileConfigId": "TowerMagicBolt3", "projectileSpeed": 240, "projectileRadius": 7, "projectileLifeSeconds": 2.5, "projectileSplashRadius": 60 }
             }
         },
         {

@@ -1,0 +1,40 @@
+{
+    "id": "TowerMagicBolt3",
+    "name": "projectile_tower_magic_3",
+    "description": "projectile_tower_magic_3_desc",
+    "ComponentsList": [
+        {
+            "id": "ProjectileSpecComponent",
+            "speed": 240,
+            "radius": 7,
+            "lifeSeconds": 2.5,
+            "explodePrefabPath": "prefabs/magicTower_explode"
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/magicTower_p_lv2",
+            "scale": 1
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "Circle",
+            "radius": 7,
+            "layer": 1,
+            "mask": 4294967295,
+            "isTrigger": true
+        },
+        {
+            "id": "RenderComponent",
+            "offset": { "x": 0, "y": 0 },
+            "shapes": [
+                {
+                    "type": "Circle",
+                    "color": [255, 100, 200],
+                    "lineWidth": 2,
+                    "fill": true,
+                    "radius": 7
+                }
+            ]
+        }
+    ]
+}

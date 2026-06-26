@@ -8,6 +8,7 @@ import { ProjectileComponent } from '../Components/ProjectileComponent';
 import { FactionComponent, FactionType } from '../Components/FactionComponent';
 import { HealthComponent } from '../Components/HealthComponent';
 import { SpatialIndexSystem } from './SpatialIndexSystem';
+import { emitProjectileExplodeEvent, emitExplosionEffectEvent } from '../GameEvents';
 
 export class ProjectileSystem extends ECSSystem {
     private world: World;
@@ -58,18 +59,6 @@ export class ProjectileSystem extends ECSSystem {
                     const dy = transform.y - oldY;
                     projectile.currentFlightDistance += Math.sqrt(dx * dx + dy * dy);
                 }
-
-                if (projectile.vy < 0 && transform.y <= projectile.stopY) {
-                    transform.y = projectile.stopY;
-                    projectile.landed = true;
-                    projectile.vx = 0;
-                    projectile.vy = 0;
-                    projectile.lifeRemaining = Math.max(0.01, projectile.stickSeconds || projectile.lifeRemaining);
-                    const col = entity.getComponent(ColliderComponent);
-                    if (col) {
-                        col.mask = 0;
-                    }
-                }
             }
 
             if (!projectile.isBeam) {
@@ -83,12 +72,20 @@ export class ProjectileSystem extends ECSSystem {
             projectile.lifeRemaining -= deltaTime;
 
             if (projectile.maxFlightDistance > 0 && projectile.currentFlightDistance >= projectile.maxFlightDistance) {
-                this.world.destroyEntity(entity);
+                if (projectile.isExplosive && projectile.splashRadius > 0) {
+                    this.triggerExplosion(entity, projectile, transform);
+                } else {
+                    this.world.destroyEntity(entity);
+                }
                 continue;
             }
 
-            if (projectile.lifeRemaining > 0 && projectile.lifeRemaining <= deltaTime) {
-                this.world.destroyEntity(entity);
+            if (projectile.lifeRemaining <= 0) {
+                if (projectile.isExplosive && projectile.splashRadius > 0) {
+                    this.triggerExplosion(entity, projectile, transform);
+                } else {
+                    this.world.destroyEntity(entity);
+                }
             }
         }
     }
@@ -195,5 +192,35 @@ export class ProjectileSystem extends ECSSystem {
         }
 
         return null;
+    }
+
+    private triggerExplosion(entity: Entity, projectile: ProjectileComponent, transform: TransformComponent): void {
+        const projFaction = entity.getComponent(FactionComponent);
+        
+        emitProjectileExplodeEvent({
+            ownerId: projectile.ownerId || null,
+            ownerFaction: projFaction?.faction ?? FactionType.Player,
+            x: transform.x,
+            y: transform.y,
+            splashRadius: projectile.splashRadius,
+            damage: projectile.damage,
+            armorPenPct: projectile.armorPenPct,
+            skillMultiplier: projectile.skillMultiplier,
+            critChance: projectile.critChance,
+            critMultiplier: projectile.critMultiplier,
+            finalDamageBonusPct: projectile.finalDamageBonusPct,
+            damageType: projectile.damageType,
+            splashDamageCooldown: projectile.splashDamageCooldown
+        });
+
+        if (projectile.explodePrefabPath) {
+            emitExplosionEffectEvent({
+                prefabPath: projectile.explodePrefabPath,
+                x: transform.x,
+                y: transform.y
+            });
+        }
+
+        this.world.destroyEntity(entity);
     }
 }

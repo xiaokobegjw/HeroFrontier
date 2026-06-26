@@ -43,6 +43,9 @@ export class ProjectileComponent extends ECSComponent {
     public beamDamagePerSecond: number = 0;
     public beamLastDamageTime: number = 0;
     public beamStartTime: number = 0;
+    public isExplosive: boolean = false;
+    public explodePrefabPath: string = '';
+    public splashDamageCooldown: number = 0;
 
     reset(): void {
         super.reset();
@@ -88,5 +91,8 @@ export class ProjectileComponent extends ECSComponent {
         this.beamDamagePerSecond = 0;
         this.beamLastDamageTime = 0;
         this.beamStartTime = 0;
+        this.isExplosive = false;
+        this.explodePrefabPath = '';
+        this.splashDamageCooldown = 0;
     }
 }

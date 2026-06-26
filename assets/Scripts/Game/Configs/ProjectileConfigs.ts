@@ -3,6 +3,7 @@ import MagicBolt1 from '../../../resources/configs/Projectiles/MagicBolt1.json';
 import TowerArrow1 from '../../../resources/configs/Projectiles/TowerArrow1.json';
 import TowerMagicBolt1 from '../../../resources/configs/Projectiles/TowerMagicBolt1.json';
 import TowerMagicBeam2 from '../../../resources/configs/Projectiles/TowerMagicBeam2.json';
+import TowerMagicBolt3 from '../../../resources/configs/Projectiles/TowerMagicBolt3.json';
 
 export const projectileConfigs: Record<string, any> = {
     Arrow1,
@@ -10,6 +11,7 @@ export const projectileConfigs: Record<string, any> = {
     TowerArrow1,
     TowerMagicBolt1,
     TowerMagicBeam2,
+    TowerMagicBolt3,
 };
 
 export function registerProjectileConfig(id: string, config: any): void {

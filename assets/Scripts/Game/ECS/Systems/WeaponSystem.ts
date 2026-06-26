@@ -246,7 +246,7 @@ export class WeaponSystem extends ECSSystem {
         const spec = entity.getComponent(ProjectileSpecComponent);
         const speed = spec?.speed ?? weapon.projectileSpeed;
         const lifeSeconds = spec?.lifeSeconds ?? weapon.projectileLifeSeconds;
-        const maxFlightDistance = spec?.maxFlightDistance ?? 0;
+        let maxFlightDistance = spec?.maxFlightDistance ?? 0;
 
         const isBeam = speed <= 0;
 
@@ -259,10 +259,17 @@ export class WeaponSystem extends ECSSystem {
         projectile.critMultiplier = weapon.critMultiplier;
         projectile.finalDamageBonusPct = weapon.finalDamageBonusPct;
         projectile.splashRadius = weapon.projectileSplashRadius;
+        projectile.explodePrefabPath = spec?.explodePrefabPath ?? '';
         projectile.burnDamagePerSecond = weapon.burnDamagePerSecond;
         projectile.burnDuration = weapon.burnDuration;
         projectile.burnMaxStacks = weapon.burnMaxStacks;
         projectile.pierceRemaining = Math.max(0, Math.floor(weapon.pierceCount));
+
+        if (weapon.projectileSplashRadius > 0 && !isBeam) {
+            projectile.isExplosive = true;
+            projectile.splashDamageCooldown = 0.3;
+            maxFlightDistance = weapon.range;
+        }
 
         if (isBeam) {
             projectile.isBeam = true;

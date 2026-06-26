@@ -24,9 +24,33 @@ export type DeathViewEvent = {
     scaleY: number;
 };
 
+export type ProjectileExplodeEvent = {
+    ownerId: number | null;
+    ownerFaction: number;
+    x: number;
+    y: number;
+    splashRadius: number;
+    damage: number;
+    armorPenPct: number;
+    skillMultiplier: number;
+    critChance: number;
+    critMultiplier: number;
+    finalDamageBonusPct: number;
+    damageType: 'Physical' | 'Magic';
+    splashDamageCooldown: number;
+};
+
+export type ExplosionEffectEvent = {
+    prefabPath: string;
+    x: number;
+    y: number;
+};
+
 const killEvents: KillEvent[] = [];
 const expEvents: ExpEvent[] = [];
 const deathViewEvents: DeathViewEvent[] = [];
+const projectileExplodeEvents: ProjectileExplodeEvent[] = [];
+const explosionEffectEvents: ExplosionEffectEvent[] = [];
 
 export function emitKillEvent(ev: KillEvent): void {
     killEvents.push(ev);
@@ -58,5 +82,27 @@ export function drainDeathViewEvents(): DeathViewEvent[] {
     if (deathViewEvents.length === 0) return [];
     const out = deathViewEvents.slice();
     deathViewEvents.length = 0;
+    return out;
+}
+
+export function emitProjectileExplodeEvent(ev: ProjectileExplodeEvent): void {
+    projectileExplodeEvents.push(ev);
+}
+
+export function drainProjectileExplodeEvents(): ProjectileExplodeEvent[] {
+    if (projectileExplodeEvents.length === 0) return [];
+    const out = projectileExplodeEvents.slice();
+    projectileExplodeEvents.length = 0;
+    return out;
+}
+
+export function emitExplosionEffectEvent(ev: ExplosionEffectEvent): void {
+    explosionEffectEvents.push(ev);
+}
+
+export function drainExplosionEffectEvents(): ExplosionEffectEvent[] {
+    if (explosionEffectEvents.length === 0) return [];
+    const out = explosionEffectEvents.slice();
+    explosionEffectEvents.length = 0;
     return out;
 }

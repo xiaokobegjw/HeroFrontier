@@ -8,7 +8,7 @@ import { ViewComponent } from '../Components/ViewComponent';
 import { WeaponStateComponent } from '../Components/WeaponStateComponent';
 import { HealthComponent } from '../Components/HealthComponent';
 import { TargetComponent } from '../Components/TargetComponent';
-import { DeathViewEvent, drainDeathViewEvents } from '../GameEvents';
+import { DeathViewEvent, drainDeathViewEvents, ExplosionEffectEvent, drainExplosionEffectEvents } from '../GameEvents';
 import { LevelComponent } from '../Components/LevelComponent';
 import { ProjectileComponent } from '../Components/ProjectileComponent';
 import { ProjectileSpecComponent } from '../Components/ProjectileSpecComponent';
@@ -58,6 +58,7 @@ export class ActorViewSystem extends ECSSystem {
     private views: Map<number, ViewState> = new Map();
     private pendingLoads: Set<number> = new Set();
     private deathViews: DetachedDeathView[] = [];
+    private explosionEffects: DetachedDeathView[] = [];
     private spriteVisible: boolean = true;
 
     constructor(world: World, viewRoot: Node, effectRoot: Node | null = null, priority: number = 99) {
@@ -74,6 +75,7 @@ export class ActorViewSystem extends ECSSystem {
 
     public update(entities: Entity[], deltaTime: number): void {
         this.updateDetachedDeathViews(deltaTime);
+        this.updateExplosionEffects(deltaTime);
         const alive = new Set<number>();
 
         for (const entity of entities) {
@@ -186,6 +188,10 @@ export class ActorViewSystem extends ECSSystem {
             entry.node.destroy();
         }
         this.deathViews = [];
+        for (const entry of this.explosionEffects) {
+            entry.node.destroy();
+        }
+        this.explosionEffects = [];
     }
 
     /**
@@ -233,6 +239,9 @@ export class ActorViewSystem extends ECSSystem {
             this.applySpriteVisibleToNode(state.node, visible);
         }
         for (const entry of this.deathViews) {
+            this.applySpriteVisibleToNode(entry.node, visible);
+        }
+        for (const entry of this.explosionEffects) {
             this.applySpriteVisibleToNode(entry.node, visible);
         }
     }
@@ -533,6 +542,38 @@ export class ActorViewSystem extends ECSSystem {
         }
 
         this.deathViews.push({ node, ttl });
+    }
+
+    private updateExplosionEffects(deltaTime: number): void {
+        for (const ev of drainExplosionEffectEvents()) {
+            this.spawnExplosionEffect(ev);
+        }
+
+        const remaining: DetachedDeathView[] = [];
+        for (const entry of this.explosionEffects) {
+            entry.ttl -= deltaTime;
+            if (entry.ttl <= 0) {
+                entry.node.destroy();
+                continue;
+            }
+            remaining.push(entry);
+        }
+        this.explosionEffects = remaining;
+    }
+
+    private async spawnExplosionEffect(ev: ExplosionEffectEvent): Promise<void> {
+        const node = await this.instantiateDetachedNode(ev.prefabPath, 'Explosion');
+        this.effectRoot.addChild(node);
+        node.setPosition(ev.x, ev.y, 0);
+        this.applySpriteVisibleToNode(node, this.spriteVisible);
+
+        let ttl = 0.6;
+        const animation = node.getComponent(Animation);
+        if (animation && animation.defaultClip) {
+            ttl = Math.max(0.2, animation.defaultClip.duration || ttl);
+        }
+
+        this.explosionEffects.push({ node, ttl });
     }
 
     private async instantiateDetachedNode(prefabPath: string, name: string): Promise<Node> {

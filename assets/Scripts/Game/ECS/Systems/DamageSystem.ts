@@ -14,6 +14,7 @@ import { LootComponent } from '../Components/LootComponent';
 import { emitDeathViewEvent, emitExpEvent, emitKillEvent } from '../GameEvents';
 import { ExperienceRewardComponent } from '../Components/ExperienceRewardComponent';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
+import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
 import { ViewComponent } from '../Components/ViewComponent';
 import { BurningComponent } from '../Components/BurningComponent';
 import { SpatialIndexSystem } from './SpatialIndexSystem';
@@ -75,6 +76,64 @@ export class DamageSystem extends ECSSystem {
                 this.tryApplyMeleeHit(b, a);
             if (!applied) continue;
         }
+
+        this.updateBeamDamage();
+    }
+
+    private updateBeamDamage(): void {
+        const allEntities = this.world.getAllEntities();
+        for (const entity of allEntities) {
+            const projectile = entity.getComponent(ProjectileComponent);
+            if (!projectile || !projectile.isBeam) continue;
+
+            if (projectile.trackTargetId === null) continue;
+            
+            const targetEnt = this.world.getEntity(projectile.trackTargetId);
+            if (!targetEnt) continue;
+
+            const health = targetEnt.getComponent(HealthComponent);
+            if (!health || !targetEnt.active || health.isDead) continue;
+
+            const projTransform = entity.getComponent(TransformComponent);
+            const targetTransform = targetEnt.getComponent(TransformComponent);
+            const targetCollider = targetEnt.getComponent(ColliderComponent);
+            if (!projTransform || !targetTransform || !targetCollider) continue;
+
+            if (this.isTargetHitByBeam(projTransform, targetTransform, targetCollider)) {
+                this.tryApplyBeamHit(entity, targetEnt);
+            }
+        }
+    }
+
+    private isTargetHitByBeam(beamTransform: TransformComponent, targetTransform: TransformComponent, targetCollider: ColliderComponent): boolean {
+        const beamStartX = beamTransform.x;
+        const beamStartY = beamTransform.y;
+        const beamEndX = targetTransform.x;
+        const beamEndY = targetTransform.y;
+        
+        const targetX = targetTransform.x + targetCollider.offsetX;
+        const targetY = targetTransform.y + targetCollider.offsetY;
+        const targetRadius = targetCollider.shape === ColliderShapeType.Circle 
+            ? targetCollider.radius 
+            : Math.max(targetCollider.width, targetCollider.height) / 2;
+
+        const dx = beamEndX - beamStartX;
+        const dy = beamEndY - beamStartY;
+        const lenSq = dx * dx + dy * dy;
+        
+        if (lenSq === 0) {
+            const distSq = (targetX - beamStartX) ** 2 + (targetY - beamStartY) ** 2;
+            return distSq <= targetRadius * targetRadius;
+        }
+
+        let t = ((targetX - beamStartX) * dx + (targetY - beamStartY) * dy) / lenSq;
+        t = Math.max(0, Math.min(1, t));
+        
+        const closestX = beamStartX + t * dx;
+        const closestY = beamStartY + t * dy;
+        
+        const distSq = (targetX - closestX) ** 2 + (targetY - closestY) ** 2;
+        return distSq <= targetRadius * targetRadius;
     }
 
     private tryApplyProjectileHit(projectileEntity: Entity, targetEntity: Entity): boolean {
@@ -89,6 +148,11 @@ export class DamageSystem extends ECSSystem {
         }
 
         if (!targetEntity.active || health.isDead) return true;
+
+        if (projectile.isBeam) {
+            return this.tryApplyBeamHit(projectileEntity, targetEntity);
+        }
+
         if (projectile.hitEntityIds.indexOf(targetEntity.id) !== -1) return true;
 
         const pt = targetEntity.getComponent(TransformComponent);
@@ -97,7 +161,6 @@ export class DamageSystem extends ECSSystem {
         
         let primaryDamage = this.computeDamage(projectile.damage, source, targetEntity);
         
-        // 斩杀逻辑：血量低于阈值时伤害加倍
         if (projectile.executeThreshold > 0 && health.maxHealth > 0) {
             const healthPercent = health.currentHealth / health.maxHealth;
             if (healthPercent <= projectile.executeThreshold) {
@@ -132,13 +195,11 @@ export class DamageSystem extends ECSSystem {
 
         projectile.hitEntityIds.push(targetEntity.id);
 
-        // 检查眩晕效果（投射物也可能带有眩晕，如裂空震慑）
         const stunOnHit = projectileEntity.getComponent(StunOnHitComponent);
         if (stunOnHit && stunOnHit.stunSeconds > 0) {
             this.applyStun(targetEntity, stunOnHit.stunSeconds);
         }
 
-        // 弹跳逻辑
         if (projectile.bounceCount > 0 && pt) {
             const nextTarget = this.findNextBounceTarget(projectileEntity, projFaction?.faction ?? FactionType.Player, pt);
             if (nextTarget) {
@@ -168,6 +229,27 @@ export class DamageSystem extends ECSSystem {
         }
 
         this.world.destroyEntity(projectileEntity);
+        return true;
+    }
+
+    private tryApplyBeamHit(projectileEntity: Entity, targetEntity: Entity): boolean {
+        const projectile = projectileEntity.getComponent(ProjectileComponent);
+        const health = targetEntity.getComponent(HealthComponent);
+        if (!projectile || !health) return false;
+
+        if (!targetEntity.active || health.isDead) return true;
+
+        const currentTime = this.timeSeconds;
+        const damageInterval = 0.1;
+        const deltaTime = currentTime - projectile.beamLastDamageTime;
+        if (deltaTime >= damageInterval) {
+            projectile.beamLastDamageTime = currentTime;
+            
+            const source = this.getProjectileDamageSource(projectile);
+            const damage = this.computeDamage(projectile.beamDamagePerSecond * damageInterval, source, targetEntity);
+            this.applyDamageToTarget(projectile.ownerId || null, targetEntity, damage);
+        }
+
         return true;
     }
 

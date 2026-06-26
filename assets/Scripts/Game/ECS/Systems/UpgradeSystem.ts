@@ -44,6 +44,7 @@ type UpgradeFields = {
         projectileSpeed?: NumberValue;
         projectileRadius?: NumberValue;
         projectileLifeSeconds?: NumberValue;
+        projectileConfigId?: string;
         meleeRadius?: NumberValue;
         meleeWidth?: NumberValue;
         meleeHeight?: NumberValue;
@@ -177,6 +178,7 @@ export class UpgradeSystem extends ECSSystem {
         if (typeof rules.armorPenPct === 'number') weapon.armorPenPct = rules.armorPenPct;
         if (typeof rules.pierceCount === 'number') weapon.pierceCount = rules.pierceCount;
         if (typeof rules.projectileSplashRadius === 'number') weapon.projectileSplashRadius = rules.projectileSplashRadius;
+        if (typeof rules.projectileConfigId === 'string') weapon.projectileConfigId = rules.projectileConfigId;
     }
 
     private applyDefense(entity: Entity, fields: UpgradeFields, level: number): void {

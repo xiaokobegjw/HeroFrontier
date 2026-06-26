@@ -10,7 +10,7 @@ TexturePacker \
 --border-padding 0 \
 --shape-padding 1 \
 --pack-mode Best \
-Tower/*.png \
+Castle/*.png \
 Enemy/Mob1/*.png \
 Enemy/Mob2/*.png \
 Enemy/Mob3/*.png \
@@ -75,8 +75,8 @@ TexturePacker \
 Projectile/*.png
 
 TexturePacker \
---sheet HeroSkillBQYZ.png \
---data HeroSkillBQYZ.plist \
+--sheet HeroSkillZFZF.png \
+--data HeroSkillZFZF.plist \
 --format cocos2d \
 --max-size 2048 \
 --no-trim \
@@ -86,4 +86,4 @@ TexturePacker \
 --border-padding 0 \
 --shape-padding 1 \
 --pack-mode Best \
-Effects/HeroSkillBQYZ/*.png
+Effects/HeroSkillZFZF/*.png

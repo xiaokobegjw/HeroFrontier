@@ -16,7 +16,7 @@ import heroConfig from '../../resources/configs/Entitys/Hero.json';
 import enemyConfig from '../../resources/configs/Entitys/EnemyRottenPeasant.json';
 import bowConfig from '../../resources/configs/Weapons/Bow1.json';
 import swordConfig from '../../resources/configs/Weapons/Sword1.json';
-import arrowConfig from '../../resources/configs/Projectiles/Arrow1.json';
+
 import hero1Upgrade from '../../resources/configs/Upgrade/Hero1Upgrade.json';
 import bow1Upgrade from '../../resources/configs/Upgrade/Bow1Upgrade.json';
 import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
@@ -105,13 +105,12 @@ import { ExperienceSystem } from './ECS/Systems/ExperienceSystem';
 import { ExperienceComponent } from './ECS/Components/ExperienceComponent';
 import { PlayerControlSystem } from './ECS/Systems/PlayerControlSystem';
 import { BurningSystem } from './ECS/Systems/BurningSystem';
-import magicBoltConfig from '../../resources/configs/Projectiles/MagicBolt1.json';
-import towerArrowConfig from '../../resources/configs/Projectiles/TowerArrow1.json';
-import towerMagicBoltConfig from '../../resources/configs/Projectiles/TowerMagicBolt1.json';
+
 import arrowTower1Upgrade from '../../resources/configs/Upgrade/ArrowTower1Upgrade.json';
 import magicTower1Upgrade from '../../resources/configs/Upgrade/MagicTower1Upgrade.json';
 import { GameSession } from './Managers/GameSession';
 import { WaveSpawner, SpawnEvent } from './Managers/WaveSpawner';
+import { projectileConfigs } from './Configs/ProjectileConfigs';
 import { TowerPlacementManager } from './Managers/TowerPlacementManager';
 import { GameUIController } from './UI/GameUIController';
 import { HUDManager } from './UI/HUDManager';
@@ -367,12 +366,7 @@ export class GameMain extends Component {
         );
         this.world.registerSystem(this.upgradeSystem);
 
-        this.weaponSystem = new WeaponSystem(this.world, { 
-            Arrow1: arrowConfig, 
-            MagicBolt1: magicBoltConfig,
-            TowerArrow1: towerArrowConfig,
-            TowerMagicBolt1: towerMagicBoltConfig
-        }, 7);
+        this.weaponSystem = new WeaponSystem(this.world, projectileConfigs, 7);
         this.world.registerSystem(this.weaponSystem);
 
         this.world.registerSystem(new ArrowRainSystem(this.world, 7.8));

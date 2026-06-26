@@ -1,0 +1,27 @@
+{
+    "id": "TowerMagicBeam2",
+    "name": "projectile_tower_magic_beam",
+    "description": "projectile_tower_magic_beam_desc",
+    "ComponentsList": [
+        {
+            "id": "ProjectileSpecComponent",
+            "speed": 0,
+            "radius": 4,
+            "lifeSeconds": 1.2
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/magicTower_p_lv4",
+            "scale": 1
+        },
+        {
+            "id": "ColliderComponent",
+            "shape": "AABB",
+            "width": 8,
+            "height": 200,
+            "layer": 0,
+            "mask": 0,
+            "isTrigger": true
+        }
+    ]
+}

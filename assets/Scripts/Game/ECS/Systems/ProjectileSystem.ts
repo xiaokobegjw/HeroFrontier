@@ -30,8 +30,9 @@ export class ProjectileSystem extends ECSSystem {
             const oldX = transform.x;
             const oldY = transform.y;
 
-            // 如果设置了跟随实体，跟随目标移动
-            if (projectile.followEntityId !== null) {
+            if (projectile.isBeam) {
+                this.updateBeamProjectile(entity, projectile, transform, deltaTime);
+            } else if (projectile.followEntityId !== null) {
                 const targetEnt = this.world.getEntity(projectile.followEntityId);
                 if (targetEnt) {
                     const targetTr = targetEnt.getComponent(TransformComponent);
@@ -41,13 +42,10 @@ export class ProjectileSystem extends ECSSystem {
                     }
                 }
             } else if (!projectile.landed) {
-                // 抛物线运动处理
                 if (projectile.isParabola) {
-                    // 应用重力
                     projectile.vy -= projectile.gravity * deltaTime;
                 }
                 
-                // 追踪逻辑
                 if (projectile.homingEnabled && projectile.trackTargetId !== null) {
                     this.updateHomingTarget(entity, projectile, transform);
                 }
@@ -55,7 +53,6 @@ export class ProjectileSystem extends ECSSystem {
                 transform.x += projectile.vx * deltaTime;
                 transform.y += projectile.vy * deltaTime;
 
-                // 更新飞行距离
                 if (projectile.maxFlightDistance > 0) {
                     const dx = transform.x - oldX;
                     const dy = transform.y - oldY;
@@ -75,25 +72,58 @@ export class ProjectileSystem extends ECSSystem {
                 }
             }
 
-            const dx = transform.x - oldX;
-            const dy = transform.y - oldY;
-            if (dx !== 0 || dy !== 0) {
-                transform.rotation = Math.atan2(dy, dx) * (180 / Math.PI);
+            if (!projectile.isBeam) {
+                const dx = transform.x - oldX;
+                const dy = transform.y - oldY;
+                if (dx !== 0 || dy !== 0) {
+                    transform.rotation = Math.atan2(dy, dx) * (180 / Math.PI);
+                }
             }
 
             projectile.lifeRemaining -= deltaTime;
 
-            // 检查飞行距离是否超过最大值
             if (projectile.maxFlightDistance > 0 && projectile.currentFlightDistance >= projectile.maxFlightDistance) {
                 this.world.destroyEntity(entity);
                 continue;
             }
 
-            // lifeRemaining < 0 表示永久存在（如被动技能特效），不销毁
             if (projectile.lifeRemaining > 0 && projectile.lifeRemaining <= deltaTime) {
                 this.world.destroyEntity(entity);
             }
         }
+    }
+
+    private updateBeamProjectile(entity: Entity, projectile: ProjectileComponent, transform: TransformComponent, deltaTime: number): void {
+        if (projectile.trackTargetId === null) return;
+
+        const targetEnt = this.world.getEntity(projectile.trackTargetId);
+        if (!targetEnt) {
+            projectile.trackTargetId = null;
+            return;
+        }
+
+        const targetTr = targetEnt.getComponent(TransformComponent);
+        const targetHp = targetEnt.getComponent(HealthComponent);
+        if (!targetTr || !targetHp || targetHp.isDead) {
+            projectile.trackTargetId = null;
+            return;
+        }
+
+        const dx = targetTr.x - transform.x;
+        const dy = targetTr.y - transform.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        const rotation = Math.atan2(dy, dx) * (180 / Math.PI);
+        transform.rotation = rotation;
+
+        const collider = entity.getComponent(ColliderComponent);
+        if (collider) {
+            collider.offsetX = distance * 0.5;
+            collider.offsetY = 0;
+        }
+
+        projectile.targetX = targetTr.x;
+        projectile.targetY = targetTr.y;
     }
 
     private updateHomingTarget(entity: Entity, projectile: ProjectileComponent, transform: TransformComponent): void {

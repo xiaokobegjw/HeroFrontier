@@ -144,4 +144,8 @@ export class CollisionSystem extends ECSSystem {
         const dy = cy - closestY;
         return dx * dx + dy * dy <= r * r;
     }
+
+    public testCollision(entityA: Entity, entityB: Entity): boolean {
+        return this.intersects(entityA, entityB);
+    }
 }

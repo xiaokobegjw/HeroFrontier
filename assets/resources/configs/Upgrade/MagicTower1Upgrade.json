@@ -10,7 +10,7 @@
         {
             "level": 2,
             "fields": {
-                "WeaponComponent": { "damage": 78, "attackInterval": 1.25, "range": 220, "armorPenPct": 0.2, "projectileSplashRadius": 48 }
+                "WeaponComponent": { "damage": 52, "attackInterval": 1.2, "range": 220, "armorPenPct": 0, "projectileConfigId": "TowerMagicBeam2", "projectileSpeed": 0, "projectileRadius": 4, "projectileLifeSeconds": 1.2, "projectileSplashRadius": 0 }
             }
         },
         {

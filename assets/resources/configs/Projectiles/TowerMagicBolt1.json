@@ -5,14 +5,19 @@
     "ComponentsList": [
         {
             "id": "ProjectileSpecComponent",
-            "speed": 380,
-            "radius": 8,
+            "speed": 220,
+            "radius": 6,
             "lifeSeconds": 2.4
+        },
+        {
+            "id": "ViewComponent",
+            "prefabPath": "prefabs/magicTower_p_lv1",
+            "scale": 1
         },
         {
             "id": "ColliderComponent",
             "shape": "Circle",
-            "radius": 8,
+            "radius": 6,
             "layer": 0,
             "mask": 0,
             "isTrigger": true
@@ -26,7 +31,7 @@
                     "color": [100, 200, 255],
                     "lineWidth": 2,
                     "fill": true,
-                    "radius": 8
+                    "radius": 6
                 }
             ]
         }

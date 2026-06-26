@@ -25,6 +25,7 @@ import { TowerComponent } from '../Components/TowerComponent';
 export class WeaponSystem extends ECSSystem {
     private world: World;
     private projectileConfigs: Record<string, any>;
+    private timeSeconds: number = 0;
 
     constructor(world: World, projectileConfigs: Record<string, any>, priority: number = 7) {
         super('WeaponSystem', priority);
@@ -53,6 +54,7 @@ export class WeaponSystem extends ECSSystem {
     }
 
     public update(entities: Entity[], deltaTime: number): void {
+        this.timeSeconds += Math.max(0, deltaTime);
         for (const entity of entities) {
             const transform = entity.getComponent(TransformComponent);
             const faction = entity.getComponent(FactionComponent);
@@ -246,6 +248,8 @@ export class WeaponSystem extends ECSSystem {
         const lifeSeconds = spec?.lifeSeconds ?? weapon.projectileLifeSeconds;
         const maxFlightDistance = spec?.maxFlightDistance ?? 0;
 
+        const isBeam = speed <= 0;
+
         const projectile = this.world.acquireComponent(ProjectileComponent);
         projectile.ownerId = owner.id;
         projectile.damage = weapon.damage;
@@ -259,8 +263,32 @@ export class WeaponSystem extends ECSSystem {
         projectile.burnDuration = weapon.burnDuration;
         projectile.burnMaxStacks = weapon.burnMaxStacks;
         projectile.pierceRemaining = Math.max(0, Math.floor(weapon.pierceCount));
-        projectile.vx = dirX * speed;
-        projectile.vy = dirY * speed;
+
+        if (isBeam) {
+            projectile.isBeam = true;
+            projectile.beamDamagePerSecond = weapon.damage;
+            projectile.beamStartTime = this.timeSeconds;
+            projectile.beamLastDamageTime = this.timeSeconds;
+            projectile.homingEnabled = true;
+            projectile.homingFactor = 1;
+
+            const target = owner.getComponent(TargetComponent);
+            if (target && target.targetEntityId !== null) {
+                projectile.trackTargetId = target.targetEntityId;
+                const targetEnt = this.world.getEntity(target.targetEntityId);
+                if (targetEnt) {
+                    const tTr = targetEnt.getComponent(TransformComponent);
+                    if (tTr) {
+                        projectile.targetX = tTr.x;
+                        projectile.targetY = tTr.y;
+                    }
+                }
+            }
+        } else {
+            projectile.vx = dirX * speed;
+            projectile.vy = dirY * speed;
+        }
+
         projectile.lifeRemaining = lifeSeconds;
         projectile.maxFlightDistance = maxFlightDistance;
         projectile.currentFlightDistance = 0;
@@ -273,8 +301,14 @@ export class WeaponSystem extends ECSSystem {
         entity.addComponent(factionComp);
 
         const collider = entity.getComponent(ColliderComponent) ?? this.world.acquireComponent(ColliderComponent);
-        collider.shape = ColliderShapeType.Circle;
-        collider.radius = spec?.radius ?? collider.radius ?? weapon.projectileRadius;
+        if (isBeam) {
+            collider.shape = ColliderShapeType.AABB;
+            collider.width = spec?.radius ? spec.radius * 2 : weapon.projectileRadius * 2;
+            collider.height = weapon.range * 2;
+        } else {
+            collider.shape = ColliderShapeType.Circle;
+            collider.radius = spec?.radius ?? collider.radius ?? weapon.projectileRadius;
+        }
         collider.isTrigger = true;
         collider.layer = faction === FactionType.Player ? 4 : 8;
         collider.mask = faction === FactionType.Player ? 2 : 1;
@@ -282,22 +316,24 @@ export class WeaponSystem extends ECSSystem {
             entity.addComponent(collider);
         }
 
-        const render = entity.getComponent(RenderComponent) ?? this.world.acquireComponent(RenderComponent);
-        render.offset = { x: 0, y: 0 };
-        const w = collider.shape === ColliderShapeType.Circle ? collider.radius * 2 : collider.width;
-        const h = collider.shape === ColliderShapeType.Circle ? collider.radius * 2 : collider.height;
-        render.shapes = [
-            {
-                type: ShapeType.Square,
-                color: faction === FactionType.Player ? [0, 200, 255, 200] : [255, 200, 0, 200],
-                lineWidth: 2,
-                fill: true,
-                width: Math.max(1, w),
-                height: Math.max(1, h)
+        if (!isBeam) {
+            const render = entity.getComponent(RenderComponent) ?? this.world.acquireComponent(RenderComponent);
+            render.offset = { x: 0, y: 0 };
+            const w = collider.shape === ColliderShapeType.Circle ? collider.radius * 2 : collider.width;
+            const h = collider.shape === ColliderShapeType.Circle ? collider.radius * 2 : collider.height;
+            render.shapes = [
+                {
+                    type: ShapeType.Square,
+                    color: faction === FactionType.Player ? [0, 200, 255, 200] : [255, 200, 0, 200],
+                    lineWidth: 2,
+                    fill: true,
+                    width: Math.max(1, w),
+                    height: Math.max(1, h)
+                }
+            ];
+            if (!entity.hasComponent(RenderComponent)) {
+                entity.addComponent(render);
             }
-        ];
-        if (!entity.hasComponent(RenderComponent)) {
-            entity.addComponent(render);
         }
 
         return entity;

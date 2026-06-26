@@ -7,11 +7,11 @@
             <key>HeroSKillTQYJ00.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{17,96},{32,12}}</string>
+                <string>{{421,119},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{32,12}}</string>
                 <key>sourceSize</key>
@@ -20,7 +20,7 @@
             <key>HeroSKillTQYJ01.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{6,83},{32,12}}</string>
+                <string>{{421,106},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -33,7 +33,7 @@
             <key>HeroSKillTQYJ02.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{78,75},{32,12}}</string>
+                <string>{{375,119},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -46,11 +46,11 @@
             <key>HeroSKillTQYJ03.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{111,66},{32,12}}</string>
+                <string>{{375,106},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{32,12}}</string>
                 <key>sourceSize</key>
@@ -59,20 +59,7 @@
             <key>HeroSKillTQYJ04.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{78,62},{32,12}}</string>
-                <key>offset</key>
-                <string>{0,0}</string>
-                <key>rotated</key>
-                <false/>
-                <key>sourceColorRect</key>
-                <string>{{0,0},{32,12}}</string>
-                <key>sourceSize</key>
-                <string>{32,12}</string>
-            </dict>
-            <key>HeroSKillTQYJ05.png</key>
-            <dict>
-                <key>frame</key>
-                <string>{{65,50},{32,12}}</string>
+                <string>{{408,104},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -82,10 +69,10 @@
                 <key>sourceSize</key>
                 <string>{32,12}</string>
             </dict>
-            <key>HeroSKillTQYJ06.png</key>
+            <key>HeroSKillTQYJ05.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{78,49},{32,12}}</string>
+                <string>{{375,93},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -95,10 +82,23 @@
                 <key>sourceSize</key>
                 <string>{32,12}</string>
             </dict>
+            <key>HeroSKillTQYJ06.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{440,73},{32,12}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{32,12}}</string>
+                <key>sourceSize</key>
+                <string>{32,12}</string>
+            </dict>
             <key>HeroSKillTQYJ07.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{78,36},{32,12}}</string>
+                <string>{{203,139},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -111,11 +111,11 @@
             <key>HeroSKillTQYJ08.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{111,33},{32,12}}</string>
+                <string>{{203,126},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{32,12}}</string>
                 <key>sourceSize</key>
@@ -124,7 +124,7 @@
             <key>HeroSKillTQYJ09.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{78,23},{32,12}}</string>
+                <string>{{203,113},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -137,11 +137,11 @@
             <key>HeroSKillTQYJ10.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{65,17},{32,12}}</string>
+                <string>{{106,441},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{32,12}}</string>
                 <key>sourceSize</key>
@@ -150,20 +150,423 @@
             <key>HeroSKillTQYJ11.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{116,0},{32,12}}</string>
+                <string>{{73,441},{32,12}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{32,12}}</string>
                 <key>sourceSize</key>
                 <string>{32,12}</string>
             </dict>
+            <key>MagicTowerBullet_LV1_ 00.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{203,96},{32,16}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{32,16}}</string>
+                <key>sourceSize</key>
+                <string>{32,16}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_00.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{237,73},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_01.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{383,0},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_02.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{310,0},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_03.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{237,0},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_04.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{73,319},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_05.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{73,246},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_06.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{73,173},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_07.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{156,0},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_08.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{73,100},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_09.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,382},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_10.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,309},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_11.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,236},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_12.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,163},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_13.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,90},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_14.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{0,17},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV1_15.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{83,0},{72,72}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{72,72}}</string>
+                <key>sourceSize</key>
+                <string>{72,72}</string>
+            </dict>
+            <key>MagicTowerBullet_LV3_00.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{146,147},{48,24}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,24}}</string>
+                <key>sourceSize</key>
+                <string>{48,24}</string>
+            </dict>
+            <key>MagicTowerBullet_LV3_01.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{171,122},{48,24}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,24}}</string>
+                <key>sourceSize</key>
+                <string>{48,24}</string>
+            </dict>
+            <key>MagicTowerBullet_LV3_02.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{146,98},{48,24}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,24}}</string>
+                <key>sourceSize</key>
+                <string>{48,24}</string>
+            </dict>
+            <key>MagicTowerBullet_LV3_03.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{177,73},{48,24}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,24}}</string>
+                <key>sourceSize</key>
+                <string>{48,24}</string>
+            </dict>
+            <key>MagicTowerBullet_LV3_04.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{128,73},{48,24}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,24}}</string>
+                <key>sourceSize</key>
+                <string>{48,24}</string>
+            </dict>
+            <key>MagicTowerBullet_LV3_05.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{79,73},{48,24}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,24}}</string>
+                <key>sourceSize</key>
+                <string>{48,24}</string>
+            </dict>
+            <key>MagicTowerBullet_LV4_00.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{310,73},{48,64}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,64}}</string>
+                <key>sourceSize</key>
+                <string>{48,64}</string>
+            </dict>
+            <key>MagicTowerBullet_LV4_01.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{456,65},{48,64}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,64}}</string>
+                <key>sourceSize</key>
+                <string>{48,64}</string>
+            </dict>
+            <key>MagicTowerBullet_LV4_02.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{456,0},{48,64}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,64}}</string>
+                <key>sourceSize</key>
+                <string>{48,64}</string>
+            </dict>
+            <key>MagicTowerBullet_LV4_03.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{188,441},{48,64}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,64}}</string>
+                <key>sourceSize</key>
+                <string>{48,64}</string>
+            </dict>
+            <key>MagicTowerBullet_LV4_04.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{139,441},{48,64}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,64}}</string>
+                <key>sourceSize</key>
+                <string>{48,64}</string>
+            </dict>
+            <key>MagicTowerBullet_LV4_05.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{138,392},{48,64}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,64}}</string>
+                <key>sourceSize</key>
+                <string>{48,64}</string>
+            </dict>
+            <key>MagicTowerBullet_LV4_06.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{73,392},{48,64}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,64}}</string>
+                <key>sourceSize</key>
+                <string>{48,64}</string>
+            </dict>
+            <key>MagicTowerBullet_LV4_07.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{65,455},{48,64}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{48,64}}</string>
+                <key>sourceSize</key>
+                <string>{48,64}</string>
+            </dict>
             <key>RJFB_Lv1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{83,0},{32,22}}</string>
+                <string>{{203,73},{32,22}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -176,7 +579,7 @@
             <key>RJFB_Lv2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{39,88},{64,19}}</string>
+                <string>{{375,73},{64,19}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -189,7 +592,7 @@
             <key>RJFB_Lv3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,17},{64,49}}</string>
+                <string>{{0,455},{64,49}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -202,11 +605,11 @@
             <key>archer_arrow.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{6,99},{24,10}}</string>
+                <string>{{408,93},{24,10}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{24,10}}</string>
                 <key>sourceSize</key>
@@ -215,7 +618,7 @@
             <key>ballista__spear.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{0,67},{57,5}}</string>
+                <string>{{73,42},{57,5}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -241,11 +644,11 @@
             <key>wooden_arrow.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{39,67},{24,6}}</string>
+                <string>{{73,17},{24,6}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{24,6}}</string>
                 <key>sourceSize</key>
@@ -259,9 +662,9 @@
             <key>realTextureFileName</key>
             <string>Projectiles.png</string>
             <key>size</key>
-            <string>{128,128}</string>
+            <string>{512,512}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:bc6d4e6bddb3ffe9116ad0bf070977af:1/1$</string>
+            <string>$TexturePacker:SmartUpdate:01016db0d81381ffa7136566d10d1d55:1/1$</string>
             <key>textureFileName</key>
             <string>Projectiles.png</string>
         </dict>

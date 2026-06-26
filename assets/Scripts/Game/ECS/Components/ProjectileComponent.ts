@@ -3,7 +3,7 @@ import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 export class ProjectileComponent extends ECSComponent {
     public ownerId: number = 0;
     public damage: number = 0;
-    public damageType: 'Physical' | 'Magic' = 'Physical';
+    public damageType: 'Physical' | 'Magic' = 'Magic';
     public armorPenPct: number = 0;
     public skillMultiplier: number = 1;
     public critChance: number = 0;
@@ -39,12 +39,16 @@ export class ProjectileComponent extends ECSComponent {
     public parabolaHeight: number = 100;
     public targetX: number = 0;
     public targetY: number = 0;
+    public isBeam: boolean = false;
+    public beamDamagePerSecond: number = 0;
+    public beamLastDamageTime: number = 0;
+    public beamStartTime: number = 0;
 
     reset(): void {
         super.reset();
         this.ownerId = 0;
         this.damage = 0;
-        this.damageType = 'Physical';
+        this.damageType = 'Magic';
         this.armorPenPct = 0;
         this.skillMultiplier = 1;
         this.critChance = 0;
@@ -80,5 +84,9 @@ export class ProjectileComponent extends ECSComponent {
         this.parabolaHeight = 100;
         this.targetX = 0;
         this.targetY = 0;
+        this.isBeam = false;
+        this.beamDamagePerSecond = 0;
+        this.beamLastDamageTime = 0;
+        this.beamStartTime = 0;
     }
 }

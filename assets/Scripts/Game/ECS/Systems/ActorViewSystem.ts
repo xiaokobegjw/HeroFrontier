@@ -40,6 +40,7 @@ type ViewState = {
     levelSoldierAttackNodes: (Node | null)[];
     levelAttackNodes: (Node | null)[];
     touchAreaNodes: (Node | null)[];
+    levelEffectNodes: (Node | null)[];
     lastIsAttacking: boolean;
     attackStateCooldown: number;
     cachedWeaponState: WeaponStateComponent | null;
@@ -131,6 +132,13 @@ export class ActorViewSystem extends ECSSystem {
             const scaleX = transform.scaleX * view.scale;
             const scaleY = transform.scaleY * view.scale;
             state.node.setScale(scaleX, scaleY, 1);
+
+            if (isProjectile) {
+                const projectile = entity.getComponent(ProjectileComponent);
+                if (projectile && projectile.isBeam) {
+                    this.updateBeamView(entity, projectile, transform, state);
+                }
+            }
 
             // 更新动态发射点偏移
             if (state.activeAttackNode) {
@@ -315,6 +323,7 @@ export class ActorViewSystem extends ECSSystem {
                 levelSoldierAttackNodes: levelCache.soldierAttackNodes,
                 levelAttackNodes: levelCache.attackNodes,
                 touchAreaNodes: levelCache.touchAreaNodes,
+                levelEffectNodes: levelCache.effectNodes,
                 lastIsAttacking: false,
                 attackStateCooldown: 0,
                 cachedWeaponState: null
@@ -557,6 +566,7 @@ export class ActorViewSystem extends ECSSystem {
         soldierAttackNodes: (Node | null)[];
         attackNodes: (Node | null)[];
         touchAreaNodes: (Node | null)[];
+        effectNodes: (Node | null)[];
     } {
         const normalNodes: (Node | null)[] = [];
         const damageNodes: (Node | null)[] = [];
@@ -564,23 +574,26 @@ export class ActorViewSystem extends ECSSystem {
         const soldierAttackNodes: (Node | null)[] = [];
         const attackNodes: (Node | null)[] = [];
         const touchAreaNodes: (Node | null)[] = [];
+        const effectNodes: (Node | null)[] = [];
 
         for (const levelNode of levelNodes) {
             const normalNode = levelNode.getChildByName(view.normalNodeName) ?? null;
             const damageNode = levelNode.getChildByName(view.damageNodeName) ?? null;
             const soldierNode = levelNode.getChildByName('soldier') ?? null;
             const soldierAttackNode = levelNode.getChildByName('soldierAttack') ?? null;
-            const attackNode = soldierAttackNode?.getChildByName('attackNode') ?? null;
+            const attackNode = levelNode.getChildByName('attackNode') ?? soldierAttackNode?.getChildByName('attackNode') ?? null;
             const touchAreaNode = levelNode.getChildByName('touchArea') ?? null;
+            const effectNode = levelNode.getChildByName('effect') ?? null;
             normalNodes.push(normalNode);
             damageNodes.push(damageNode);
             soldierNodes.push(soldierNode);
             soldierAttackNodes.push(soldierAttackNode);
             attackNodes.push(attackNode);
             touchAreaNodes.push(touchAreaNode);
+            effectNodes.push(effectNode);
         }
 
-        return { normalNodes, damageNodes, soldierNodes, soldierAttackNodes, attackNodes, touchAreaNodes };
+        return { normalNodes, damageNodes, soldierNodes, soldierAttackNodes, attackNodes, touchAreaNodes, effectNodes };
     }
 
     private updateLevelDamageView(entity: Entity, view: ViewComponent, state: ViewState): void {
@@ -596,15 +609,27 @@ export class ActorViewSystem extends ECSSystem {
         const levelChanged = viewIndex !== state.lastLevelViewIndex;
         const hpChanged = hpCurrent !== state.lastHpCurrent || hpMax !== state.lastHpMax;
         const damageChanged = showDamage !== state.lastShowDamage;
+        const oldLevelIndex = state.lastLevelViewIndex;
+        
+        state.lastLevelViewIndex = viewIndex;
+        
         if (!levelChanged && !hpChanged && !damageChanged) return;
 
         if (levelChanged) {
-            if (state.lastLevelViewIndex >= 0 && state.lastLevelViewIndex < state.levelNodes.length) {
-                state.levelNodes[state.lastLevelViewIndex].active = false;
+            if (oldLevelIndex >= 0 && oldLevelIndex < state.levelNodes.length) {
+                state.levelNodes[oldLevelIndex].active = false;
             }
             const next = state.levelNodes[viewIndex] ?? null;
             if (next) {
                 next.active = true;
+                const effectNode = state.levelEffectNodes[viewIndex] ?? null;
+                if (effectNode) {
+                    effectNode.active = true;
+                    const effectAnim = effectNode.getComponent(Animation);
+                    if (effectAnim) {
+                        effectAnim.play();
+                    }
+                }
             }
         }
 
@@ -704,5 +729,34 @@ export class ActorViewSystem extends ECSSystem {
             x: worldPos.x - stateWorldPos.x,
             y: worldPos.y - stateWorldPos.y
         };
+    }
+
+    private updateBeamView(entity: Entity, projectile: ProjectileComponent, transform: TransformComponent, state: ViewState): void {
+        if (!state.node) return;
+
+        const maskNode = state.node.getChildByName('Mask');
+        if (!maskNode) return;
+
+        const targetEnt = this.world.getEntity(projectile.trackTargetId ?? 0);
+        if (!targetEnt) return;
+
+        const targetTr = targetEnt.getComponent(TransformComponent);
+        if (!targetTr) return;
+
+        const dx = targetTr.x - transform.x;
+        const dy = targetTr.y - transform.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        const ui = maskNode.getComponent(UITransform);
+        if (ui) {
+            ui.setContentSize(distance, 8);
+        }
+
+        const maskSprite = maskNode.getComponent(Sprite);
+        if (maskSprite) {
+            maskSprite.type = Sprite.Type.FILLED;
+            maskSprite.fillType = Sprite.FillType.HORIZONTAL;
+            maskSprite.fillRange = 1;
+        }
     }
 }

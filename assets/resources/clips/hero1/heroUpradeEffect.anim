@@ -1,0 +1,168 @@
+[
+  {
+    "__type__": "cc.AnimationClip",
+    "_name": "heroUpradeEffect",
+    "_objFlags": 0,
+    "__editorExtras__": {
+      "embeddedPlayerGroups": []
+    },
+    "_native": "",
+    "sample": 60,
+    "speed": 1,
+    "wrapMode": 1,
+    "enableTrsBlending": false,
+    "_duration": 0.9166666666666666,
+    "_hash": 500763545,
+    "_tracks": [
+      {
+        "__id__": 1
+      }
+    ],
+    "_exoticAnimation": null,
+    "_events": [],
+    "_embeddedPlayers": [],
+    "_additiveSettings": {
+      "__id__": 6
+    },
+    "_auxiliaryCurveEntries": []
+  },
+  {
+    "__type__": "cc.animation.ObjectTrack",
+    "_binding": {
+      "__type__": "cc.animation.TrackBinding",
+      "path": {
+        "__id__": 2
+      },
+      "proxy": null
+    },
+    "_channel": {
+      "__id__": 4
+    }
+  },
+  {
+    "__type__": "cc.animation.TrackPath",
+    "_paths": [
+      {
+        "__id__": 3
+      },
+      "spriteFrame"
+    ]
+  },
+  {
+    "__type__": "cc.animation.ComponentPath",
+    "component": "cc.Sprite"
+  },
+  {
+    "__type__": "cc.animation.Channel",
+    "_curve": {
+      "__id__": 5
+    }
+  },
+  {
+    "__type__": "cc.ObjectCurve",
+    "_times": [
+      0,
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.25,
+      0.3,
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9
+    ],
+    "_values": [
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@69209",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@a60fa",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@e4800",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@aeedb",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@cb603",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@2f0d2",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@6d96c",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@f3d47",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@8fecd",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@c4b5e",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@fd264",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@1036a",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@51d0c",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@66128",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@207cc",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@41c00",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@02ee2",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@0221e",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "655af35b-eb43-4289-87e3-bbb30f319de0@df28f",
+        "__expectedType__": "cc.SpriteFrame"
+      }
+    ]
+  },
+  {
+    "__type__": "cc.AnimationClipAdditiveSettings",
+    "enabled": false,
+    "refClip": null
+  }
+]

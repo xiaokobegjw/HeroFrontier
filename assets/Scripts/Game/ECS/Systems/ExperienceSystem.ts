@@ -4,10 +4,11 @@ import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 import { World } from '../../../Shared/ECS/Core/World';
 import { ExperienceComponent } from '../Components/ExperienceComponent';
 import { LevelComponent } from '../Components/LevelComponent';
-import { drainExpEvents } from '../GameEvents';
+import { drainExpEvents, emitHeroUpgradeEffectEvent } from '../GameEvents';
 import { FactionComponent } from '../Components/FactionComponent';
 import { FactionType } from '../../Data/Faction';
 import { UIEventBus, UIEvents } from '../../UI/UIEventBus';
+import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 
 export class ExperienceSystem extends ECSSystem {
     private world: World;
@@ -70,6 +71,15 @@ export class ExperienceSystem extends ECSSystem {
             level.level = nextLevel;
             console.log(`[ExperienceSystem] ${hero.name} leveled up to ${level.level}`);
             UIEventBus.emit(UIEvents.HeroLevelUp, { heroEntityId: heroId, newLevel: nextLevel });
+            
+            const transform = hero.getComponent(TransformComponent);
+            if (transform) {
+                emitHeroUpgradeEffectEvent({
+                    prefabPath: 'prefabs/HeroUpgradeEffect',
+                    x: transform.x,
+                    y: transform.y
+                });
+            }
         }
 
         if (level.level >= maxLevel) {

@@ -46,11 +46,25 @@ export type ExplosionEffectEvent = {
     y: number;
 };
 
+export type HeroUpgradeEffectEvent = {
+    prefabPath: string;
+    x: number;
+    y: number;
+};
+
+export type HeroSpellEffectEvent = {
+    prefabPath: string;
+    x: number;
+    y: number;
+};
+
 const killEvents: KillEvent[] = [];
 const expEvents: ExpEvent[] = [];
 const deathViewEvents: DeathViewEvent[] = [];
 const projectileExplodeEvents: ProjectileExplodeEvent[] = [];
 const explosionEffectEvents: ExplosionEffectEvent[] = [];
+const heroUpgradeEffectEvents: HeroUpgradeEffectEvent[] = [];
+const heroSpellEffectEvents: HeroSpellEffectEvent[] = [];
 
 export function emitKillEvent(ev: KillEvent): void {
     killEvents.push(ev);
@@ -104,5 +118,27 @@ export function drainExplosionEffectEvents(): ExplosionEffectEvent[] {
     if (explosionEffectEvents.length === 0) return [];
     const out = explosionEffectEvents.slice();
     explosionEffectEvents.length = 0;
+    return out;
+}
+
+export function emitHeroUpgradeEffectEvent(ev: HeroUpgradeEffectEvent): void {
+    heroUpgradeEffectEvents.push(ev);
+}
+
+export function drainHeroUpgradeEffectEvents(): HeroUpgradeEffectEvent[] {
+    if (heroUpgradeEffectEvents.length === 0) return [];
+    const out = heroUpgradeEffectEvents.slice();
+    heroUpgradeEffectEvents.length = 0;
+    return out;
+}
+
+export function emitHeroSpellEffectEvent(ev: HeroSpellEffectEvent): void {
+    heroSpellEffectEvents.push(ev);
+}
+
+export function drainHeroSpellEffectEvents(): HeroSpellEffectEvent[] {
+    if (heroSpellEffectEvents.length === 0) return [];
+    const out = heroSpellEffectEvents.slice();
+    heroSpellEffectEvents.length = 0;
     return out;
 }

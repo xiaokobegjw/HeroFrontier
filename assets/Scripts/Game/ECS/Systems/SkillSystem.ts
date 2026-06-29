@@ -25,6 +25,7 @@ import { CongFengJiJieSkillExecutor } from '../Skills/CongFengJiJieSkillExecutor
 import { BiLeiShouHuSkillExecutor } from '../Skills/BiLeiShouHuSkillExecutor';
 import { ZhanShuZengFuSkillExecutor } from '../Skills/ZhanShuZengFuSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
+import { emitHeroSpellEffectEvent } from '../GameEvents';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
 
@@ -327,6 +328,19 @@ export class SkillSystem extends ECSSystem {
             `[SkillSystem] ${entity.name} cast skill ${configId} level ${level} on ${targetDesc}`
         );
 
+        // 魔法类型技能播放特效
+        if (config.category === 'Magic') {
+            const transform = entity.getComponent(TransformComponent);
+            if (transform) {
+                console.log(`[SkillSystem] Playing spell effect for ${configId}`);
+                emitHeroSpellEffectEvent({
+                    prefabPath: 'prefabs/HeroSpellEffect',
+                    x: transform.x,
+                    y: transform.y
+                });
+            }
+        }
+        
         const levelCfg = this.resolveLevelConfig(config, level);
         const ctx: SkillExecuteContext = {
             world: this.world,

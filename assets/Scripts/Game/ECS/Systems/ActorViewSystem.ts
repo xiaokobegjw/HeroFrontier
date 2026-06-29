@@ -8,7 +8,7 @@ import { ViewComponent } from '../Components/ViewComponent';
 import { WeaponStateComponent } from '../Components/WeaponStateComponent';
 import { HealthComponent } from '../Components/HealthComponent';
 import { TargetComponent } from '../Components/TargetComponent';
-import { DeathViewEvent, drainDeathViewEvents, ExplosionEffectEvent, drainExplosionEffectEvents } from '../GameEvents';
+import { DeathViewEvent, drainDeathViewEvents, ExplosionEffectEvent, drainExplosionEffectEvents, HeroUpgradeEffectEvent, drainHeroUpgradeEffectEvents, HeroSpellEffectEvent, drainHeroSpellEffectEvents } from '../GameEvents';
 import { LevelComponent } from '../Components/LevelComponent';
 import { ProjectileComponent } from '../Components/ProjectileComponent';
 import { ProjectileSpecComponent } from '../Components/ProjectileSpecComponent';
@@ -549,6 +549,14 @@ export class ActorViewSystem extends ECSSystem {
             this.spawnExplosionEffect(ev);
         }
 
+        for (const ev of drainHeroUpgradeEffectEvents()) {
+            this.spawnHeroUpgradeEffect(ev);
+        }
+
+        for (const ev of drainHeroSpellEffectEvents()) {
+            this.spawnHeroSpellEffect(ev);
+        }
+
         const remaining: DetachedDeathView[] = [];
         for (const entry of this.explosionEffects) {
             entry.ttl -= deltaTime;
@@ -559,6 +567,36 @@ export class ActorViewSystem extends ECSSystem {
             remaining.push(entry);
         }
         this.explosionEffects = remaining;
+    }
+
+    private async spawnHeroSpellEffect(ev: HeroSpellEffectEvent): Promise<void> {
+        const node = await this.instantiateDetachedNode(ev.prefabPath, 'HeroSpellEffect');
+        this.effectRoot.addChild(node);
+        node.setPosition(ev.x, ev.y, 0);
+        this.applySpriteVisibleToNode(node, this.spriteVisible);
+
+        let ttl = 0.6;
+        const animation = node.getComponent(Animation);
+        if (animation && animation.defaultClip) {
+            ttl = Math.max(0.2, animation.defaultClip.duration || ttl);
+        }
+
+        this.explosionEffects.push({ node, ttl });
+    }
+
+    private async spawnHeroUpgradeEffect(ev: HeroUpgradeEffectEvent): Promise<void> {
+        const node = await this.instantiateDetachedNode(ev.prefabPath, 'HeroUpgradeEffect');
+        this.effectRoot.addChild(node);
+        node.setPosition(ev.x, ev.y, 0);
+        this.applySpriteVisibleToNode(node, this.spriteVisible);
+
+        let ttl = 0.6;
+        const animation = node.getComponent(Animation);
+        if (animation && animation.defaultClip) {
+            ttl = Math.max(0.2, animation.defaultClip.duration || ttl);
+        }
+
+        this.explosionEffects.push({ node, ttl });
     }
 
     private async spawnExplosionEffect(ev: ExplosionEffectEvent): Promise<void> {

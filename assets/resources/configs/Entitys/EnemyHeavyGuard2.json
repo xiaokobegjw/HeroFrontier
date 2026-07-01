@@ -86,7 +86,8 @@
             "attackInterval": 1.3,
             "range": 24,
             "armorPenPct": 0.05,
-            "armorPenDuration": 1.0
+            "armorPenDuration": 1.0,
+            "meleeDamageOnAnimationEvent": true
         },
         {
             "id": "WeaponStateComponent"

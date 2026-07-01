@@ -87,7 +87,8 @@
             "range": 26,
             "armorPenPct": 0.12,
             "armorPenDuration": 2.0,
-            "armorPenStackable": true
+            "armorPenStackable": true,
+            "meleeDamageOnAnimationEvent": true
         },
         {
             "id": "WeaponStateComponent"

@@ -1,6 +1,7 @@
-import { Animation, AnimationClip, Node, Prefab, Sprite, UITransform, Vec3, instantiate, resources } from 'cc';
+import { Animation, AnimationClip, Node, Prefab, Sprite, UITransform, Vec3, instantiate, resources, Color } from 'cc';
 import { ECSSystem } from '../../../Shared/ECS/Core/ECSSystem';
 import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
+import { NumberDisplay } from '../../UI/NumberDisplay';
 import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { World } from '../../../Shared/ECS/Core/World';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
@@ -8,12 +9,13 @@ import { ViewComponent } from '../Components/ViewComponent';
 import { WeaponStateComponent } from '../Components/WeaponStateComponent';
 import { HealthComponent } from '../Components/HealthComponent';
 import { TargetComponent } from '../Components/TargetComponent';
-import { DeathViewEvent, drainDeathViewEvents, ExplosionEffectEvent, drainExplosionEffectEvents, HeroUpgradeEffectEvent, drainHeroUpgradeEffectEvents, HeroSpellEffectEvent, drainHeroSpellEffectEvents } from '../GameEvents';
+import { DeathViewEvent, drainDeathViewEvents, ExplosionEffectEvent, drainExplosionEffectEvents, HeroUpgradeEffectEvent, drainHeroUpgradeEffectEvents, HeroSpellEffectEvent, drainHeroSpellEffectEvents, HitFlashEvent, drainHitFlashEvents, DropCoinEffectEvent, drainDropCoinEffectEvents } from '../GameEvents';
 import { LevelComponent } from '../Components/LevelComponent';
 import { ProjectileComponent } from '../Components/ProjectileComponent';
 import { ProjectileSpecComponent } from '../Components/ProjectileSpecComponent';
 import { TowerComponent } from '../Components/TowerComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
+import { AttackEventHandler } from '../Components/AttackEventHandler';
 
 type ViewState = {
     node: Node;
@@ -44,6 +46,8 @@ type ViewState = {
     lastIsAttacking: boolean;
     attackStateCooldown: number;
     cachedWeaponState: WeaponStateComponent | null;
+    hitFlashTimer: number;
+    cachedSprites: Sprite[];
 };
 
 type DetachedDeathView = {
@@ -76,6 +80,8 @@ export class ActorViewSystem extends ECSSystem {
     public update(entities: Entity[], deltaTime: number): void {
         this.updateDetachedDeathViews(deltaTime);
         this.updateExplosionEffects(deltaTime);
+        this.processHitFlashEvents();
+        this.processDropCoinEvents();
         const alive = new Set<number>();
 
         for (const entity of entities) {
@@ -99,6 +105,7 @@ export class ActorViewSystem extends ECSSystem {
             const isBladeStorm = entity.name.indexOf('Effect_BladeStorm_') !== -1 || (view.prefabPath && view.prefabPath.indexOf('JRFB_Prefab') !== -1);
             state.node.setPosition(transform.x + view.offsetX, transform.y + view.offsetY, 0);
             this.updateLevelDamageView(entity, view, state);
+            this.updateHitFlash(entity, state, deltaTime);
 
             // 塔类实体：根据攻击状态切换 soldier / soldierAttack 显示
             if (entity.hasComponent(TowerComponent)) {
@@ -307,6 +314,17 @@ export class ActorViewSystem extends ECSSystem {
                 ln.active = false;
             }
             const levelCache = this.buildLevelViewCache(levelNodes, view);
+
+            // 为英雄节点添加 AttackEventHandler 组件（用于接收动画帧事件）
+            if (!isProjectile && !isEffect) {
+                let attackHandler = node.getComponent(AttackEventHandler);
+                if (!attackHandler) {
+                    attackHandler = node.addComponent(AttackEventHandler);
+                }
+                attackHandler.setWorld(this.world);
+                attackHandler.setEntityId(entity.id);
+            }
+
             const state: ViewState = {
                 node,
                 animation,
@@ -335,7 +353,9 @@ export class ActorViewSystem extends ECSSystem {
                 levelEffectNodes: levelCache.effectNodes,
                 lastIsAttacking: false,
                 attackStateCooldown: 0,
-                cachedWeaponState: null
+                cachedWeaponState: null,
+                hitFlashTimer: 0,
+                cachedSprites: node.getComponentsInChildren(Sprite)
             };
             this.views.set(entity.id, state);
         } catch (err) {
@@ -837,5 +857,103 @@ export class ActorViewSystem extends ECSSystem {
             maskSprite.fillType = Sprite.FillType.HORIZONTAL;
             maskSprite.fillRange = 1;
         }
+    }
+
+    private processHitFlashEvents(): void {
+        for (const ev of drainHitFlashEvents()) {
+            const state = this.views.get(ev.entityId);
+            if (state) {
+                state.hitFlashTimer = 0.3;
+            }
+        }
+    }
+
+    private updateHitFlash(entity: Entity, state: ViewState, deltaTime: number): void {
+        if (state.hitFlashTimer <= 0) return;
+
+        const isProjectile = entity.hasComponent(ProjectileComponent) || entity.hasComponent(ProjectileSpecComponent);
+        const isEffect = entity.name.toLowerCase().includes('effect');
+        if (isProjectile || isEffect) return;
+
+        state.hitFlashTimer -= deltaTime;
+        const flashDuration = 0.3;
+        const t = Math.max(0, state.hitFlashTimer / flashDuration);
+        
+        const fadeFactor = 1 - t;
+        const whiteOverlay = Math.floor(255 * fadeFactor);
+        const g = 255 - whiteOverlay;
+        const b = 255 - whiteOverlay;
+        
+        for (const sprite of state.cachedSprites) {
+            sprite.color = new Color(255, g, b, 255);
+        }
+
+        if (state.hitFlashTimer <= 0) {
+            for (const sprite of state.cachedSprites) {
+                sprite.color = new Color(255, 255, 255, 255);
+            }
+        }
+    }
+
+    private processDropCoinEvents(): void {
+        for (const ev of drainDropCoinEffectEvents()) {
+            this.spawnDropCoinEffect(ev);
+        }
+    }
+
+    private async spawnDropCoinEffect(ev: DropCoinEffectEvent): Promise<void> {
+        const node = await this.instantiateDetachedNode('prefabs/dropCoin', 'DropCoin');
+        this.effectRoot.addChild(node);
+        node.setPosition(ev.x, ev.y, 0);
+        this.applySpriteVisibleToNode(node, this.spriteVisible);
+
+        console.log("根节点所有一级子节点：", node.children.map(n => n.name));
+        
+        const aniNode = node.getChildByName('aniNode');
+        const geNode = aniNode.getChildByName('dropCoinGe');
+        const shiNode = aniNode.getChildByName('dropCoinShi');
+
+         
+
+        const ge = ev.gold % 10;
+        const shi = Math.floor(ev.gold / 10);
+
+        if (geNode) {
+            const numberDisplay = geNode.getComponent(NumberDisplay);
+            if (numberDisplay) {
+                numberDisplay.setNumber(ge);
+            } else {
+                const sprite = geNode.getComponent(Sprite);
+                if (sprite) {
+                    NumberDisplay.setSpriteNumber(sprite, ge);
+                }
+            }
+        }
+
+        if (shiNode) {
+            if (shi > 0) {
+                shiNode.active = true;
+                const numberDisplay = shiNode.getComponent(NumberDisplay);
+                if (numberDisplay) {
+                    numberDisplay.setNumber(shi);
+                } else {
+                    const sprite = shiNode.getComponent(Sprite);
+                    if (sprite) {
+                        NumberDisplay.setSpriteNumber(sprite, shi);
+                    }
+                }
+            } else {
+                shiNode.active = false;
+            }
+        }
+
+        let ttl = 2;
+        const animation = aniNode.getComponent(Animation);
+        if (animation && animation.defaultClip) {
+            ttl = Math.max(0.2, animation.defaultClip.duration || ttl);
+            animation.play();
+        }
+
+        this.explosionEffects.push({ node, ttl });
     }
 }

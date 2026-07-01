@@ -3,6 +3,8 @@ export type KillEvent = {
     victimId: number;
     victimFaction: number;
     gold: number;
+    x: number;
+    y: number;
 };
 
 export type ExpEvent = {
@@ -58,6 +60,18 @@ export type HeroSpellEffectEvent = {
     y: number;
 };
 
+export type HitFlashEvent = {
+    entityId: number;
+    x: number;
+    y: number;
+};
+
+export type DropCoinEffectEvent = {
+    x: number;
+    y: number;
+    gold: number;
+};
+
 const killEvents: KillEvent[] = [];
 const expEvents: ExpEvent[] = [];
 const deathViewEvents: DeathViewEvent[] = [];
@@ -65,6 +79,8 @@ const projectileExplodeEvents: ProjectileExplodeEvent[] = [];
 const explosionEffectEvents: ExplosionEffectEvent[] = [];
 const heroUpgradeEffectEvents: HeroUpgradeEffectEvent[] = [];
 const heroSpellEffectEvents: HeroSpellEffectEvent[] = [];
+const hitFlashEvents: HitFlashEvent[] = [];
+const dropCoinEffectEvents: DropCoinEffectEvent[] = [];
 
 export function emitKillEvent(ev: KillEvent): void {
     killEvents.push(ev);
@@ -140,5 +156,27 @@ export function drainHeroSpellEffectEvents(): HeroSpellEffectEvent[] {
     if (heroSpellEffectEvents.length === 0) return [];
     const out = heroSpellEffectEvents.slice();
     heroSpellEffectEvents.length = 0;
+    return out;
+}
+
+export function emitHitFlashEvent(ev: HitFlashEvent): void {
+    hitFlashEvents.push(ev);
+}
+
+export function drainHitFlashEvents(): HitFlashEvent[] {
+    if (hitFlashEvents.length === 0) return [];
+    const out = hitFlashEvents.slice();
+    hitFlashEvents.length = 0;
+    return out;
+}
+
+export function emitDropCoinEffectEvent(ev: DropCoinEffectEvent): void {
+    dropCoinEffectEvents.push(ev);
+}
+
+export function drainDropCoinEffectEvents(): DropCoinEffectEvent[] {
+    if (dropCoinEffectEvents.length === 0) return [];
+    const out = dropCoinEffectEvents.slice();
+    dropCoinEffectEvents.length = 0;
     return out;
 }

@@ -5,7 +5,7 @@ import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 import { AbyssalBlazeAuraComponent } from '../Components/AbyssalBlazeAuraComponent';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { HealthComponent } from '../Components/HealthComponent';
-import { MoveStatsComponent } from '../Components/MoveStatsComponent';
+import { MoveSpeedModifierComponent } from '../../../Shared/ECS/Components/MoveSpeedModifierComponent';
 import { FactionType } from '../../Data/Faction';
 import { SpatialIndexSystem } from './SpatialIndexSystem';
 import { ViewComponent } from '../Components/ViewComponent';
@@ -92,7 +92,6 @@ export class AbyssalBlazeSystem extends ECSSystem {
 
                     const targetTr = target.getComponent(TransformComponent);
                     const targetHp = target.getComponent(HealthComponent);
-                    const targetMove = target.getComponent(MoveStatsComponent);
 
                     if (!targetTr || !targetHp || targetHp.isDead) continue;
 
@@ -109,19 +108,26 @@ export class AbyssalBlazeSystem extends ECSSystem {
                             this.damageSystem.applyDamageToTarget(aura.casterId, target, damage);
                         } else {
                             // 降级处理：直接扣血
-                            targetHp.currentHealth = Math.max(0, targetHp.currentHealth - damage);
+                            targetHp.current = Math.max(0, targetHp.current - damage);
                         }
                         
                         // 吸血效果（只在使用统一伤害系统时生效）
                         if (aura.lifestealPct > 0 && casterHp && this.damageSystem) {
                             const lifesteal = Math.floor(damage * (aura.lifestealPct / 100));
-                            casterHp.currentHealth = Math.min(casterHp.maxHealth, casterHp.currentHealth + lifesteal);
+                            casterHp.current = Math.min(casterHp.max, casterHp.current + lifesteal);
                         }
                     }
 
                     // 减速效果
-                    if (aura.slowPct > 0 && targetMove) {
-                        targetMove.slowPct = Math.max(targetMove.slowPct, aura.slowPct);
+                    if (aura.slowPct > 0) {
+                        const slowMult = Math.max(0.05, Math.min(1, 1 - aura.slowPct));
+                        let mod = target.getComponent(MoveSpeedModifierComponent);
+                        if (!mod) {
+                            mod = this.world.acquireComponent(MoveSpeedModifierComponent);
+                            target.addComponent(mod);
+                        }
+                        mod.multiplier = Math.min(mod.multiplier, slowMult);
+                        mod.remainingSeconds = Math.max(mod.remainingSeconds, aura.tickInterval * 2);
                     }
 
                     // 添加着火特效（只在首次进入时添加）

@@ -139,11 +139,11 @@ export class SkySlashSkillExecutor implements SkillExecutor {
             const dy = tr.y - casterTr.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            enemiesWithDistance.push({ entity, dist });
+            enemiesWithDistance.push({ entity, distance: dist });
         }
 
         // 按距离排序并取前maxTargets个
-        enemiesWithDistance.sort((a, b) => a.dist - b.dist);
+        enemiesWithDistance.sort((a, b) => a.distance - b.distance);
         return enemiesWithDistance.slice(0, maxTargets).map(item => item.entity);
     }
 

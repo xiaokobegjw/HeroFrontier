@@ -68,7 +68,6 @@ export class AbyssalBlazeSkillExecutor implements SkillExecutor {
         if (circlePrefabPath) {
             const view = ctx.world.acquireComponent(ViewComponent);
             view.prefabPath = circlePrefabPath;
-            view.parentNodeName = 'groundEffect'; // 挂载在groundEffect节点下
             auraEntity.addComponent(view);
         }
 

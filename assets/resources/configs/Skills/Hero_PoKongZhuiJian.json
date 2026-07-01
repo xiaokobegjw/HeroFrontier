@@ -7,12 +7,12 @@
     "maxLevel": 6,
     "defaultCooldownSeconds": 12,
     "category": "Slash",
-    "searchRadius": 300,      // 英雄搜寻范围
-    "defaultSpeed": 300,      // 低等级技能速度
-    "homingSpeed": 300,       // 追踪技能速度
-    "maxFlightDistance": 400, // 最大飞行距离
-    "homingFactor": 0.1,      // 追踪平滑系数
-    "homingMinLevel": 5,       // 启用追踪的最低等级
+    "searchRadius": 300,     
+    "defaultSpeed": 300,      
+    "homingSpeed": 300,       
+    "maxFlightDistance": 400, 
+    "homingFactor": 0.1,      
+    "homingMinLevel": 5,      
     "levels": [
         { "level": 1, "damageCoeff": 1.5, "armorPenPct": 8, "cooldownSeconds": 12, "bounceCount": 0, "critBonusPct": 0, "executeThreshold": 0, "prefabPath": "prefabs/HeroSkillPHZJL_LV1" },
         { "level": 2, "damageCoeff": 1.85, "armorPenPct": 11, "cooldownSeconds": 11, "bounceCount": 0, "critBonusPct": 0, "executeThreshold": 0, "prefabPath": "prefabs/HeroSkillPHZJL_LV1" },

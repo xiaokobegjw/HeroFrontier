@@ -84,7 +84,8 @@
             "attackType": "Melee",
             "damage": 18,
             "attackInterval": 1.5,
-            "range": 22
+            "range": 22,
+            "meleeDamageOnAnimationEvent": true
         },
         {
             "id": "WeaponStateComponent"

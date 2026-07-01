@@ -34,7 +34,7 @@
             ]
         },
         { "id": "LevelComponent", "level": 1 },
-        { "id": "WeaponComponent", "autoFire": true, "attackType": "Melee", "damage": 8, "attackInterval": 1.2, "range": 20, "meleeShape": "Circle", "meleeRadius": 16, "meleeLifeSeconds": 0.1, "meleeForwardOffset": 12 },
+        { "id": "WeaponComponent", "autoFire": true, "attackType": "Melee", "damage": 8, "attackInterval": 1.2, "range": 20, "meleeShape": "Circle", "meleeRadius": 16, "meleeLifeSeconds": 0.1, "meleeForwardOffset": 12, "meleeDamageOnAnimationEvent": true },
         { "id": "WeaponStateComponent" },
         { "id": "HealthComponent", "max": 90 },
         { "id": "DefenseComponent", "defense": 2, "magicResist": 2 },

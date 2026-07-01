@@ -96,7 +96,8 @@
             "meleeRadius": 24,
             "meleeLifeSeconds": 0.12,
             "meleeForwardOffset": 22,
-            "meleeCanHitMultiple": false
+            "meleeCanHitMultiple": false,
+            "meleeDamageOnAnimationEvent": true
         },
         {
             "id": "WeaponStateComponent"

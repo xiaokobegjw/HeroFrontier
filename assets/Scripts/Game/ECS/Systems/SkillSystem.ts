@@ -110,7 +110,7 @@ export class SkillSystem extends ECSSystem {
 
             this.ensureSkillState(skillComponent, skillState);
             this.updatePlaystyle(entity, skillComponent);
-            this.updateCooldowns(skillComponent, skillState, deltaTime);
+            this.updateCooldowns(skillState, deltaTime);
             this.tryAutoCast(entity, skillComponent, skillState);
             this.processRequestedCast(entity, skillComponent, skillState);
         }
@@ -212,7 +212,7 @@ export class SkillSystem extends ECSSystem {
         }
     }
 
-    private updateCooldowns(skill: SkillComponent, state: SkillStateComponent, deltaTime: number): void {
+    private updateCooldowns(state: SkillStateComponent, deltaTime: number): void {
         for (let index = 0; index < state.skillCooldownRemaining.length; index++) {
             if (state.skillCooldownRemaining[index] > 0) {
                 state.skillCooldownRemaining[index] = Math.max(0, state.skillCooldownRemaining[index] - deltaTime);

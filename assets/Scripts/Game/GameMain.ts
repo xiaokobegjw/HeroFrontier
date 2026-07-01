@@ -20,23 +20,22 @@ import swordConfig from '../../resources/configs/Weapons/Sword1.json';
 import hero1Upgrade from '../../resources/configs/Upgrade/Hero1Upgrade.json';
 import bow1Upgrade from '../../resources/configs/Upgrade/Bow1Upgrade.json';
 import sword1Upgrade from '../../resources/configs/Upgrade/Sword1Upgrade.json';
-import hero1Skill1Config from '../../resources/configs/Skills/Hero1_Skill1.json';
-import heroIronGuard from '../../resources/configs/Skills/Hero_IronGuard.json';
-import heroDamageAmplification from '../../resources/configs/Skills/Hero_DamageAmplification.json';
-import heroIronFrenzy from '../../resources/configs/Skills/Hero_IronFrenzy.json';
 import heroSkySlash from '../../resources/configs/Skills/Hero_SkySlash.json';
 import heroBuQuYiZhi from '../../resources/configs/Skills/Hero_BuQuYiZhi.json';
-import heroBloodlust from '../../resources/configs/Skills/Hero_Bloodlust.json';
+import heroTieJiaJianShou from '../../resources/configs/Skills/Hero_TieJiaJianShou.json';
 import heroBladeStorm from '../../resources/configs/Skills/Hero_BladeStorm.json';
 import heroSkyfallArrow from '../../resources/configs/Skills/Hero_SkyfallArrow.json';
 import heroSkyShockwave from '../../resources/configs/Skills/Hero_SkyShockwave.json';
-import heroCommanderAura from '../../resources/configs/Skills/Hero_CommanderAura.json';
-import heroRallyingCry from '../../resources/configs/Skills/Hero_RallyingCry.json';
-import heroSupplyMaster from '../../resources/configs/Skills/Hero_SupplyMaster.json';
-import heroGroupHeal from '../../resources/configs/Skills/Hero_GroupHeal.json';
-import heroSoldierRush from '../../resources/configs/Skills/Hero_SoldierRush.json';
 import heroXuanFengLieJi from '../../resources/configs/Skills/Hero_XuanFengLieJi.json';
 import heroXingGuiLingZhen from '../../resources/configs/Skills/Hero_XingGuiLingZhen.json';
+import heroZhongZhenJianTa from '../../resources/configs/Skills/Hero_ZhongZhenJianTa.json';
+import heroAbyssalBlaze from '../../resources/configs/Skills/Hero_AbyssalBlaze.json';
+import heroAbyssalCrack from '../../resources/configs/Skills/Hero_AbyssalCrack.json';
+import heroPoKongZhuiJian from '../../resources/configs/Skills/Hero_PoKongZhuiJian.json';
+import heroZhanDiChiYuan from '../../resources/configs/Skills/Hero_ZhanDiChiYuan.json';
+import heroCongFengJiJie from '../../resources/configs/Skills/Hero_CongFengJiJie.json';
+import heroBiLeiShouHu from '../../resources/configs/Skills/Hero_BiLeiShouHu.json';
+import heroZhanShuZengFu from '../../resources/configs/Skills/Hero_ZhanShuZengFu.json';
 import skillPoolConfig from '../../resources/configs/Skills/SkillPool.json';
 import skillUIConfig from '../../resources/configs/Skills/SkillUIConfig.json';
 import { SkillSystem } from './ECS/Systems/SkillSystem';
@@ -316,23 +315,22 @@ export class GameMain extends Component {
         this.skillSystem = new SkillSystem(
             this.world,
             {
-                Hero1_Skill1: hero1Skill1Config as any,
-                Hero_IronGuard: heroIronGuard as any,
-                Hero_DamageAmplification: heroDamageAmplification as any,
-                Hero_IronFrenzy: heroIronFrenzy as any,
                 Hero_BuQuYiZhi: heroBuQuYiZhi as any,
+                Hero_TieJiaJianShou: heroTieJiaJianShou as any,
+                Hero_ZhongZhenJianTa: heroZhongZhenJianTa as any,
                 Hero_SkySlash: heroSkySlash as any,
-                Hero_Bloodlust: heroBloodlust as any,
                 Hero_BladeStorm: heroBladeStorm as any,
                 Hero_SkyfallArrow: heroSkyfallArrow as any,
                 Hero_SkyShockwave: heroSkyShockwave as any,
-                Hero_CommanderAura: heroCommanderAura as any,
-                Hero_RallyingCry: heroRallyingCry as any,
-                Hero_SupplyMaster: heroSupplyMaster as any,
-                Hero_GroupHeal: heroGroupHeal as any,
-                Hero_SoldierRush: heroSoldierRush as any,
                 Hero_XuanFengLieJi: heroXuanFengLieJi as any,
-                Hero_XingGuiLingZhen: heroXingGuiLingZhen as any
+                Hero_XingGuiLingZhen: heroXingGuiLingZhen as any,
+                Hero_AbyssalBlaze: heroAbyssalBlaze as any,
+                Hero_AbyssalCrack: heroAbyssalCrack as any,
+                Hero_PoKongZhuiJian: heroPoKongZhuiJian as any,
+                Hero_ZhanDiChiYuan: heroZhanDiChiYuan as any,
+                Hero_CongFengJiJie: heroCongFengJiJie as any,
+                Hero_BiLeiShouHu: heroBiLeiShouHu as any,
+                Hero_ZhanShuZengFu: heroZhanShuZengFu as any
             },
             6.45
         );

@@ -13,6 +13,7 @@ type SkillUIEntry = {
     iconFrame: string;
     nameKey: string;
     descKey: string;
+    shortDescKey: string;
 };
 
 type SkillUIConfig = {
@@ -316,7 +317,7 @@ export class SkillPanelController extends Component {
 
             const entry = this.uiMap.get(id) ?? null;
             const nameKey = entry?.nameKey ?? id;
-            const descKey = entry?.descKey ?? id;
+            const shortDescKey = entry?.shortDescKey ?? entry?.descKey ?? id;
             const iconName = entry?.iconFrame ?? '';
 
             const title = this.cardTitleLabels[i];
@@ -329,7 +330,7 @@ export class SkillPanelController extends Component {
             }
 
             const desc = this.cardDescRichTexts[i];
-            if (desc) desc.string = t(descKey);
+            if (desc) desc.string = t(shortDescKey);
         }
     }
 

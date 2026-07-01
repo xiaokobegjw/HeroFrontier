@@ -4,7 +4,7 @@ import { ECSComponent } from '../../../Shared/ECS/Core/ECSComponent';
 import { World } from '../../../Shared/ECS/Core/World';
 import { BurningComponent } from '../Components/BurningComponent';
 import { HealthComponent } from '../Components/HealthComponent';
-import { emitKillEvent, emitDeathViewEvent } from '../GameEvents';
+import { emitKillEvent, emitDeathViewEvent, emitDropCoinEffectEvent } from '../GameEvents';
 import { FactionComponent } from '../Components/FactionComponent';
 import { LootComponent } from '../Components/LootComponent';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
@@ -50,9 +50,24 @@ export class BurningSystem extends ECSSystem {
     private emitDeath(killerId: number | null, victim: Entity): void {
         const faction = victim.getComponent(FactionComponent)?.faction ?? -1;
         const gold = victim.getComponent(LootComponent)?.gold ?? 0;
-        emitKillEvent({ killerId, victimId: victim.id, victimFaction: faction, gold });
-
         const transform = victim.getComponent(TransformComponent);
+        emitKillEvent({ 
+            killerId, 
+            victimId: victim.id, 
+            victimFaction: faction, 
+            gold,
+            x: transform?.x ?? 0,
+            y: transform?.y ?? 0
+        });
+
+        if (gold > 0 && transform) {
+            emitDropCoinEffectEvent({
+                x: transform.x,
+                y: transform.y,
+                gold
+            });
+        }
+
         const view = victim.getComponent(ViewComponent);
         if (!transform || !view?.dieClipPath) return;
         emitDeathViewEvent({

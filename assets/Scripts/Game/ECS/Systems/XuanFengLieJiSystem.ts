@@ -11,7 +11,7 @@ export class XuanFengLieJiSystem extends ECSSystem {
     private world: World;
 
     constructor(world: World, priority: number) {
-        super(priority);
+        super('XuanFengLieJiSystem', priority);
         this.world = world;
     }
 

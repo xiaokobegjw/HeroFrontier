@@ -175,6 +175,7 @@ export class EntityFactory {
                 weapon.meleeLifeSeconds = config.meleeLifeSeconds ?? weapon.meleeLifeSeconds;
                 weapon.meleeForwardOffset = config.meleeForwardOffset ?? weapon.meleeForwardOffset;
                 weapon.meleeCanHitMultiple = config.meleeCanHitMultiple ?? weapon.meleeCanHitMultiple;
+                weapon.meleeDamageOnAnimationEvent = config.meleeDamageOnAnimationEvent ?? weapon.meleeDamageOnAnimationEvent;
                 weapon.projectileSplashRadius =
                     typeof config.projectileSplashRadius === 'number' ? config.projectileSplashRadius : weapon.projectileSplashRadius;
                 weapon.burnDamagePerSecond =

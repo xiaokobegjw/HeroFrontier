@@ -11,7 +11,7 @@ import { DebugState } from '../../Debug/DebugState';
 import { DefenseComponent } from '../Components/DefenseComponent';
 import { ArmorReductionComponent } from '../Components/ArmorReductionComponent';
 import { LootComponent } from '../Components/LootComponent';
-import { emitDeathViewEvent, emitExpEvent, emitKillEvent, drainProjectileExplodeEvents, emitExplosionEffectEvent } from '../GameEvents';
+import { emitDeathViewEvent, emitExpEvent, emitKillEvent, drainProjectileExplodeEvents, emitExplosionEffectEvent, emitHitFlashEvent, emitDropCoinEffectEvent } from '../GameEvents';
 import { ExperienceRewardComponent } from '../Components/ExperienceRewardComponent';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
@@ -393,7 +393,7 @@ export class DamageSystem extends ECSSystem {
         }
     }
 
-    private applyDamageToTarget(killerId: number | null, targetEntity: Entity, appliedDamage: number): void {
+    public applyDamageToTarget(killerId: number | null, targetEntity: Entity, appliedDamage: number): void {
         const health = targetEntity.getComponent(HealthComponent);
         if (!health || health.isDead) return;
 
@@ -418,6 +418,15 @@ export class DamageSystem extends ECSSystem {
             health.isDead = true;
         }
         if (DebugState.enabled) DebugState.pushDamageEvent(targetEntity.id, health.current, health.max);
+
+        const tr = targetEntity.getComponent(TransformComponent);
+        if (tr && !health.isDead) {
+            emitHitFlashEvent({
+                entityId: targetEntity.id,
+                x: tr.x,
+                y: tr.y
+            });
+        }
 
         if (health.isDead) {
             this.emitKill(killerId, targetEntity);
@@ -655,9 +664,25 @@ export class DamageSystem extends ECSSystem {
         const faction = victim.getComponent(FactionComponent)?.faction ?? -1;
         const gold = victim.getComponent(LootComponent)?.gold ?? 0;
         const exp = victim.getComponent(ExperienceRewardComponent)?.exp ?? 0;
+        const transform = victim.getComponent(TransformComponent);
         this.emitDeathView(victim);
-        emitKillEvent({ killerId, victimId: victim.id, victimFaction: faction, gold });
+        emitKillEvent({ 
+            killerId, 
+            victimId: victim.id, 
+            victimFaction: faction, 
+            gold,
+            x: transform?.x ?? 0,
+            y: transform?.y ?? 0
+        });
         emitExpEvent({ killerId, victimId: victim.id, victimFaction: faction, exp });
+        
+        if (gold > 0 && transform) {
+            emitDropCoinEffectEvent({
+                x: transform.x,
+                y: transform.y,
+                gold
+            });
+        }
     }
 
     private emitDeathView(victim: Entity): void {

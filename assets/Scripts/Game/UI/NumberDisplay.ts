@@ -98,4 +98,26 @@ export class NumberDisplay extends Component {
     public getNumber(): number {
         return this.currentNumber;
     }
+
+    /**
+     * 设置任意 Sprite 组件显示指定数字 (0-9)
+     * 用于在非 NumberDisplay 组件上显示数字
+     */
+    public static setSpriteNumber(sprite: Sprite, num: number): void {
+        num = Math.max(0, Math.min(9, Math.floor(num)));
+        
+        NumberDisplay.ensureAtlasLoaded((success) => {
+            if (!success) {
+                console.warn(`[NumberDisplay] Failed to load atlas, cannot display number ${num}`);
+                return;
+            }
+
+            const spriteFrame = NumberDisplay.spriteFrames.get(num);
+            if (spriteFrame) {
+                sprite.spriteFrame = spriteFrame;
+            } else {
+                console.warn(`[NumberDisplay] Sprite frame for number ${num} not found in atlas`);
+            }
+        });
+    }
 }

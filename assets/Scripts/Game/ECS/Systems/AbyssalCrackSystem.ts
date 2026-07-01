@@ -7,7 +7,6 @@ import { TransformComponent } from '../../../Shared/ECS/Components/TransformComp
 import { ViewComponent } from '../Components/ViewComponent';
 import { SpatialIndexSystem } from './SpatialIndexSystem';
 import { FactionType } from '../../Data/Faction';
-import { HealthComponent } from '../Components/HealthComponent';
 import { DamageSystem } from './DamageSystem';
 
 export class AbyssalCrackSystem extends ECSSystem {
@@ -71,8 +70,6 @@ export class AbyssalCrackSystem extends ECSSystem {
 
             const view = new ViewComponent();
             view.prefabPath = missile.explosionPrefab;
-            view.parentNodeName = 'effectRootNode';
-            view.destroyAfterPlay = true;
             explosionEntity.addComponent(view);
         }
 
@@ -89,15 +86,8 @@ export class AbyssalCrackSystem extends ECSSystem {
                 const targetEntity = this.world.getEntity(id);
                 if (!targetEntity || !targetEntity.active) continue;
 
-                // 使用统一的伤害处理方法
                 if (this.damageSystem) {
                     this.damageSystem.applyDamageToTarget(null, targetEntity, missile.damage);
-                } else {
-                    // 降级处理：直接扣血
-                    const targetHp = targetEntity.getComponent(HealthComponent);
-                    if (targetHp) {
-                        targetHp.currentHealth = Math.max(0, targetHp.currentHealth - missile.damage);
-                    }
                 }
                 this.applyKnockback(targetEntity, tr.x, tr.y);
             }
@@ -116,8 +106,8 @@ export class AbyssalCrackSystem extends ECSSystem {
         
         if (dist > 0) {
             const knockbackForce = 50;
-            tr.vx += (dx / dist) * knockbackForce;
-            tr.vy += (dy / dist) * knockbackForce;
+            tr.x += (dx / dist) * knockbackForce;
+            tr.y += (dy / dist) * knockbackForce;
         }
     }
 }

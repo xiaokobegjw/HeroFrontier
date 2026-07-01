@@ -24,7 +24,7 @@ export class BuQuYiZhiComponent extends ECSComponent {
     isInitialized: boolean = false;  // 标记是否已初始化
 
     constructor(entity: Entity, data: Partial<BuQuYiZhiComponentData> = {}) {
-        super(entity);
+        super();
         Object.assign(this, data);
     }
 

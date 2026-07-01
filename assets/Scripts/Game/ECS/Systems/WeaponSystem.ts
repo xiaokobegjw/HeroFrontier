@@ -153,9 +153,16 @@ export class WeaponSystem extends ECSSystem {
                 const effectiveRange = w.weapon.range + selfRadius + targetRadius;
                 if (distSq > effectiveRange * effectiveRange) continue;
 
-                const fired = w.weapon.attackType === 'Melee'
-                    ? this.spawnMeleeHitbox(entity, faction.faction, fireX, fireY, w.weapon, dirX, dirY)
-                    : this.spawnProjectile(entity, faction.faction, fireX, fireY, w.weapon, dirX, dirY);
+                let fired = false;
+                if (w.weapon.attackType === 'Melee') {
+                    if (!w.weapon.meleeDamageOnAnimationEvent) {
+                        fired = this.spawnMeleeHitbox(entity, faction.faction, fireX, fireY, w.weapon, dirX, dirY);
+                    } else {
+                        fired = true;
+                    }
+                } else {
+                    fired = !!this.spawnProjectile(entity, faction.faction, fireX, fireY, w.weapon, dirX, dirY);
+                }
 
                 if (fired) {
                     w.state.cooldownRemaining = w.weapon.attackInterval;
@@ -224,7 +231,7 @@ export class WeaponSystem extends ECSSystem {
         return out;
     }
 
-    private spawnProjectile(
+    public spawnProjectile(
         owner: Entity,
         faction: FactionType,
         x: number,
@@ -346,14 +353,15 @@ export class WeaponSystem extends ECSSystem {
         return entity;
     }
 
-    private spawnMeleeHitbox(
+    public spawnMeleeHitbox(
         owner: Entity,
         faction: FactionType,
         x: number,
         y: number,
         weapon: WeaponComponent,
         dirX: number,
-        dirY: number
+        dirY: number,
+        followOwner: boolean = true
     ): boolean {
         const entity = this.world.createEntity('MeleeHitbox');
 
@@ -371,7 +379,7 @@ export class WeaponSystem extends ECSSystem {
         hitbox.critMultiplier = weapon.critMultiplier;
         hitbox.finalDamageBonusPct = weapon.finalDamageBonusPct;
         hitbox.lifeRemaining = weapon.meleeLifeSeconds;
-        hitbox.followOwner = true;
+        hitbox.followOwner = followOwner;
         hitbox.canHitMultiple = weapon.meleeCanHitMultiple;
         hitbox.offsetX = dirX * weapon.meleeForwardOffset;
         hitbox.offsetY = dirY * weapon.meleeForwardOffset;

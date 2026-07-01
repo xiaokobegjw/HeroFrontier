@@ -37,6 +37,7 @@ export class WeaponComponent extends ECSComponent {
     public meleeLifeSeconds: number = 0.12;
     public meleeForwardOffset: number = 18;
     public meleeCanHitMultiple: boolean = true;
+    public meleeDamageOnAnimationEvent: boolean = false;
 
     reset(): void {
         super.reset();
@@ -66,5 +67,6 @@ export class WeaponComponent extends ECSComponent {
         this.meleeLifeSeconds = 0.12;
         this.meleeForwardOffset = 18;
         this.meleeCanHitMultiple = true;
+        this.meleeDamageOnAnimationEvent = false;
     }
 }

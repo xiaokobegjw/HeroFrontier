@@ -4,6 +4,71 @@
     <dict>
         <key>frames</key>
         <dict>
+            <key>HeroAtk_hurted00.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{318,229},{32,32}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{32,32}}</string>
+                <key>sourceSize</key>
+                <string>{32,32}</string>
+            </dict>
+            <key>HeroAtk_hurted01.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{480,180},{32,32}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{32,32}}</string>
+                <key>sourceSize</key>
+                <string>{32,32}</string>
+            </dict>
+            <key>HeroAtk_hurted02.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{480,147},{32,32}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{32,32}}</string>
+                <key>sourceSize</key>
+                <string>{32,32}</string>
+            </dict>
+            <key>HeroAtk_hurted03.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{480,114},{32,32}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{32,32}}</string>
+                <key>sourceSize</key>
+                <string>{32,32}</string>
+            </dict>
+            <key>HeroAtk_hurted04.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{480,81},{32,32}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{32,32}}</string>
+                <key>sourceSize</key>
+                <string>{32,32}</string>
+            </dict>
             <key>HeroSpellEffect_01.png</key>
             <dict>
                 <key>frame</key>
@@ -306,7 +371,7 @@
             <key>pk_bomb_prepare_04.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{474,192},{36,51}}</string>
+                <string>{{474,213},{36,51}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -521,7 +586,7 @@
             <key>size</key>
             <string>{512,512}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:f555edfd64e4714161dd1797f5c98347:1/1$</string>
+            <string>$TexturePacker:SmartUpdate:6e63110e8d59f71a8a749d1a425f59c3:1/1$</string>
             <key>textureFileName</key>
             <string>HeroUpgradeEffect.png</string>
         </dict>

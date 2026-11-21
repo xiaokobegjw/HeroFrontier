@@ -75,8 +75,8 @@ TexturePacker \
 Projectile/*.png
 
 TexturePacker \
---sheet HeroSkillZFZF.png \
---data HeroSkillZFZF.plist \
+--sheet HeroUpgradeEffect.png \
+--data HeroUpgradeEffect.plist \
 --format cocos2d \
 --max-size 2048 \
 --no-trim \
@@ -86,4 +86,19 @@ TexturePacker \
 --border-padding 0 \
 --shape-padding 1 \
 --pack-mode Best \
-Effects/HeroSkillZFZF/*.png
+Effects/HeroUpgrade/*.png \
+Effects/Attacked/*.png 
+
+TexturePacker \
+--sheet Towers.png \
+--data Towers.plist \
+--format cocos2d \
+--max-size 2048 \
+--no-trim \
+--padding 2 \
+--enable-rotation \
+--algorithm MaxRects \
+--border-padding 0 \
+--shape-padding 1 \
+--pack-mode Best \
+Tower/*.png

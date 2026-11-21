@@ -9,6 +9,7 @@
     "category": "Magic",
     "durationSeconds": 3,
     "tickIntervalSeconds": 0.5,
+    "castRange": 40,
     "circlePrefabPath": "prefabs/HeroSKillSYZR_Circle",
     "circleBaseRadius": 69,
     "firePrefabPath": "prefabs/HeroSkillSYZR_Fire",

@@ -38,6 +38,8 @@ export class WeaponComponent extends ECSComponent {
     public meleeForwardOffset: number = 18;
     public meleeCanHitMultiple: boolean = true;
     public meleeDamageOnAnimationEvent: boolean = false;
+    public hitEffectPrefabPath: string = '';
+    public hitSoundPath: string = '';
 
     reset(): void {
         super.reset();
@@ -68,5 +70,7 @@ export class WeaponComponent extends ECSComponent {
         this.meleeForwardOffset = 18;
         this.meleeCanHitMultiple = true;
         this.meleeDamageOnAnimationEvent = false;
+        this.hitEffectPrefabPath = '';
+        this.hitSoundPath = '';
     }
 }

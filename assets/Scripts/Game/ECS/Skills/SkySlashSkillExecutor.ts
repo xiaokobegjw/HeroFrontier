@@ -8,9 +8,9 @@ import { SpatialIndexSystem } from '../Systems/SpatialIndexSystem';
 import { HealthComponent } from '../Components/HealthComponent';
 import { DefenseComponent } from '../Components/DefenseComponent';
 import { ArmorReductionComponent } from '../Components/ArmorReductionComponent';
-import { ViewComponent } from '../Components/ViewComponent';
 import { LevelComponent } from '../Components/LevelComponent';
 import { ActionSystem } from '../../../Shared/ECS/Systems/ActionSystem';
+import { emitHeroSpellEffectEvent } from '../GameEvents';
 
 export class SkySlashSkillExecutor implements SkillExecutor {
     public readonly id: string = 'Hero_SkySlash';
@@ -32,7 +32,7 @@ export class SkySlashSkillExecutor implements SkillExecutor {
 
         const configAny = ctx.config as any;
         const globalArmorPenCap = Math.max(0, Number(configAny?.globalArmorPenCap ?? 49));
-        const attackRadius = Math.max(0, Number(configAny?.attackRadius ?? 250));
+        const attackRadius = Math.max(0, Number(configAny?.castRange ?? configAny?.attackRadius ?? 250));
         const attackedEffectPath = String(configAny?.attackedEffectPath ?? '');
 
         const spatial = ctx.world.getSystem(SpatialIndexSystem);
@@ -148,46 +148,32 @@ export class SkySlashSkillExecutor implements SkillExecutor {
     }
 
     private createSlashEffect(
-        ctx: SkillExecuteContext,
+        _ctx: SkillExecuteContext,
         casterTr: TransformComponent,
         prefabPath: string,
-        level: number
+        _level: number
     ): void {
         if (!prefabPath) return;
 
-        const effectEntity = ctx.world.createEntity(`SkySlash_Effect_${Date.now()}`);
-
-        const tr = ctx.world.acquireComponent(TransformComponent);
-        // 特效位置在英雄位置
-        tr.x = casterTr.x;
-        tr.y = casterTr.y;
-        effectEntity.addComponent(tr);
-
-        const view = ctx.world.acquireComponent(ViewComponent);
-        view.prefabPath = prefabPath;
-        effectEntity.addComponent(view);
-
-        console.log(`[SkySlash] Created slash effect on hero at (${casterTr.x}, ${casterTr.y})`);
+        // 走独立特效通道，由 ActorViewSystem 按动画时长自动销毁
+        emitHeroSpellEffectEvent({
+            prefabPath,
+            x: casterTr.x,
+            y: casterTr.y
+        });
     }
 
     private createAttackedEffect(
-        ctx: SkillExecuteContext,
+        _ctx: SkillExecuteContext,
         targetTr: TransformComponent,
         effectPath: string
     ): void {
         if (!effectPath) return;
 
-        const effectEntity = ctx.world.createEntity(`SkySlash_Attacked_${Date.now()}`);
-
-        const tr = ctx.world.acquireComponent(TransformComponent);
-        tr.x = targetTr.x;
-        tr.y = targetTr.y;
-        effectEntity.addComponent(tr);
-
-        const view = ctx.world.acquireComponent(ViewComponent);
-        view.prefabPath = effectPath;
-        effectEntity.addComponent(view);
-
-        console.log(`[SkySlash] Created attacked effect on target at (${targetTr.x}, ${targetTr.y})`);
+        emitHeroSpellEffectEvent({
+            prefabPath: effectPath,
+            x: targetTr.x,
+            y: targetTr.y
+        });
     }
 }

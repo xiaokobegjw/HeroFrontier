@@ -72,6 +72,12 @@ export type DropCoinEffectEvent = {
     gold: number;
 };
 
+export type HitEffectEvent = {
+    prefabPath: string;
+    x: number;
+    y: number;
+};
+
 const killEvents: KillEvent[] = [];
 const expEvents: ExpEvent[] = [];
 const deathViewEvents: DeathViewEvent[] = [];
@@ -81,6 +87,7 @@ const heroUpgradeEffectEvents: HeroUpgradeEffectEvent[] = [];
 const heroSpellEffectEvents: HeroSpellEffectEvent[] = [];
 const hitFlashEvents: HitFlashEvent[] = [];
 const dropCoinEffectEvents: DropCoinEffectEvent[] = [];
+const hitEffectEvents: HitEffectEvent[] = [];
 
 export function emitKillEvent(ev: KillEvent): void {
     killEvents.push(ev);
@@ -178,5 +185,16 @@ export function drainDropCoinEffectEvents(): DropCoinEffectEvent[] {
     if (dropCoinEffectEvents.length === 0) return [];
     const out = dropCoinEffectEvents.slice();
     dropCoinEffectEvents.length = 0;
+    return out;
+}
+
+export function emitHitEffectEvent(ev: HitEffectEvent): void {
+    hitEffectEvents.push(ev);
+}
+
+export function drainHitEffectEvents(): HitEffectEvent[] {
+    if (hitEffectEvents.length === 0) return [];
+    const out = hitEffectEvents.slice();
+    hitEffectEvents.length = 0;
     return out;
 }

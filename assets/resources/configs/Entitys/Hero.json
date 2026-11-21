@@ -77,7 +77,7 @@
         },
         {
             "id": "SkillComponent",
-            "skillConfigIds": ["Hero1_Skill1"],
+            "skillConfigIds": ["Hero_BuQuYiZhi"],
             "skillLevels": [1],
             "autoCastEnabled": [true]
         },
@@ -97,7 +97,9 @@
             "meleeLifeSeconds": 0.12,
             "meleeForwardOffset": 22,
             "meleeCanHitMultiple": false,
-            "meleeDamageOnAnimationEvent": true
+            "meleeDamageOnAnimationEvent": true,
+            "hitEffectPrefabPath": "prefabs/HeroAtk_hurted",
+            "hitSoundPath": "sounds/heroAtk_hurted"
         },
         {
             "id": "WeaponStateComponent"

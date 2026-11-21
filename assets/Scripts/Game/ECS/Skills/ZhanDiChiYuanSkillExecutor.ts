@@ -4,7 +4,7 @@ import { TransformComponent } from '../../../Shared/ECS/Components/TransformComp
 import { HealthComponent } from '../Components/HealthComponent';
 import { FactionComponent } from '../Components/FactionComponent';
 import { FactionType } from '../../Data/Faction';
-import { ViewComponent } from '../Components/ViewComponent';
+import { emitHeroSpellEffectEvent } from '../GameEvents';
 
 /**
  * 战地驰援：瞬间为全场所有己方单位恢复生命值，并按等级附加持续回血buff
@@ -99,22 +99,18 @@ export class ZhanDiChiYuanSkillExecutor implements SkillExecutor {
     /**
      * 在单位身上播放回血特效
      */
-    private createHealEffect(ctx: SkillExecuteContext, target: Entity, effectPath: string): void {
+    private createHealEffect(_ctx: SkillExecuteContext, target: Entity, effectPath: string): void {
         if (!effectPath) return;
 
         const targetTransform = target.getComponent(TransformComponent);
         if (!targetTransform) return;
 
-        const effectEntity = ctx.world.createEntity(`ZhanDiChiYuan_Effect_${Date.now()}`);
-
-        const tr = ctx.world.acquireComponent(TransformComponent);
-        tr.x = targetTransform.x;
-        tr.y = targetTransform.y;
-        effectEntity.addComponent(tr);
-
-        const view = ctx.world.acquireComponent(ViewComponent);
-        view.prefabPath = effectPath;
-        effectEntity.addComponent(view);
+        // 走独立特效通道，由 ActorViewSystem 按动画时长自动销毁，避免特效实体残留
+        emitHeroSpellEffectEvent({
+            prefabPath: effectPath,
+            x: targetTransform.x,
+            y: targetTransform.y
+        });
     }
 
     update(_deltaTime: number, _entity: Entity): void {

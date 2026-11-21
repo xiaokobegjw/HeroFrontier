@@ -11,7 +11,8 @@ import { DebugState } from '../../Debug/DebugState';
 import { DefenseComponent } from '../Components/DefenseComponent';
 import { ArmorReductionComponent } from '../Components/ArmorReductionComponent';
 import { LootComponent } from '../Components/LootComponent';
-import { emitDeathViewEvent, emitExpEvent, emitKillEvent, drainProjectileExplodeEvents, emitExplosionEffectEvent, emitHitFlashEvent, emitDropCoinEffectEvent } from '../GameEvents';
+import { emitDeathViewEvent, emitExpEvent, emitKillEvent, drainProjectileExplodeEvents, emitExplosionEffectEvent, emitHitFlashEvent, emitDropCoinEffectEvent, emitHitEffectEvent } from '../GameEvents';
+import { SoundManager } from '../../Managers/SoundManager';
 import { ExperienceRewardComponent } from '../Components/ExperienceRewardComponent';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { ColliderComponent, ColliderShapeType } from '../../../Shared/ECS/Components/ColliderComponent';
@@ -197,7 +198,7 @@ export class DamageSystem extends ECSSystem {
             }
         }
 
-        this.applyDamageToTarget(projectile.ownerId || null, targetEntity, primaryDamage);
+        this.applyDamageToTarget(projectile.ownerId || null, targetEntity, primaryDamage, projectile.hitEffectPrefabPath, projectile.hitSoundPath);
 
         if (splashRadius > 0 && pt) {
             this.applySplashDamage(
@@ -285,7 +286,7 @@ export class DamageSystem extends ECSSystem {
             
             const source = this.getProjectileDamageSource(projectile);
             const damage = this.computeDamage(projectile.beamDamagePerSecond * damageInterval, source, targetEntity);
-            this.applyDamageToTarget(projectile.ownerId || null, targetEntity, damage);
+            this.applyDamageToTarget(projectile.ownerId || null, targetEntity, damage, projectile.hitEffectPrefabPath, projectile.hitSoundPath);
         }
 
         return true;
@@ -393,7 +394,7 @@ export class DamageSystem extends ECSSystem {
         }
     }
 
-    public applyDamageToTarget(killerId: number | null, targetEntity: Entity, appliedDamage: number): void {
+    public applyDamageToTarget(killerId: number | null, targetEntity: Entity, appliedDamage: number, hitEffectPrefabPath: string = '', hitSoundPath: string = ''): void {
         const health = targetEntity.getComponent(HealthComponent);
         if (!health || health.isDead) return;
 
@@ -426,6 +427,18 @@ export class DamageSystem extends ECSSystem {
                 x: tr.x,
                 y: tr.y
             });
+
+            if (hitEffectPrefabPath) {
+                emitHitEffectEvent({
+                    prefabPath: hitEffectPrefabPath,
+                    x: tr.x,
+                    y: tr.y
+                });
+            }
+
+            if (hitSoundPath) {
+                SoundManager.getInstance().playSound(hitSoundPath);
+            }
         }
 
         if (health.isDead) {
@@ -504,7 +517,7 @@ export class DamageSystem extends ECSSystem {
 
         const source = this.getMeleeDamageSource(hitbox);
         const appliedDamage = this.computeDamage(hitbox.damage, source, targetEntity);
-        this.applyDamageToTarget(hitbox.ownerId || null, targetEntity, appliedDamage);
+        this.applyDamageToTarget(hitbox.ownerId || null, targetEntity, appliedDamage, hitbox.hitEffectPrefabPath, hitbox.hitSoundPath);
 
         if (hitbox.hitIntervalSeconds > 0) {
             const idx = hitbox.hitCooldownEntityIds.indexOf(targetEntity.id);

@@ -7,6 +7,7 @@
     "maxLevel": 6,
     "defaultCooldownSeconds": 12,
     "category": "Slash",
+    "castRange": 60,
     "levels": [
         { "level": 1, "cooldownSeconds": 12, "bladeCount": 1, "durationSeconds": 5, "damageCoeff": 0.8, "hitIntervalSeconds": 0.3, "radius": 46, "prefabPath": "prefabs/JRFB_Prefab_Lv1" },
         { "level": 2, "cooldownSeconds": 11, "bladeCount": 1, "durationSeconds": 6, "damageCoeff": 0.9, "hitIntervalSeconds": 0.3, "radius": 54, "prefabPath": "prefabs/JRFB_Prefab_Lv1" },

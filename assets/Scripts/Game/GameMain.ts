@@ -187,6 +187,7 @@ export class GameMain extends Component {
     private playerEntity: Entity | null = null;
     private saveData: SaveData | null = null;
     private isPaused: boolean = false;
+    private gameReady: boolean = false;
     private debugSelectedEntityId: number | null = null;
     private debugLabelNode: Node | null = null;
     private debugLabel: Label | null = null;
@@ -535,7 +536,7 @@ export class GameMain extends Component {
             },
             upgradeSelectedTower: () => this.tryUpgradeSelectedTower(),
             sellSelectedTower: () => this.trySellSelectedTower(),
-            castSkill: (skillIndex: number, targetEntityId: number | null = null, x: number = 0, y: number = 0) => {
+            castSkill: (skillIndex: number, targetEntityId: number | null = null, x: number = Number.NaN, y: number = Number.NaN) => {
                 if (!this.playerEntity) return;
                 this.skillSystem.requestCast(this.playerEntity.id, skillIndex, targetEntityId, x, y);
             },
@@ -568,8 +569,8 @@ export class GameMain extends Component {
             const idx = Math.floor(payload?.skillIndex ?? -1);
             if (idx < 0) return;
             const targetEntityId = payload?.targetEntityId ?? null;
-            const targetX = typeof payload?.targetX === 'number' ? payload!.targetX! : 0;
-            const targetY = typeof payload?.targetY === 'number' ? payload!.targetY! : 0;
+            const targetX = typeof payload?.targetX === 'number' ? payload!.targetX! : Number.NaN;
+            const targetY = typeof payload?.targetY === 'number' ? payload!.targetY! : Number.NaN;
             this.skillSystem.requestCast(this.playerEntity.id, idx, targetEntityId, targetX, targetY);
         };
         this.uiOnHeroLevelUp = (payload?: HeroLevelUpPayload) => {
@@ -755,31 +756,46 @@ export class GameMain extends Component {
         this.saveData = SaveManager.instance.loadOrDefault(defaultSave as SaveData);
 
         // 查找 LoadingScreen 节点并监听加载完成事件
-        const loadingScreenNode = this.node.getChildByName('LoadingNode');
+        const loadingScreenNode = this.getLoadingNode();
         if (loadingScreenNode) {
             const loadingScreen = loadingScreenNode.getComponent(LoadingScreen);
             if (loadingScreen) {
                 console.log('[GameMain] Waiting for loading to complete...');
                 loadingScreenNode.on('loadingComplete', this.onLoadingComplete, this);
+                // 场景中该节点默认未激活，不激活的话 LoadingScreen 的 onLoad/start 不会执行
+                loadingScreenNode.active = true;
                 return;
             }
         }
 
         // 如果没有 LoadingScreen，直接开始游戏
-        this.initGame();
+        void this.initGame();
     }
 
-    private onLoadingComplete() {
+    private async onLoadingComplete() {
         console.log('[GameMain] Loading completed, initializing game...');
-        const loadingScreenNode = this.node.getChildByName('LoadingNode');
+        const loadingScreenNode = this.getLoadingNode();
         if (loadingScreenNode) {
             loadingScreenNode.off('loadingComplete', this.onLoadingComplete, this);
         }
-        this.initGame();
+
+        try {
+            await this.initGame();
+        } finally {
+            // 关卡与角色都就绪后再关闭加载界面
+            if (loadingScreenNode) loadingScreenNode.active = false;
+        }
     }
 
-    private initGame() {
-        this.loadGameConfig();
+    private getLoadingNode(): Node | null {
+        // GameMain 组件挂在 GameMainNode 上，LoadingNode 是它的兄弟节点，不是子节点
+        return this.node.parent?.getChildByName('LoadingNode') ?? this.node.getChildByName('LoadingNode');
+    }
+
+    private async initGame(): Promise<void> {
+        this.gameReady = false;
+
+        await this.loadGameConfig();
         this.world.start();
 
         this.spatialIndex = new QuadTree<{ id: number; bounds: { x: number; y: number; width: number; height: number } }>(
@@ -787,14 +803,23 @@ export class GameMain extends Component {
             { capacity: 8, maxDepth: 8 }
         );
 
-        this.loadLevelAndSpawn('levels/level1').catch(err => console.error('[GameMain] loadLevelAndSpawn failed', err));
+        try {
+            await this.loadLevelAndSpawn('levels/level1');
+        } catch (err) {
+            console.error('[GameMain] loadLevelAndSpawn failed', err);
+        } finally {
+            this.gameReady = true;
+        }
     }
 
-    private loadGameConfig(): void {
-        resources.load('configs/GameConfig', JsonAsset, (err, asset) => {
-            if (!err && asset) {
-                this.gameConfig = (asset as any).json;
-            }
+    private loadGameConfig(): Promise<void> {
+        return new Promise(resolve => {
+            resources.load('configs/GameConfig', JsonAsset, (err, asset) => {
+                if (!err && asset) {
+                    this.gameConfig = (asset as any).json;
+                }
+                resolve();
+            });
         });
     }
 
@@ -1149,6 +1174,9 @@ export class GameMain extends Component {
             this.renderWhilePaused();
             return;
         }
+
+        // 关卡与角色尚未就绪时，不推进世界逻辑，避免空场景里刷怪
+        if (!this.gameReady) return;
 
         this.updateWaveSpawns(deltaTime);
         this.checkGameOver();

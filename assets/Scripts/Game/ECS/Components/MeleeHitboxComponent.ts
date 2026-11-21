@@ -20,6 +20,8 @@ export class MeleeHitboxComponent extends ECSComponent {
     public hitCooldownNextTimes: number[] = [];
     public slowPct: number = 0;
     public slowDurationSeconds: number = 0;
+    public hitEffectPrefabPath: string = '';
+    public hitSoundPath: string = '';
 
     reset(): void {
         super.reset();
@@ -42,5 +44,7 @@ export class MeleeHitboxComponent extends ECSComponent {
         this.hitCooldownNextTimes = [];
         this.slowPct = 0;
         this.slowDurationSeconds = 0;
+        this.hitEffectPrefabPath = '';
+        this.hitSoundPath = '';
     }
 }

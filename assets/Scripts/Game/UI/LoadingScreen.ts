@@ -1,5 +1,5 @@
-import { _decorator, Component, Node, ProgressBar, Label, find } from 'cc';
-import { LocalizationManager, LanguageType } from '../I18n/LocalizationManager';
+import { _decorator, Component, Node, ProgressBar, Label, resources, JsonAsset, Prefab, SpriteFrame, AnimationClip } from 'cc';
+import { LocalizationManager } from '../I18n/LocalizationManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('LoadingScreen')
@@ -50,40 +50,87 @@ export class LoadingScreen extends Component {
 
         try {
             await this.loadResourcesAsync();
-            this.loadingProgress = 1;
-            await this.delay(500);
-            this.onLoadingComplete();
         } catch (error) {
-            console.error('Loading failed:', error);
+            // 预加载失败不阻塞进入游戏，未加载的资源会按需加载
+            console.error('[LoadingScreen] preload failed, fallback to on-demand loading', error);
         }
+
+        this.loadingProgress = 1;
+        await this.delay(200);
+        this.onLoadingComplete();
     }
 
     private async loadResourcesAsync() {
-        const loadSteps = [
-            { name: 'configs', progress: 0.2 },
-            { name: 'prefabs', progress: 0.3 },
-            { name: 'textures', progress: 0.25 },
-            { name: 'animations', progress: 0.15 },
-            { name: 'audio', progress: 0.1 }
+        const steps: Array<{ weight: number; run: (report: (p: number) => void) => Promise<void> }> = [
+            { weight: 0.05, run: p => this.loadConfigs(p) },
+            { weight: 0.25, run: p => this.loadDirAssets('clips', AnimationClip, p) },
+            { weight: 0.45, run: p => this.loadDirAssets('prefabs', Prefab, p) },
+            { weight: 0.1, run: p => this.loadLevels(p) },
+            { weight: 0.15, run: p => this.loadDirAssets('texturePacker', SpriteFrame, p) }
         ];
 
-        for (const step of loadSteps) {
-            await this.simulateLoadStep(step.progress);
+        let completed = 0;
+        for (const step of steps) {
+            try {
+                await step.run(p => {
+                    this.loadingProgress = Math.min(0.99, completed + p * step.weight);
+                });
+            } catch (error) {
+                // 单个目录加载失败不影响后续资源
+                console.warn('[LoadingScreen] preload step failed', error);
+            }
+            completed += step.weight;
         }
     }
 
-    private async simulateLoadStep(progressIncrement: number) {
-        const duration = 800 + Math.random() * 400;
-        const startTime = Date.now();
+    private loadConfigs(report: (p: number) => void): Promise<void> {
+        return this.chain([
+            { weight: 0.2, run: p => this.loadAsset('configs/GameConfig', JsonAsset, p) },
+            { weight: 0.4, run: p => this.loadDirAssets('configs/Skills', JsonAsset, p) },
+            { weight: 0.4, run: p => this.loadDirAssets('configs/Entitys', JsonAsset, p) }
+        ], report);
+    }
 
-        while (Date.now() - startTime < duration) {
-            const elapsed = Date.now() - startTime;
-            const progress = (elapsed / duration) * progressIncrement;
-            this.loadingProgress += progress / 10;
-            await this.delay(50);
+    private loadLevels(report: (p: number) => void): Promise<void> {
+        return this.chain([
+            { weight: 0.5, run: p => this.loadDirAssets('levels', JsonAsset, p) },
+            { weight: 0.5, run: p => this.loadDirAssets('levels', SpriteFrame, p) }
+        ], report);
+    }
+
+    private async chain(
+        steps: Array<{ weight: number; run: (report: (p: number) => void) => Promise<void> }>,
+        report: (p: number) => void
+    ): Promise<void> {
+        let completed = 0;
+        for (const step of steps) {
+            await step.run(p => report(Math.min(0.99, completed + p * step.weight)));
+            completed += step.weight;
         }
+        report(1);
+    }
 
-        this.loadingProgress = Math.min(this.loadingProgress + progressIncrement, 0.99);
+    private loadAsset(path: string, type: any, report: (p: number) => void): Promise<void> {
+        return new Promise(resolve => {
+            resources.load(path, type as any, () => {
+                report(1);
+                resolve();
+            });
+        });
+    }
+
+    private loadDirAssets(path: string, type: any, report: (p: number) => void): Promise<void> {
+        return new Promise(resolve => {
+            resources.loadDir(
+                path,
+                type as any,
+                (finished: number, total: number) => report(total > 0 ? finished / total : 0),
+                (err: Error | null) => {
+                    if (err) console.warn(`[LoadingScreen] loadDir failed: ${path}`, err);
+                    resolve();
+                }
+            );
+        });
     }
 
     private async delay(ms: number): Promise<void> {
@@ -107,11 +154,8 @@ export class LoadingScreen extends Component {
     private onLoadingComplete() {
         this.isLoading = false;
         this.loadingBar.progress = 1;
-        
-        setTimeout(() => {
-            this.loadingNode.active = false;
-            this.onLoadingFinished();
-        }, 300);
+        // 由 GameMain 在关卡与角色就绪后关闭加载界面，避免出现空场景
+        this.onLoadingFinished();
     }
 
     private onLoadingFinished() {

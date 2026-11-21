@@ -267,6 +267,8 @@ export class WeaponSystem extends ECSSystem {
         projectile.finalDamageBonusPct = weapon.finalDamageBonusPct;
         projectile.splashRadius = weapon.projectileSplashRadius;
         projectile.explodePrefabPath = spec?.explodePrefabPath ?? '';
+        projectile.hitEffectPrefabPath = weapon.hitEffectPrefabPath;
+        projectile.hitSoundPath = weapon.hitSoundPath;
         projectile.burnDamagePerSecond = weapon.burnDamagePerSecond;
         projectile.burnDuration = weapon.burnDuration;
         projectile.burnMaxStacks = weapon.burnMaxStacks;
@@ -383,6 +385,8 @@ export class WeaponSystem extends ECSSystem {
         hitbox.canHitMultiple = weapon.meleeCanHitMultiple;
         hitbox.offsetX = dirX * weapon.meleeForwardOffset;
         hitbox.offsetY = dirY * weapon.meleeForwardOffset;
+        hitbox.hitEffectPrefabPath = weapon.hitEffectPrefabPath;
+        hitbox.hitSoundPath = weapon.hitSoundPath;
         entity.addComponent(hitbox);
 
         const factionComp = this.world.acquireComponent(FactionComponent);

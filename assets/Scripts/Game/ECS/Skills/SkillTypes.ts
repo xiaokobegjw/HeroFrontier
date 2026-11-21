@@ -1,5 +1,5 @@
-export type SkillTargetType = 'None' | 'Self' | 'Enemy' | 'Ally' | 'Point' | 'Area';
-export type SkillCastType = 'Active' | 'Passive';
+export type SkillTargetType = 'None' | 'Self' | 'Enemy' | 'Ally' | 'Point' | 'Area' | 'Ground';
+export type SkillCastType = 'Active' | 'Passive' | 'Auto' | 'Directional';
 
 export type SkillLevelConfig = {
     level: number;

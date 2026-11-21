@@ -46,6 +46,8 @@ export class ProjectileComponent extends ECSComponent {
     public isExplosive: boolean = false;
     public explodePrefabPath: string = '';
     public splashDamageCooldown: number = 0;
+    public hitEffectPrefabPath: string = '';
+    public hitSoundPath: string = '';
 
     reset(): void {
         super.reset();
@@ -94,5 +96,7 @@ export class ProjectileComponent extends ECSComponent {
         this.isExplosive = false;
         this.explodePrefabPath = '';
         this.splashDamageCooldown = 0;
+        this.hitEffectPrefabPath = '';
+        this.hitSoundPath = '';
     }
 }

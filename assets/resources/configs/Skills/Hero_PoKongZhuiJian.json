@@ -7,6 +7,7 @@
     "maxLevel": 6,
     "defaultCooldownSeconds": 12,
     "category": "Slash",
+    "castRange": 300,
     "searchRadius": 300,     
     "defaultSpeed": 300,      
     "homingSpeed": 300,       

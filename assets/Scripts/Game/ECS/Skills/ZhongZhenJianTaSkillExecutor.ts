@@ -27,14 +27,17 @@ export class ZhongZhenJianTaSkillExecutor implements SkillExecutor {
         const transform = caster.getComponent(TransformComponent);
         if (!transform) return;
 
-        // 获取目标位置：如果有指定位置则使用指定位置，否则随机选择
+        // 获取目标位置：优先使用传入的目标坐标，没有才随机选择
         let targetX: number, targetY: number;
-            // 随机选择一个方向和距离
-        const angle = Math.random() * Math.PI * 2;  // 0到360度随机角度
-        const distance = component.throwDistance;
-        targetX = transform.x + Math.cos(angle) * distance;
-        targetY = transform.y + Math.sin(angle) * distance;
-        
+        if (Number.isFinite(ctx.targetX) && Number.isFinite(ctx.targetY)) {
+            targetX = ctx.targetX;
+            targetY = ctx.targetY;
+        } else {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = component.throwDistance;
+            targetX = transform.x + Math.cos(angle) * distance;
+            targetY = transform.y + Math.sin(angle) * distance;
+        }
 
         // 使用导航系统检查目标位置是否可移动，如果不可移动则寻找最近的可移动点
         const navSystem = ctx.world.getSystem(FlowFieldNavigationSystem) as FlowFieldNavigationSystem | null;

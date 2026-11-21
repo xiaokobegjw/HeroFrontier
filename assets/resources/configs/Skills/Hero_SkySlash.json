@@ -9,7 +9,7 @@
     "category": "Slash",
     "durationSeconds": 3,
     "globalArmorPenCap": 49,
-    "attackRadius": 30,
+    "castRange": 30,
     "attackedEffectPath": "prefabs/HeroSkillPHLZ_attacked",
     "levels": [
         { "level": 1, "damageCoeff": 1.3, "armorPenPct": 5, "armorPenDuration": 2, "bossBonusPct": 0, "prefabPath": "prefabs/HeroSkillPHLZ_LV1", "cooldownSeconds": 9, "maxTargets": 1 },

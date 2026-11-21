@@ -45,6 +45,7 @@ export class SkillPanelController extends Component {
     private skillSlotIconSprites: (Sprite | null)[] = [];
     private skillSlotLevelSprites: (Sprite | null)[] = [];
     private skillSlotCdSprites: (Sprite | null)[] = [];
+    private boundSkillSlotNodes: Set<Node> = new Set();
 
     private cardSelectNode: Node | null = null;
     private splashNode: Node | null = null;
@@ -175,7 +176,19 @@ export class SkillPanelController extends Component {
                 cdSprite.node.active = false;
             }
             this.skillSlotCdSprites[i - 1] = cdSprite;
+
+            // 点击技能图标手动释放
+            if (!this.boundSkillSlotNodes.has(slot)) {
+                this.boundSkillSlotNodes.add(slot);
+                const btn = slot.getComponent(Button) ?? slot.addComponent(Button);
+                btn.transition = Button.Transition.NONE;
+                slot.on(Button.EventType.CLICK, () => this.onSkillSlotClicked(i - 1), this);
+            }
         }
+    }
+
+    private onSkillSlotClicked(index: number): void {
+        UIEventBus.emit(UIEvents.RequestCastSkill, { skillIndex: index });
     }
 
 

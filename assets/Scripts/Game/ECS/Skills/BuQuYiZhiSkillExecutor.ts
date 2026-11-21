@@ -15,11 +15,7 @@ export class BuQuYiZhiSkillExecutor implements SkillExecutor {
             caster.addComponent(component);
         }
         
-        // 如果已初始化，跳过（被动技能只需初始化一次）
-        if (component.isInitialized) {
-            return;
-        }
-
+        // 升级时会再次调用，updateFromConfig 是幂等的，直接刷新数值
         const cfgAny = ctx.levelConfig as any;
         component.updateFromConfig(cfgAny);
     }

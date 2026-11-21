@@ -7,6 +7,7 @@
     "maxLevel": 6,
     "defaultCooldownSeconds": 15,
     "category": "Slash",
+    "castRange": 40,
     "levels": [
         { "level": 1, "cooldownSeconds": 15, "damageCoeff": 0.6, "stunSeconds": 2, "radius": 30, "prefabPath": "prefabs/HeroSkillLHZZLV1" },
         { "level": 2, "cooldownSeconds": 14, "damageCoeff": 0.8, "stunSeconds": 2.5, "radius": 35, "prefabPath": "prefabs/HeroSkillLHZZLV1" },

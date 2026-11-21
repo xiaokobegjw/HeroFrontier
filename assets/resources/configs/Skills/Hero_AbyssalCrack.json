@@ -9,6 +9,7 @@
     "missileSpeed": 200,
     "parabolaHeight": 150,
     "category": "Magic",
+    "castRange": 500,
     "levels": [
         { "level": 1, "missileCount": 1, "damageCoeff": 1.0, "explosionRadius": 20, "missilePrefab": "prefabs/HeroSkillSYLB_missile_LV1", "explosionPrefab": "prefabs/HeroSkillSYLB_exp_LV1", "cooldownSeconds": 4 },
         { "level": 2, "missileCount": 1, "damageCoeff": 1.3, "explosionRadius": 25, "missilePrefab": "prefabs/HeroSkillSYLB_missile_LV1", "explosionPrefab": "prefabs/HeroSkillSYLB_exp_LV1", "cooldownSeconds": 4 },

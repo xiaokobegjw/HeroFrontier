@@ -1,4 +1,4 @@
-import { SkillExecuteContext, SkillExecutor } from '../SkillExecutor';
+import { SkillExecuteContext, SkillExecutor } from './SkillExecutor';
 import { Entity } from '../../../Shared/ECS/Core/Entity';
 import { TransformComponent } from '../../../Shared/ECS/Components/TransformComponent';
 import { AbyssalCrackMissileComponent } from '../Components/AbyssalCrackMissileComponent';
@@ -6,6 +6,7 @@ import { ViewComponent } from '../Components/ViewComponent';
 import { SpatialIndexSystem } from '../Systems/SpatialIndexSystem';
 import { FactionType } from '../../Data/Faction';
 import { HealthComponent } from '../Components/HealthComponent';
+import { WeaponComponent } from '../Components/WeaponComponent';
 
 export class AbyssalCrackSkillExecutor implements SkillExecutor {
     public readonly id: string = 'Hero_AbyssalCrack';
@@ -22,7 +23,7 @@ export class AbyssalCrackSkillExecutor implements SkillExecutor {
         if (!casterTr) return;
 
         const cfgAny = ctx.levelConfig as any;
-        const configAny = ctx.skillConfig as any;
+        const configAny = ctx.config as any;
 
         const missileCount = Math.max(1, Number(cfgAny?.missileCount ?? 1));
         const damageCoeff = Math.max(0, Number(cfgAny?.damageCoeff ?? 1.0));
@@ -32,7 +33,7 @@ export class AbyssalCrackSkillExecutor implements SkillExecutor {
         const missileSpeed = Math.max(100, Number(configAny?.missileSpeed ?? 400));
         const parabolaHeight = Math.max(50, Number(configAny?.parabolaHeight ?? 150));
 
-        const weapon = ctx.weapon;
+        const weapon = caster.getComponent(WeaponComponent);
         const baseDamage = weapon ? weapon.damage : 100;
         const damage = Math.floor(baseDamage * damageCoeff);
 
@@ -115,7 +116,6 @@ export class AbyssalCrackSkillExecutor implements SkillExecutor {
         if (missilePrefab) {
             const view = new ViewComponent();
             view.prefabPath = missilePrefab;
-            view.parentNodeName = 'effectRootNode';
             missileEntity.addComponent(view);
         }
     }

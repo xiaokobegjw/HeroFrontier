@@ -8,6 +8,7 @@
     "targetType": "Ground",
     "maxLevel": 6,
     "defaultCooldownSeconds": 6,
+    "castRange": 180,
     "category": "Mage",
     "levels": [
         { "level": 1, "cooldownSeconds": 6, "maxSwampCount": 1, "duration": 3, "damageInterval": 0.5, "damagePerSecondPct": 0.30, "radius": 30, "throwDistance": 150, "bulletPrefab": "prefabs/HeroSkillZZJT_Bullet", "swampPrefab": "prefabs/HeroSkillZZJT_Poison", "hitEffect": "prefabs/HeroSkillZZJT_Attacked" },

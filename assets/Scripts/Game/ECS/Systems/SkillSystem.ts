@@ -26,6 +26,8 @@ import { BiLeiShouHuSkillExecutor } from '../Skills/BiLeiShouHuSkillExecutor';
 import { ZhanShuZengFuSkillExecutor } from '../Skills/ZhanShuZengFuSkillExecutor';
 import type { SkillCastType, SkillConfig, SkillLevelConfig, SkillTargetType } from '../Skills/SkillTypes';
 import { emitHeroSpellEffectEvent } from '../GameEvents';
+import { FactionComponent } from '../Components/FactionComponent';
+import { SpatialIndexSystem } from './SpatialIndexSystem';
 
 export type { SkillTargetType, SkillCastType, SkillLevelConfig, SkillConfig };
 
@@ -34,6 +36,8 @@ export class SkillSystem extends ECSSystem {
     private configs: Record<string, SkillConfig>;
     private executors: Map<string, SkillExecutor> = new Map();
     private defaultExecutor: SkillExecutor;
+    private waitingLogKeys: Set<string> = new Set();
+    private appliedPassiveKeys: Set<string> = new Set();
 
     constructor(world: World, configs: Record<string, SkillConfig>, priority: number = 6.4) {
         super('SkillSystem', priority);
@@ -224,14 +228,22 @@ export class SkillSystem extends ECSSystem {
         if (state.requestedSkillIndex !== -1) return;
 
         for (let i = 0; i < skill.skillConfigIds.length; i++) {
-            if (!skill.autoCastEnabled[i]) continue;
-            if ((state.skillCooldownRemaining[i] ?? 0) > 0) continue;
-
             const configId = skill.skillConfigIds[i] ?? '';
             if (!configId) continue;
-            
+
             const cfg = this.configs[configId];
             if (!cfg) continue;
+
+            const level = Math.max(1, Math.floor(skill.skillLevels[i] ?? 1));
+
+            // 被动技能不走自动释放流程，否则冷却为0时会每帧占用唯一的释放名额
+            if (cfg.castType === 'Passive') {
+                this.applyPassiveOnce(entity, configId, cfg, level);
+                continue;
+            }
+
+            if (!skill.autoCastEnabled[i]) continue;
+            if ((state.skillCooldownRemaining[i] ?? 0) > 0) continue;
 
             const tt = (cfg.targetType ?? 'Self') as SkillTargetType;
             const target = entity.getComponent(TargetComponent);
@@ -240,17 +252,58 @@ export class SkillSystem extends ECSSystem {
             let targetX: number = Number.NaN;
             let targetY: number = Number.NaN;
 
+            const castRange = Math.max(0, Number((cfg as any).castRange ?? 0));
+
             if (tt === 'Enemy' || tt === 'Ally') {
                 targetEntityId = target?.targetEntityId ?? null;
-                if (targetEntityId === null) continue;
-            } else if (tt === 'Point' || tt === 'Area') {
+
+                // 敌方技能必须有锁定目标；友方增益为全场生效，不强制锁定
+                if (tt === 'Enemy') {
+                    if (targetEntityId === null) continue;
+
+                    // 有施法距离的技能：范围内没有敌人时保持就绪，避免空放并浪费冷却
+                    if (castRange > 0 && !this.hasOpponentInRange(entity, castRange)) {
+                        this.noteWaiting(entity, i, configId);
+                        continue;
+                    }
+                }
+
+                // 同时提供目标坐标，供旋风裂击等需要方向的技能使用
+                if (targetEntityId !== null) {
+                    const targetEntity = this.world.getEntity(targetEntityId);
+                    const targetTr = targetEntity?.getComponent(TransformComponent);
+                    if (targetTr) {
+                        targetX = targetTr.x;
+                        targetY = targetTr.y;
+                    }
+                }
+            } else if (tt === 'Point' || tt === 'Area' || tt === 'Ground') {
                 const x = target?.targetX ?? Number.NaN;
                 const y = target?.targetY ?? Number.NaN;
                 if (Number.isFinite(x) && Number.isFinite(y)) {
                     targetX = x;
                     targetY = y;
+                } else if (typeof target?.targetEntityId === 'number') {
+                    const targetEntity = this.world.getEntity(target.targetEntityId);
+                    const targetTr = targetEntity?.getComponent(TransformComponent);
+                    if (targetTr) {
+                        targetX = targetTr.x;
+                        targetY = targetTr.y;
+                    }
+                }
+
+                // 地面技能同样需要范围内有敌人，避免朝空地释放
+                if (castRange > 0 && !this.hasOpponentInRange(entity, castRange)) {
+                    this.noteWaiting(entity, i, configId);
+                    continue;
                 }
             } else if (tt === 'Self') {
+                // 自身AOE技能：范围内没有敌人时保持就绪
+                if (castRange > 0 && !this.hasOpponentInRange(entity, castRange)) {
+                    this.noteWaiting(entity, i, configId);
+                    continue;
+                }
+
                 // Self类型使用自己作为目标
                 const transform = entity.getComponent(TransformComponent);
                 if (transform) {
@@ -259,9 +312,53 @@ export class SkillSystem extends ECSSystem {
                 }
             }
 
+            this.waitingLogKeys.delete(`${entity.id}:${i}:${configId}`);
             this.requestCast(entity.id, i, targetEntityId, targetX, targetY);
             break;
         }
+    }
+
+    private applyPassiveOnce(entity: Entity, configId: string, config: SkillConfig, level: number): void {
+        const key = `${entity.id}:${configId}:${level}`;
+        if (this.appliedPassiveKeys.has(key)) return;
+        this.appliedPassiveKeys.add(key);
+        this.executeSkill(entity, configId, config, level, null, 0, 0);
+    }
+
+    private noteWaiting(entity: Entity, index: number, configId: string): void {
+        const key = `${entity.id}:${index}:${configId}`;
+        if (this.waitingLogKeys.has(key)) return;
+        this.waitingLogKeys.add(key);
+        console.log(`[SkillSystem] ${configId} ready, waiting for enemies in range`);
+    }
+
+    private hasOpponentInRange(entity: Entity, radius: number): boolean {
+        if (radius <= 0) return false;
+
+        const casterTr = entity.getComponent(TransformComponent);
+        const faction = entity.getComponent(FactionComponent);
+        const spatial = this.world.getSystem(SpatialIndexSystem);
+        if (!casterTr || !faction || !spatial) return false;
+
+        const ids = spatial.queryOpponents(faction.faction, {
+            x: casterTr.x - radius,
+            y: casterTr.y - radius,
+            width: radius * 2,
+            height: radius * 2
+        });
+
+        for (const id of ids) {
+            const other = this.world.getEntity(id);
+            if (!other || !other.active) continue;
+            const otherTr = other.getComponent(TransformComponent);
+            if (!otherTr) continue;
+
+            const dx = otherTr.x - casterTr.x;
+            const dy = otherTr.y - casterTr.y;
+            if (dx * dx + dy * dy <= radius * radius) return true;
+        }
+
+        return false;
     }
 
     private processRequestedCast(entity: Entity, skill: SkillComponent, state: SkillStateComponent): void {
@@ -286,7 +383,27 @@ export class SkillSystem extends ECSSystem {
             return;
         }
 
-        this.executeSkill(entity, configId, config, level, state.requestedTargetEntityId, state.requestedTargetX, state.requestedTargetY);
+        let targetEntityId = state.requestedTargetEntityId;
+        let targetX = state.requestedTargetX;
+        let targetY = state.requestedTargetY;
+
+        // 手动释放未指定目标时，回退到当前锁定目标，避免朝 (0,0) 释放
+        if (targetEntityId === null && Number.isNaN(targetX) && Number.isNaN(targetY)) {
+            const target = entity.getComponent(TargetComponent);
+            targetEntityId = target?.targetEntityId ?? null;
+            if (targetEntityId !== null) {
+                const targetTr = this.world.getEntity(targetEntityId)?.getComponent(TransformComponent);
+                if (targetTr) {
+                    targetX = targetTr.x;
+                    targetY = targetTr.y;
+                }
+            } else if (Number.isFinite(target?.targetX) && Number.isFinite(target?.targetY)) {
+                targetX = target!.targetX!;
+                targetY = target!.targetY!;
+            }
+        }
+
+        this.executeSkill(entity, configId, config, level, targetEntityId, targetX, targetY);
         state.skillCooldownRemaining[requestedIndex] = cooldown;
         state.requestedSkillIndex = -1;
         state.requestedTargetEntityId = null;

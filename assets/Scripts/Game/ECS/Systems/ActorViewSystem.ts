@@ -9,7 +9,8 @@ import { ViewComponent } from '../Components/ViewComponent';
 import { WeaponStateComponent } from '../Components/WeaponStateComponent';
 import { HealthComponent } from '../Components/HealthComponent';
 import { TargetComponent } from '../Components/TargetComponent';
-import { DeathViewEvent, drainDeathViewEvents, ExplosionEffectEvent, drainExplosionEffectEvents, HeroUpgradeEffectEvent, drainHeroUpgradeEffectEvents, HeroSpellEffectEvent, drainHeroSpellEffectEvents, HitFlashEvent, drainHitFlashEvents, DropCoinEffectEvent, drainDropCoinEffectEvents } from '../GameEvents';
+import { DeathViewEvent, drainDeathViewEvents, ExplosionEffectEvent, drainExplosionEffectEvents, HeroUpgradeEffectEvent, drainHeroUpgradeEffectEvents, HeroSpellEffectEvent, drainHeroSpellEffectEvents, HitFlashEvent, drainHitFlashEvents, DropCoinEffectEvent, drainDropCoinEffectEvents, HitEffectEvent, drainHitEffectEvents } from '../GameEvents';
+import { SoundManager } from '../../Managers/SoundManager';
 import { LevelComponent } from '../Components/LevelComponent';
 import { ProjectileComponent } from '../Components/ProjectileComponent';
 import { ProjectileSpecComponent } from '../Components/ProjectileSpecComponent';
@@ -82,6 +83,7 @@ export class ActorViewSystem extends ECSSystem {
         this.updateExplosionEffects(deltaTime);
         this.processHitFlashEvents();
         this.processDropCoinEvents();
+        this.processHitEffectEvents();
         const alive = new Set<number>();
 
         for (const entity of entities) {
@@ -907,6 +909,8 @@ export class ActorViewSystem extends ECSSystem {
         node.setPosition(ev.x, ev.y, 0);
         this.applySpriteVisibleToNode(node, this.spriteVisible);
 
+        SoundManager.getInstance().playSound('sounds/getCoin');
+
         console.log("根节点所有一级子节点：", node.children.map(n => n.name));
         
         const aniNode = node.getChildByName('aniNode');
@@ -949,6 +953,28 @@ export class ActorViewSystem extends ECSSystem {
 
         let ttl = 2;
         const animation = aniNode.getComponent(Animation);
+        if (animation && animation.defaultClip) {
+            ttl = Math.max(0.2, animation.defaultClip.duration || ttl);
+            animation.play();
+        }
+
+        this.explosionEffects.push({ node, ttl });
+    }
+
+    private processHitEffectEvents(): void {
+        for (const ev of drainHitEffectEvents()) {
+            this.spawnHitEffect(ev);
+        }
+    }
+
+    private async spawnHitEffect(ev: HitEffectEvent): Promise<void> {
+        const node = await this.instantiateDetachedNode(ev.prefabPath, 'HitEffect');
+        this.effectRoot.addChild(node);
+        node.setPosition(ev.x, ev.y, 0);
+        this.applySpriteVisibleToNode(node, this.spriteVisible);
+
+        let ttl = 1;
+        const animation = node.getComponent(Animation);
         if (animation && animation.defaultClip) {
             ttl = Math.max(0.2, animation.defaultClip.duration || ttl);
             animation.play();
